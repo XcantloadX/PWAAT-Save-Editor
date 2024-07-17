@@ -1,0 +1,28 @@
+{
+    "configurations": [
+        {
+            "name": "Python Debugger: Python File",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}"
+        },
+        {
+            "name": "Run: struct",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "app.structs.structs"
+        },
+        {
+            "name": "Run: unpack.text_unpacker",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "app.unpack.text_unpacker"
+        },
+        {
+            "name": "Run: editor",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "app.editor.save_editor"
+        },
+    ]
+}

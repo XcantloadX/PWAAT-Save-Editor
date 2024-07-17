@@ -91,7 +91,7 @@ def copy_ctypes_to_struct(ctype_ins: ctypes.Structure, t: Type[T]) -> T:
     if is_primitive(t):
         return ctype_ins # type: ignore
     elif is_fixed_string(t):
-        return ctype_ins # type: ignore
+        return ctype_ins.decode('utf-8') # type: ignore
     elif is_fixed_array(t):
         elem_type = get_args(t)[0]
         return [copy_ctypes_to_struct(e, elem_type) for e in ctype_ins] # type: ignore

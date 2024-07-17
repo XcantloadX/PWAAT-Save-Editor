@@ -25,7 +25,11 @@ class SaveData(Struct):
     """存档时间。`YYYY/MM/DD\\nHH:MM:SS`"""
     
     title: ushort
+    """TextDataCtrl.TitleTextID.TITLE_NAME"""
+    
     scenario: ushort
+    """"""
+    
     progress: ushort
     in_data: ushort
 
