@@ -42,10 +42,12 @@ if __name__ == '__main__':
             sys._MEIPASS + '/ui/index.html' # type: ignore
         ]
         url = next(filter(os.path.exists, paths))
+        url = os.path.abspath(url)
+    print(url)
     js_api = JsApi()
     window = webview.create_window(
         '逆转裁判 123 存档修改器',
-        'http://localhost:5173/',
+        url,
         js_api=js_api,
         # frameless=True,
         # easy_drag=True,
