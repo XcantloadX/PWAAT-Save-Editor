@@ -17,7 +17,10 @@ class SystemData(Struct):
 @dataclass(init=False)
 class SaveSlotData(Struct):
     save_data_: FixedArray['SaveData', Literal[100]]
-    """存档数据"""
+    """
+    存档数据
+    TODO 100 个存档位。游戏内可见存档槽位的开始位置似乎与游戏语言有关。
+    """
 
 @dataclass(init=False)
 class SaveData(Struct):

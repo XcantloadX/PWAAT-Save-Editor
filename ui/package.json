@@ -1,0 +1,22 @@
+{
+  "name": "vue-project",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@fluentui/web-components": "^3.0.0-beta.44",
+    "vue": "^3.4.29",
+    "vuetify": "^3.6.13"
+  },
+  "devDependencies": {
+    "@mdi/font": "^7.4.47",
+    "@vitejs/plugin-vue": "^5.0.5",
+    "@vitejs/plugin-vue-jsx": "^4.0.0",
+    "vite": "^5.3.1"
+  }
+}

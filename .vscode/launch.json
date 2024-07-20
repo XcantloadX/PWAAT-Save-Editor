@@ -24,5 +24,12 @@
             "request": "launch",
             "module": "app.editor.save_editor"
         },
+        {
+            "name": "Entry (Debug Mode)",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "app.entry",
+            "args": [ "--debug" ]
+        },
     ]
 }
