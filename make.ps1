@@ -14,3 +14,14 @@ cd ..
 	--noconfirm `
     --name "PWAAT Save Editor" `
 	app\entry.py
+
+$bat = @"
+@echo off
+"PWAAT Save Editor.exe"
+pause
+"@
+Out-File -FilePath ".\dist\PWAAT Save Editor\DEBUG.bat" -InputObject $bat -Encoding ascii
+
+# zip
+$datetime = Get-Date -Format "yyyy-MM-dd_HH-mm-ss"
+Compress-Archive -Force -Path  ".\dist\PWAAT Save Editor" -DestinationPath ".\dist\PWAAT_Save_Editor_$datetime.zip"
