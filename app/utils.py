@@ -29,7 +29,7 @@ def find_save_path() -> str|None:
         return None
     steam_path = guesses[0]
     # C:\Program Files (x86)\Steam\userdata\1082712526\787480\remote
-    user_path = os.path.join(steam_path, 'userdata', '1082712526', '787480', 'remote')
+    user_path = os.path.join(steam_path, 'userdata', '1082712526', '787480', 'remote', 'systemdata')
     if os.path.exists(user_path):
         return user_path
     return None

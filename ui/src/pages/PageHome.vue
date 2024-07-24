@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue';
-import globalApp from '@/state';
+import globalApp from '../globalApp';
 
 const showExportSystemDialog = ref(false);
 const showSuccessDialog = ref(false);

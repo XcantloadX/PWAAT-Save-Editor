@@ -1,10 +1,12 @@
 <script setup>
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import PagePreview from './pages/PagePreview.vue';
 import PageHome from './pages/PageHome.vue';
-import globalApp from './state';
+import MessageBox from './components/MessageBox.vue';
+import globalApp, { findGamePath, findSavePath, dirname, open_file_dialog } from './globalApp';
 
 const slots = ref([]);
+const messageBox = ref(null);
 
 const showSideBar = ref(false);
 const currentPage = ref('home');
@@ -17,6 +19,30 @@ function goto(page) {
   currentPage.value = page;
   showSideBar.value = false;
 }
+window.addEventListener('pywebviewready', async function() {
+  console.log('App mounted');
+  let savePath = await findSavePath();
+  let gamePath = await findGamePath();
+  if (!savePath) {
+    await messageBox.value.show('错误', '未找到存档路径，请手动选择存档文件（systemdata 文件）。', 'ok');
+    let paths = await open_file_dialog();
+    if (!paths) {
+      await messageBox.value.show('错误', '未选择存档文件，无法继续。', 'ok');
+    }
+    savePath = paths[0];
+  }
+  if (!gamePath) {
+    await messageBox.value.show('错误', '未找到游戏路径，请手动选择游戏文件（PWAAT.exe 文件）。', 'ok');
+    let paths = await open_file_dialog();
+    console.log(paths);
+    if (!paths) {
+      await messageBox.value.show('错误', '未选择游戏文件，无法继续。', 'ok');
+    }
+    gamePath = paths[0];
+    gamePath = await dirname(gamePath);
+  }
+  window.pywebview.api.init(gamePath, savePath);
+});
 </script>
 
 <template>
@@ -46,6 +72,7 @@ function goto(page) {
     </v-main>
   </v-app>
 
+  <MessageBox ref="messageBox" />
 </template>
 
 <style>

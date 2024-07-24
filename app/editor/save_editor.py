@@ -7,6 +7,9 @@ from app.structs.structs import SystemData
 from app.deserializer.types import Int32
 from app.unpack import TextUnpacker, TitleTextID, SaveTextID, Language
 
+from logging import getLogger
+logger = getLogger(__name__)
+
 class TitleId(IntEnum):
     GS1 = 0
     GS2 = 1
@@ -23,21 +26,29 @@ class SaveEditor:
     def __init__(
         self,
         game_path: str|None = None,
+        default_save_path: str|None = None,
         language: Language = 'en'
     ) -> None:
         game_path = game_path or find_game_path()
         if not game_path:
-            raise FileNotFoundError('Could not find game path')
+            # raise FileNotFoundError('Could not find game path')
+            logger.warning('Could not find game path')
         self.game_path = game_path
-        default_save_path = find_save_path()
+        default_save_path = default_save_path or find_save_path()
         if not default_save_path:
-            raise FileNotFoundError('Could not find default save path')
+            # raise FileNotFoundError('Could not find default save path')
+            logger.warning('Could not find default save path')
         self.default_save_path = default_save_path
         
         self.__save_path: str|None = None
         
         self.__system_data: SystemData|None = None
-        self.__text_unpacker = TextUnpacker(game_path, language)
+        self.__language: Language  = language
+        self.__text_unpacker = None
+        
+        
+    def init(self):
+        self.__text_unpacker = TextUnpacker(self.game_path, self.__language)
 
     def get_save_path(self) -> str|None:
         return self.__save_path
@@ -47,14 +58,14 @@ class SaveEditor:
         加载存档数据
         :param save_file_path: 存档文件路径，默认为系统存档。
         """
-        self.__save_path = save_file_path or os.path.join(self.default_save_path, 'systemdata')
+        self.__save_path = save_file_path or self.default_save_path
         with open(self.__save_path, 'rb') as f:
             self.__system_data = SystemData.from_bytes(f.read())
             
     def save(self, save_file_path: str|None = None):
         assert self.__system_data is not None, 'No data loaded'
         if not save_file_path:
-            save_file_path = os.path.join(self.default_save_path, 'systemdata')
+            save_file_path = self.default_save_path
         with open(save_file_path, 'wb') as f:
             f.write(self.__system_data.to_bytes())
     

@@ -3,6 +3,7 @@ import sys
 from dataclasses import asdict
 
 from app.editor.save_editor import SaveEditor
+from app.utils import find_game_path, find_save_path
 
 import webview
 
@@ -13,11 +14,18 @@ class JsApi:
     def __init__(self) -> None:
         self.editor = SaveEditor(language='hans')
         self.__window = None
+        self.path = os.path
+        
+    def init(self, game_path: str, save_path: str):
+        self.editor.default_save_path = save_path
+        self.editor.game_path = game_path
+        self.editor.init()
     
     def set_window(self, window: webview.Window):
         self.__window = window
     
     def get_slots(self):
+        assert self.editor, 'Editor not initialized'
         return [asdict(e) for e in self.editor.get_slots()]
     
     def open_file_dialog(self):
@@ -31,6 +39,15 @@ class JsApi:
         return self.__window.create_file_dialog(
             webview.SAVE_DIALOG,
         )
+        
+    def find_game_path(self):
+        return find_game_path()
+    
+    def find_save_path(self):
+        return find_save_path()
+    
+    def dirname(self, path: str):
+        return os.path.dirname(path)
 
 
 if __name__ == '__main__':

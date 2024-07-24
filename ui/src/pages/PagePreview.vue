@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue';
 import SaveSolt from '../components/SaveSolt.vue';
-import globalApp from '@/state';
+import globalApp from '@/globalApp';
 
 const slots = ref(globalApp.currentSave.slots);
 

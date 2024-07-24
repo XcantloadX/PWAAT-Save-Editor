@@ -26,4 +26,25 @@ const globalApp = reactive({
     },
 });
 
+async function findSavePath() {
+    return await pywebview.api.find_save_path();
+}
+
+async function findGamePath() {
+    return await pywebview.api.find_game_path();
+}
+
+export async function open_file_dialog() {
+    return await pywebview.api.open_file_dialog();
+}
+
+export async function save_file_dialog() {
+    return await pywebview.api.save_file_dialog();
+}
+
+export async function dirname(path) {
+    return await pywebview.api.dirname(path);
+}
+
 export default globalApp;
+export { findSavePath, findGamePath };
