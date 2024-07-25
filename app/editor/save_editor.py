@@ -1,10 +1,11 @@
 import os
 from dataclasses import dataclass
 from enum import IntEnum
+from ctypes import Structure
 
 from app.utils import find_game_path, find_save_path
-from app.structs.structs import SystemData
-from app.deserializer.types import Int32
+from app.structs.structs import PresideData
+from app.deserializer.types import Int32, Int16
 from app.unpack import TextUnpacker, TitleTextID, SaveTextID, Language
 
 from logging import getLogger
@@ -31,24 +32,25 @@ class SaveEditor:
     ) -> None:
         game_path = game_path or find_game_path()
         if not game_path:
-            # raise FileNotFoundError('Could not find game path')
-            logger.warning('Could not find game path')
+            raise FileNotFoundError('Could not find game path')
+            # logger.warning('Could not find game path')
         self.game_path = game_path
         default_save_path = default_save_path or find_save_path()
         if not default_save_path:
-            # raise FileNotFoundError('Could not find default save path')
-            logger.warning('Could not find default save path')
+            raise FileNotFoundError('Could not find default save path')
+            # logger.warning('Could not find default save path')
         self.default_save_path = default_save_path
         
         self.__save_path: str|None = None
         
-        self.__system_data: SystemData|None = None
+        self.__preside_data: PresideData|None = None
         self.__language: Language  = language
-        self.__text_unpacker = None
+        # self.__text_unpacker = None
+        self.__text_unpacker = TextUnpacker(self.game_path, self.__language)
         
         
     def init(self):
-        self.__text_unpacker = TextUnpacker(self.game_path, self.__language)
+        pass
 
     def get_save_path(self) -> str|None:
         return self.__save_path
@@ -60,34 +62,34 @@ class SaveEditor:
         """
         self.__save_path = save_file_path or self.default_save_path
         with open(self.__save_path, 'rb') as f:
-            self.__system_data = SystemData.from_bytes(f.read())
+            self.__preside_data = PresideData.from_bytes(f.read())
             
     def save(self, save_file_path: str|None = None):
-        assert self.__system_data is not None, 'No data loaded'
+        assert self.__preside_data is not None, 'No data loaded'
         if not save_file_path:
             save_file_path = self.default_save_path
         with open(save_file_path, 'wb') as f:
-            f.write(self.__system_data.to_bytes())
+            f.write(PresideData.to_bytes(self.__preside_data))
     
     def set_account_id(self, account_id: int):
         """
         设置存档数据中保存的 Steam 账号 ID
         """
-        assert self.__system_data is not None, 'No data loaded'
-        self.__system_data.reserve_work_.reserve[1] = Int32(account_id)
+        assert self.__preside_data is not None, 'No data loaded'
+        self.__preside_data.system_data_.reserve_work_.reserve[1] = Int32(account_id)
         
     def get_account_id(self) -> int:
         """
         获取存档数据中保存的 Steam 账号 ID
         """
-        assert self.__system_data is not None, 'No data loaded'
-        return self.__system_data.reserve_work_.reserve[1]
+        assert self.__preside_data is not None, 'No data loaded'
+        return self.__preside_data.system_data_.reserve_work_.reserve[1]
     
     def set_account_id_from_system(self):
         """
         从系统存档中获取 Steam 账号 ID 并设置到当前存档中
         """
-        assert self.__system_data is not None, 'No data loaded'
+        assert self.__preside_data is not None, 'No data loaded'
         se = SaveEditor()
         se.load()
         self.set_account_id(se.get_account_id())
@@ -97,11 +99,11 @@ class SaveEditor:
         """
         获取所有存档槽位的信息
         """
-        assert self.__system_data is not None, 'No data loaded'
+        assert self.__preside_data is not None, 'No data loaded'
         slots = []
         # TODO 存档槽位的开始位置似乎与游戏语言有关
         for i in range(50, 60):
-            slot = self.__system_data.slot_data_.save_data_[i]
+            slot = self.__preside_data.system_data_.slot_data_.save_data_[i]
             time = str(slot.time)
             title = TitleId(slot.title)
             scenario = int(slot.scenario)
@@ -171,6 +173,33 @@ class SaveEditor:
                 scenario=scenario,
             ))
         return slots
+    
+    def set_court_hp(self, slot_number: int, hp: int):
+        """
+        设置法庭日血量值。
+        :param slot_number: 游戏内存档槽位号，范围 [0, 9]
+        :param hp: 血量值，范围 [0, 80]
+        """
+        assert self.__preside_data is not None, 'No data loaded'
+        slot_number = self.get_real_slot_number(slot_number)
+        self.__preside_data.slot_list_[slot_number].global_work_.gauge_hp = Int16(hp)
+        self.__preside_data.slot_list_[slot_number].global_work_.gauge_hp_disp = Int16(hp)
+
+    def get_court_hp(self, slot_number: int) -> int:
+        """
+        获取法庭日血量值。
+        :param slot_number: 游戏内存档槽位号，范围 [0, 9]
+        """
+        assert self.__preside_data is not None, 'No data loaded'
+        slot_number = self.get_real_slot_number(slot_number)
+        return self.__preside_data.slot_list_[slot_number].global_work_.gauge_hp
+    
+    def get_real_slot_number(self, slot_number: int) -> int:
+        """
+        获取实际存档槽位号
+        """
+        assert self.__preside_data is not None, 'No data loaded'
+        return slot_number + 50
 
 if __name__ == '__main__':
     from pprint import pprint
