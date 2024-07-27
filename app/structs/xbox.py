@@ -84,8 +84,20 @@ class MessageDataXbox(Struct):
     
 if __name__ == '__main__':
     import app.editor.locator as locator
+    from .conventor import steam2xbox
+    # print(PresideDataXbox().size())
+    # with open(r"C:\Program Files (x86)\Steam\userdata\1082712526\787480\remote\systemdata.3rd", 'rb') as f:
+    #     sv_steam = PresideData.from_bytes(f.read())
+    # sv_steam_before = PresideData.to_bytes(sv_steam)
+    # sv_xbox = steam2xbox(sv_steam)
+    # sv_steam_after = PresideData.to_bytes((sv_xbox))
+    steam_id, steam_path = locator.system_steam_save_path[0]
     path = locator.system_xbox_save_path[0]
-    print(PresideDataXbox().size())
-    with open(path, 'rb') as f:
-        sv = PresideDataXbox.from_bytes(f.read())
+    with open(steam_path, 'rb') as f:
+        sv_steam = PresideData.from_bytes(f.read())
+    sv_xbox = steam2xbox(sv_steam)
+    with open(path, 'wb') as f:
+        f.write(PresideDataXbox.to_bytes(sv_xbox))
+    
+
     1

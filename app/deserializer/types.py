@@ -79,6 +79,7 @@ class Struct(ABC):
     def from_bytes(cls: type[Self], data: bytes) -> Self:
         """
         从二进制数据中读取结构体实例。
+        
         :returns 返回值实际为 ctypes.Structure 实例。为了方便起见，标注返回类型为 Self。
         
         """
@@ -88,15 +89,32 @@ class Struct(ABC):
         return cast(Self, ctype_ins)
     
     @classmethod
+    def from_file(cls: type[Self], file_path: str) -> Self:
+        """
+        从文件中读取结构体实例。
+        """
+        with open(file_path, 'rb') as f:
+            return cls.from_bytes(f.read())
+    
+    @classmethod
     def to_bytes(cls, ins: Self) -> bytes:
         """
         将结构体实例转化为二进制数据。
+        
         :param ins: 结构体实例。实际类型为 ctypes.Structure，为了方便起见，标注类型为 Self。
         """
         ctype_ins = cast(ctypes.Structure, ins)
         if not isinstance(ins, ctypes.Structure):
             raise TypeError(f"Unsupported type: {type(ins)}, expected {ctypes.Structure}")
         return ctypes.string_at(ctypes.addressof(ctype_ins), ctypes.sizeof(ctype_ins))
+    
+    @classmethod
+    def to_file(cls: type[Self], ins: Self, file_path: str) -> None:
+        """
+        将结构体实例写入文件。
+        """
+        with open(file_path, 'wb') as f:
+            f.write(cls.to_bytes(ins))
     
     def size(self) -> int:
         assert is_dataclass(self)

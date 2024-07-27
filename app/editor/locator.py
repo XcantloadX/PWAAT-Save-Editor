@@ -31,7 +31,7 @@ class _Locator:
         return find_universal_app(XBOX_APP_NAME)
     
     @property
-    def system_steam_save_path(self) -> list[str]:
+    def system_steam_save_path(self) -> list[tuple[str, str]]:
         """
         默认 Steam 存档路径。
         """
@@ -42,12 +42,12 @@ class _Locator:
         saves_path = os.path.join(steam_path, 'userdata')
         # 列出子文件夹（多账号）
         accounts = os.listdir(saves_path)
-        save_files = []
+        save_files: list[tuple[str, str]] = []
         for account in accounts:
             save_file = os.path.join(saves_path, account, '787480', 'remote', 'systemdata')
             if os.path.exists(save_file):
                 assert os.path.getsize(save_file) == STEAM_SAVE_LENGTH
-                save_files.append(save_file)
+                save_files.append((account, save_file))
         return save_files
     
     @property
@@ -77,6 +77,20 @@ class _Locator:
         path32 = _read_reg(ep = winreg.HKEY_LOCAL_MACHINE, p = r"SOFTWARE\Wow6432Node\Valve\Steam", k = 'InstallPath')
         path64 = _read_reg(ep = winreg.HKEY_LOCAL_MACHINE, p = r"SOFTWARE\Valve\Steam", k = 'InstallPath')
         return path32 or path64
+    
+    @property
+    def steam_accounts(self) -> list[str]:
+        """
+        存在逆转裁判存档的 Steam 账号列表。
+        """
+        steam_path = self.steam_path
+        if not steam_path:
+            logger.warning('Steam not found')
+            return []
+        saves_path = os.path.join(steam_path, 'userdata')
+        ret = os.listdir(saves_path)
+        ret = [account for account in ret if os.path.exists(os.path.join(saves_path, account, '787480', 'remote', 'systemdata'))]
+        return ret
     
     @property
     def steam_game_path(self) -> str | None:

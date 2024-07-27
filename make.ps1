@@ -11,6 +11,7 @@ cd ..
 
 &pyinstaller `
     --add-data "ui/dist;ui" `
+    --add-data "res;res" `
 	--noconfirm `
     --name "PWAAT Save Editor" `
 	app\entry.py
