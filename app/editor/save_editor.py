@@ -1,12 +1,12 @@
 import os
 from dataclasses import dataclass
 from enum import IntEnum
-from ctypes import Structure
 
 from app.utils import find_game_path, find_save_path
-from app.structs.structs import PresideData
+from app.structs.steam import PresideData
 from app.deserializer.types import Int32, Int16
 from app.unpack import TextUnpacker, TitleTextID, SaveTextID, Language
+from app.deserializer.types import UInt8
 
 from logging import getLogger
 logger = getLogger(__name__)
@@ -33,12 +33,10 @@ class SaveEditor:
         game_path = game_path or find_game_path()
         if not game_path:
             raise FileNotFoundError('Could not find game path')
-            # logger.warning('Could not find game path')
         self.game_path = game_path
         default_save_path = default_save_path or find_save_path()
         if not default_save_path:
             raise FileNotFoundError('Could not find default save path')
-            # logger.warning('Could not find default save path')
         self.default_save_path = default_save_path
         
         self.__save_path: str|None = None
@@ -47,8 +45,7 @@ class SaveEditor:
         self.__language: Language  = language
         # self.__text_unpacker = None
         self.__text_unpacker = TextUnpacker(self.game_path, self.__language)
-        
-        
+
     def init(self):
         pass
 
@@ -181,7 +178,7 @@ class SaveEditor:
         :param hp: 血量值，范围 [0, 80]
         """
         assert self.__preside_data is not None, 'No data loaded'
-        slot_number = self.get_real_slot_number(slot_number)
+        slot_number = self.__get_real_slot_number(slot_number)
         self.__preside_data.slot_list_[slot_number].global_work_.gauge_hp = Int16(hp)
         self.__preside_data.slot_list_[slot_number].global_work_.gauge_hp_disp = Int16(hp)
 
@@ -191,10 +188,32 @@ class SaveEditor:
         :param slot_number: 游戏内存档槽位号，范围 [0, 9]
         """
         assert self.__preside_data is not None, 'No data loaded'
-        slot_number = self.get_real_slot_number(slot_number)
+        slot_number = self.__get_real_slot_number(slot_number)
         return self.__preside_data.slot_list_[slot_number].global_work_.gauge_hp
     
-    def get_real_slot_number(self, slot_number: int) -> int:
+    def set_unlocked_chapters(self, game_number: int, chapter_count: int):
+        """
+        设置解锁的章节。
+        :param game_number: 游戏编号。范围 [1, 3]
+        :param chapter_counts: 解锁的章节数量。
+        """
+        assert self.__preside_data is not None, 'No data loaded'
+        if chapter_count <= 0 or chapter_count >= 4:
+            raise ValueError('Invalid chapter count.')
+        sce_data = self.__preside_data.system_data_.sce_data_
+        enable_data = UInt8((16 & 0b1111) | (chapter_count << 4))
+        if game_number == 1:
+            sce_data.GS1_Scenario_enable = enable_data
+            if chapter_count >= 5:
+                raise ValueError('Invalid chapter count.')
+        elif game_number == 2:
+            sce_data.GS2_Scenario_enable = enable_data
+        elif game_number == 3:
+            sce_data.GS3_Scenario_enable = enable_data
+            if chapter_count >= 5:
+                raise ValueError('Invalid chapter count.')
+    
+    def __get_real_slot_number(self, slot_number: int) -> int:
         """
         获取实际存档槽位号
         """

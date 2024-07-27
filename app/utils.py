@@ -1,5 +1,7 @@
 import os
 
+
+
 def find_game_path() -> str|None:
     """
     自动搜索游戏安装路径

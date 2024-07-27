@@ -7,10 +7,28 @@
             "program": "${file}"
         },
         {
-            "name": "Run: structs.structs",
+            "name": "Run: structs.steam",
             "type": "debugpy",
             "request": "launch",
-            "module": "app.structs.structs"
+            "module": "app.structs.steam"
+        },
+        {
+            "name": "Run: structs.xbox",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "app.structs.xbox"
+        },
+        {
+            "name": "Run: structs.conventor",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "app.structs.conventor"
+        },
+        {
+            "name": "Run: editor.locator",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "app.editor.locator"
         },
         {
             "name": "Run: unpack.text_unpacker",

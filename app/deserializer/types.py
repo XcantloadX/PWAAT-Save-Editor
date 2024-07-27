@@ -1,6 +1,6 @@
 import ctypes
 from dataclasses import is_dataclass, fields, dataclass
-from typing import TypeVar, TypeAlias, NewType, Annotated, Generic, List, Text, Literal, Type, Any
+from typing import TypeVar, TypeAlias, NewType, Annotated, Generic, List, Text, Literal, Type, Any, Iterator
 from typing import get_type_hints, get_args, get_origin, cast
 from typing_extensions import Self
 from abc import ABC
@@ -37,6 +37,9 @@ class FixedArray(Generic[T, Len]):
     def __setitem__(self, key: int, value: T): ...
     def __getitem__(self, key: int) -> T: ...
     def __len__(self) -> int: ...
+    def __iter__(self) -> Iterator[T]: ...
+    def __next__(self) -> T: ...
+    def __contains__(self, item: T) -> bool: ...
     
 class FixedString(Generic[Len]): pass
 class Bytes(Generic[Len]): pass
@@ -99,14 +102,25 @@ class Struct(ABC):
         assert is_dataclass(self)
         Struct_ = to_ctypes(type(self))
         return ctypes.sizeof(Struct_)
+    
+    @classmethod
+    def new(cls: type[Self]) -> Self:
+        """
+        创建一个新的结构体实例。
+        """
+        Struct_ = to_ctypes(cls)
+        return cast(Self, Struct_())
 
 
 StructType = TypeVar('StructType', bound=Struct)
-
-def to_ctypes(cls: Type[Any], dependencies: dict[Type, Type] = {}):
+_ctypes_cache: dict[Type, Type] = {}
+def to_ctypes(cls: Type[Any], dependencies: dict[Type, Type] = {}, use_cache: bool = True) -> Type[ctypes.Structure]:
     if not is_dataclass(cls) or not issubclass(cls, Struct):
         raise TypeError(f"{cls.__name__} is not a valid Sturct class.")
 
+    if use_cache and cls in _ctypes_cache:
+        return _ctypes_cache[cls]
+    
     class CTypesStructure(ctypes.Structure):
         _pack_ = 4
         _fields_ = []
@@ -127,6 +141,7 @@ def to_ctypes(cls: Type[Any], dependencies: dict[Type, Type] = {}):
             return f"{cls.__name__}({', '.join(field_values)})"
 
     CTypesStructure.__name__ = cls.__name__
+    _ctypes_cache[cls] = CTypesStructure
     return CTypesStructure
 
 def _convert_type(py_type: Any, dependencies: dict[Type, Type] = {}) -> Any:
