@@ -161,7 +161,7 @@ class GlobalWork(Struct):
     gauge_rno_1: byte
     gauge_hp: short
     """
-    血量（？），满血为 80\n
+    血量（？），满血为 80，总共有 10 格，一格血量为 8。\n
     若修改血量，需要同时修改 `gauge_hp` 和 `gauge_hp_disp。`
     """
     gauge_hp_disp: short

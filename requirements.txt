@@ -8,3 +8,4 @@ winrt-Windows.Foundation.Collections==2.1.0
 winrt-Windows.Management==2.1.0
 winrt-Windows.Management.Deployment==2.1.0
 winrt-Windows.Storage==2.1.0
+wxPython==4.2.1

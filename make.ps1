@@ -14,7 +14,8 @@ cd ..
     --add-data "res;res" `
 	--noconfirm `
     --name "PWAAT Save Editor" `
-	app\entry.py
+    .\app\entry_native.py
+	# app\entry.py
 
 $bat = @"
 @echo off

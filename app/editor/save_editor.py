@@ -1,12 +1,16 @@
 import os
 from dataclasses import dataclass
 from enum import IntEnum
+from typing import TypeGuard
 
-from app.utils import find_game_path, find_save_path
 from app.structs.steam import PresideData
-from app.deserializer.types import Int32, Int16
+from app.structs.xbox import PresideDataXbox
+from app.deserializer.types import Int32, Int16, is_struct
 from app.unpack import TextUnpacker, TitleTextID, SaveTextID, Language
 from app.deserializer.types import UInt8
+from app.editor.locator import STEAM_SAVE_LENGTH, XBOX_SAVE_LENGTH
+import app.editor.locator as locator
+from app.structs.conventor import xbox2steam, steam2xbox
 
 from logging import getLogger
 logger = getLogger(__name__)
@@ -16,12 +20,42 @@ class TitleId(IntEnum):
     GS2 = 1
     GS3 = 2
 
+class SaveType(IntEnum):
+    UNKNOWN = -1
+    STEAM = 0
+    XBOX = 1
+
+class NoOpenSaveFileError(Exception):
+    pass
+
 @dataclass
 class SaveSlot:
     time: str
     progress: str
+    """天数/回数（e.g. 第一回 法庭前篇）"""
     title: str
+    """游戏名称（e.g. 逆转裁判 1）"""
+    title_number: int
+    """游戏编号（e.g. 1）"""
     scenario: str
+    """章节名称（e.g. 第四章 再会了，逆转）"""
+    scenario_number: int
+    """章节编号（e.g. 4）"""
+    
+    @property
+    def short_str(self) -> str:
+        if self.time == '':
+            return '空'
+        else:
+            time = self.time.replace('\n', ' ')
+            return f'{self.title_number}-{self.scenario_number} {self.progress} {time}'
+    
+    @property
+    def long_str(self) -> str:
+        if self.time == '':
+            return '空'
+        else:
+            return f'{self.title} {self.scenario} {self.progress} {self.time}'
 
 class SaveEditor:
     def __init__(
@@ -30,84 +64,124 @@ class SaveEditor:
         default_save_path: str|None = None,
         language: Language = 'en'
     ) -> None:
-        game_path = game_path or find_game_path()
+        game_path = game_path or locator.steam_game_path or locator.xbox_game_path
+        logger.debug(f'game_path: {game_path}')
         if not game_path:
             raise FileNotFoundError('Could not find game path')
         self.game_path = game_path
-        default_save_path = default_save_path or find_save_path()
-        if not default_save_path:
-            raise FileNotFoundError('Could not find default save path')
-        self.default_save_path = default_save_path
         
         self.__save_path: str|None = None
         
-        self.__preside_data: PresideData|None = None
+        self.__preside_data: PresideData|PresideDataXbox|None = None
         self.__language: Language  = language
-        # self.__text_unpacker = None
         self.__text_unpacker = TextUnpacker(self.game_path, self.__language)
 
     def init(self):
         pass
 
+    def __check_save_loaded(self, _ = None) -> TypeGuard[PresideData|PresideDataXbox]:
+        if self.__preside_data is None:
+            raise NoOpenSaveFileError('No data loaded')
+        return True 
+    
+    @property
+    def preside_data(self) -> PresideData|PresideDataXbox:
+        assert self.__check_save_loaded(self.__preside_data)
+        return self.__preside_data
+    
+    @property
+    def save_type(self) -> SaveType:
+        assert self.__check_save_loaded(self.__preside_data)
+        if is_struct(self.__preside_data, PresideData):
+            return SaveType.STEAM
+        elif is_struct(self.__preside_data, PresideDataXbox):
+            return SaveType.XBOX
+        else:
+            return SaveType.UNKNOWN
+    
+    @property
+    def opened(self) -> bool:
+        return self.__preside_data is not None
+    
     def get_save_path(self) -> str|None:
         return self.__save_path
     
-    def load(self, save_file_path: str|None = None):
+    def load(self, save_file_path: str):
         """
         加载存档数据
-        :param save_file_path: 存档文件路径，默认为系统存档。
+        :param save_file_path: 存档文件路径
         """
-        self.__save_path = save_file_path or self.default_save_path
-        with open(self.__save_path, 'rb') as f:
-            self.__preside_data = PresideData.from_bytes(f.read())
+        self.__save_path = save_file_path
+        # 判断存档类型
+        size = os.path.getsize(self.__save_path)
+        if size == STEAM_SAVE_LENGTH:
+            self.__preside_data = PresideData.from_file(self.__save_path)
+        elif size == XBOX_SAVE_LENGTH:
+            self.__preside_data = PresideDataXbox.from_file(self.__save_path)
+        else:
+            raise ValueError('Invalid save file')
             
     def save(self, save_file_path: str|None = None):
-        assert self.__preside_data is not None, 'No data loaded'
+        assert self.__check_save_loaded(self.__preside_data)
         if not save_file_path:
-            save_file_path = self.default_save_path
-        with open(save_file_path, 'wb') as f:
-            f.write(PresideData.to_bytes(self.__preside_data))
+            save_file_path = self.__save_path
+        if save_file_path is None:
+            raise NoOpenSaveFileError('No save file path')
+        if is_struct(self.__preside_data, PresideData):
+            PresideData.to_file(self.__preside_data, save_file_path)
+        elif is_struct(self.__preside_data, PresideDataXbox):
+            PresideDataXbox.to_file(self.__preside_data, save_file_path)
+        else:
+            raise ValueError('Invalid save data')
+    
+    def convert(self, target: SaveType):
+        assert self.__check_save_loaded(self.__preside_data)
+        if target == SaveType.STEAM:
+            if is_struct(self.__preside_data, PresideDataXbox):
+                self.__preside_data = xbox2steam(self.__preside_data)
+            else:
+                raise ValueError('Expected Xbox save data, got Steam save data')
+        elif target == SaveType.XBOX:
+            if is_struct(self.__preside_data, PresideData):
+                self.__preside_data = steam2xbox(self.__preside_data)
+            else:
+                raise ValueError('Expected Steam save data, got Xbox save data')
     
     def set_account_id(self, account_id: int):
         """
         设置存档数据中保存的 Steam 账号 ID
         """
-        assert self.__preside_data is not None, 'No data loaded'
+        assert self.__check_save_loaded(self.__preside_data)
         self.__preside_data.system_data_.reserve_work_.reserve[1] = Int32(account_id)
         
     def get_account_id(self) -> int:
         """
         获取存档数据中保存的 Steam 账号 ID
         """
-        assert self.__preside_data is not None, 'No data loaded'
+        assert self.__check_save_loaded(self.__preside_data)
         return self.__preside_data.system_data_.reserve_work_.reserve[1]
-    
-    def set_account_id_from_system(self):
-        """
-        从系统存档中获取 Steam 账号 ID 并设置到当前存档中
-        """
-        assert self.__preside_data is not None, 'No data loaded'
-        se = SaveEditor()
-        se.load()
-        self.set_account_id(se.get_account_id())
-        
     
     def get_slots(self) -> list[SaveSlot]:
         """
         获取所有存档槽位的信息
         """
-        assert self.__preside_data is not None, 'No data loaded'
+        assert self.__check_save_loaded(self.__preside_data)
         slots = []
         # TODO 存档槽位的开始位置似乎与游戏语言有关
         for i in range(50, 60):
             slot = self.__preside_data.system_data_.slot_data_.save_data_[i]
-            time = str(slot.time)
+            time = slot.time.decode()
             title = TitleId(slot.title)
+            title_number = 0
             scenario = int(slot.scenario)
+            scenario_number = 0
             
             if time != '':
                 # title
                 title = self.__text_unpacker.get_text(TitleTextID.TITLE_NAME, slot.title)
+                
+                # title number
+                title_number = slot.title + 1
                 
                 # scenario
                 if slot.title == TitleId.GS2 and slot.scenario >= 4:
@@ -123,6 +197,9 @@ class SaveEditor:
                         scenario = ''
                     episode = self.__text_unpacker.get_text(TitleTextID.EPISODE_NUMBER, slot.scenario)
                     scenario = f'{episode} {scenario}'
+                
+                # scenario number
+                scenario_number = slot.scenario + 1
                 
                 # progress
                 def get_progress_text(in_title: int, in_progress: int):
@@ -168,6 +245,8 @@ class SaveEditor:
                 progress=progress,
                 title=title,
                 scenario=scenario,
+                title_number=title_number,
+                scenario_number=scenario_number
             ))
         return slots
     
@@ -177,7 +256,7 @@ class SaveEditor:
         :param slot_number: 游戏内存档槽位号，范围 [0, 9]
         :param hp: 血量值，范围 [0, 80]
         """
-        assert self.__preside_data is not None, 'No data loaded'
+        assert self.__check_save_loaded(self.__preside_data)
         slot_number = self.__get_real_slot_number(slot_number)
         self.__preside_data.slot_list_[slot_number].global_work_.gauge_hp = Int16(hp)
         self.__preside_data.slot_list_[slot_number].global_work_.gauge_hp_disp = Int16(hp)
@@ -187,7 +266,7 @@ class SaveEditor:
         获取法庭日血量值。
         :param slot_number: 游戏内存档槽位号，范围 [0, 9]
         """
-        assert self.__preside_data is not None, 'No data loaded'
+        assert self.__check_save_loaded(self.__preside_data)
         slot_number = self.__get_real_slot_number(slot_number)
         return self.__preside_data.slot_list_[slot_number].global_work_.gauge_hp
     
@@ -197,32 +276,46 @@ class SaveEditor:
         :param game_number: 游戏编号。范围 [1, 3]
         :param chapter_counts: 解锁的章节数量。
         """
-        assert self.__preside_data is not None, 'No data loaded'
-        if chapter_count <= 0 or chapter_count >= 4:
+        assert self.__check_save_loaded(self.__preside_data)
+        if chapter_count <= 0 or chapter_count > 5:
             raise ValueError('Invalid chapter count.')
         sce_data = self.__preside_data.system_data_.sce_data_
         enable_data = UInt8((16 & 0b1111) | (chapter_count << 4))
         if game_number == 1:
             sce_data.GS1_Scenario_enable = enable_data
-            if chapter_count >= 5:
-                raise ValueError('Invalid chapter count.')
         elif game_number == 2:
             sce_data.GS2_Scenario_enable = enable_data
+            if chapter_count > 4:
+                raise ValueError('Invalid chapter count.')
         elif game_number == 3:
             sce_data.GS3_Scenario_enable = enable_data
-            if chapter_count >= 5:
-                raise ValueError('Invalid chapter count.')
+    
+    def get_unlocked_chapters(self, game_number: int) -> int:
+        """
+        获取解锁的章节数量。
+        :param game_number: 游戏编号。范围 [1, 3]
+        """
+        assert self.__check_save_loaded(self.__preside_data)
+        sce_data = self.__preside_data.system_data_.sce_data_
+        if game_number == 1:
+            return sce_data.GS1_Scenario_enable >> 4
+        elif game_number == 2:
+            return sce_data.GS2_Scenario_enable >> 4
+        elif game_number == 3:
+            return sce_data.GS3_Scenario_enable >> 4
+        else:
+            raise ValueError('Invalid game number.')
     
     def __get_real_slot_number(self, slot_number: int) -> int:
         """
         获取实际存档槽位号
         """
-        assert self.__preside_data is not None, 'No data loaded'
+        assert self.__check_save_loaded(self.__preside_data)
         return slot_number + 50
 
 if __name__ == '__main__':
     from pprint import pprint
     se = SaveEditor(language='hans')
-    se.load()
+    # se.load()
     pprint(se.get_slots())
     

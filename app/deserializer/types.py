@@ -1,6 +1,6 @@
 import ctypes
 from dataclasses import is_dataclass, fields, dataclass
-from typing import TypeVar, TypeAlias, NewType, Annotated, Generic, List, Text, Literal, Type, Any, Iterator
+from typing import TypeVar, TypeAlias, NewType, Annotated, Generic, List, Text, Literal, Type, Any, Iterator, TypeGuard
 from typing import get_type_hints, get_args, get_origin, cast
 from typing_extensions import Self
 from abc import ABC
@@ -41,8 +41,10 @@ class FixedArray(Generic[T, Len]):
     def __next__(self) -> T: ...
     def __contains__(self, item: T) -> bool: ...
     
-class FixedString(Generic[Len]): pass
+class FixedString(Generic[Len]):
+    def decode(self, encoding: str = "utf-8", errors: str = "strict") -> str: ...
 class Bytes(Generic[Len]): pass
+
 
 # 类型判断
 def is_primitive(t: type) -> bool:
@@ -85,6 +87,8 @@ class Struct(ABC):
         """
         # assert is_dataclass(dataclass) # type: ignore
         Struct_ = to_ctypes(cls)
+        if ctypes.sizeof(Struct_) != len(data):
+            raise ValueError(f"Data size mismatch: {ctypes.sizeof(Struct_)} != {len(data)}")
         ctype_ins = Struct_.from_buffer_copy(data)
         return cast(Self, ctype_ins)
     
@@ -214,3 +218,7 @@ def _convert_type(py_type: Any, dependencies: dict[Type, Type] = {}) -> Any:
             raise TypeError(f"Unsupported built-in type: {py_type}, please use Int8, Int16, Int32, Int64, UInt8, UInt16, UInt32, UInt64 instead.")
         else:
             raise TypeError(f"Unsupported type: {py_type}")
+
+StructType = TypeVar('StructType', bound=Struct)
+def is_struct(ins: Any, t: type[StructType]) -> TypeGuard[StructType]:
+    return isinstance(ins, to_ctypes(t))

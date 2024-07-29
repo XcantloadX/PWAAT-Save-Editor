@@ -3,7 +3,7 @@ from typing import TypeAlias, Union, Literal, overload
 
 from .decompiled import *
 from .decrypt import decrypt_bytes
-from app.utils import find_game_path
+import app.editor.locator as locator
 
 
 class TextUnpacker:
@@ -16,7 +16,7 @@ class TextUnpacker:
         :param game_path: 游戏安装路径。默认为自动搜索
         :param language: 语言。默认为英文
         """
-        self.game_path = game_path or find_game_path()
+        self.game_path = game_path or locator.steam_game_path or locator.xbox_game_path
         if not self.game_path:
             raise FileNotFoundError('Could not find game path')
         
