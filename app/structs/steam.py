@@ -33,8 +33,10 @@ class SystemData(Struct):
 class SaveSlotData(Struct):
     save_data_: FixedArray['SaveData', Literal[100]]
     """
-    存档数据
-    TODO 100 个存档位。游戏内可见存档槽位的开始位置似乎与游戏语言有关。
+    存档槽位数据，共 100 个槽位。
+    
+    实际存档槽位的开始位置取决于当前语言，即 OptionWork.language_type 的值。
+    例如简体中文 `language_type` 的值为 5，则实际存档槽位为 50~59。
     """
 
 @dataclass(init=False)

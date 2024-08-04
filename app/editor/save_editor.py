@@ -167,8 +167,9 @@ class SaveEditor:
         """
         assert self.__check_save_loaded(self.__preside_data)
         slots = []
-        # TODO 存档槽位的开始位置似乎与游戏语言有关
-        for i in range(50, 60):
+        start = self.preside_data.system_data_.option_work_.language_type * 10
+        end = start + 10
+        for i in range(start, end):
             slot = self.__preside_data.system_data_.slot_data_.save_data_[i]
             time = slot.time.decode()
             title = TitleId(slot.title)

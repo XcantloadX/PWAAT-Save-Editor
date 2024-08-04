@@ -53,7 +53,7 @@
             "name": "Entry Native (Debug Mode)",
             "type": "debugpy",
             "request": "launch",
-            "module": "app.native_ui.entry",
+            "module": "app.entry_native",
             "args": [ "--debug" ]
         },
     ]
