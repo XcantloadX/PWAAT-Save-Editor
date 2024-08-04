@@ -33,3 +33,7 @@ Xbox 转 Steam：菜单栏 → 转换 → “Xbox → Steam”
 3. 调整血量
 4. “文件” → “保存”
 5. 在游戏内重新读取该存档
+
+## 参考
+* [Phoenix Wright Trilogy Save Data Research ](https://gist.github.com/emiyl/1435ce18a6b1e0a5c2a74e15c19f4884)
+* [emiyl / PWAATeditor](https://github.com/emiyl/PWAATeditor/tree/v0.3.0)
