@@ -452,7 +452,7 @@ class SaveEditor:
         获取实际存档槽位号
         """
         assert self.__check_save_loaded(self.__preside_data)
-        return slot_number + 50
+        return slot_number + self.preside_data.system_data_.option_work_.language_type * 10
 
 if __name__ == '__main__':
     from pprint import pprint
