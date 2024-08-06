@@ -2,11 +2,12 @@ import os
 from dataclasses import dataclass
 from enum import IntEnum
 from typing import TypeGuard
+from gettext import gettext as _
 
 from app.structs.steam import PresideData
 from app.structs.xbox import PresideDataXbox
 from app.deserializer.types import Int32, Int16, is_struct
-from app.unpack import TextUnpacker, TitleTextID, SaveTextID, Language
+from app.unpack import TextUnpacker, TitleTextID, SaveTextID, Language, Language_
 from app.deserializer.types import UInt8
 from app.editor.locator import STEAM_SAVE_LENGTH, XBOX_SAVE_LENGTH
 import app.editor.locator as locator
@@ -45,7 +46,7 @@ class SaveSlot:
     @property
     def short_str(self) -> str:
         if self.time == '':
-            return '空'
+            return _(u'空')
         else:
             time = self.time.replace('\n', ' ')
             return f'{self.title_number}-{self.scenario_number} {self.progress} {time}'
@@ -53,7 +54,7 @@ class SaveSlot:
     @property
     def long_str(self) -> str:
         if self.time == '':
-            return '空'
+            return _(u'空')
         else:
             return f'{self.title} {self.scenario} {self.progress} {self.time}'
 
@@ -73,8 +74,7 @@ class SaveEditor:
         self.__save_path: str|None = None
         
         self.__preside_data: PresideData|PresideDataXbox|None = None
-        self.__language: Language  = language
-        self.__text_unpacker = TextUnpacker(self.game_path, self.__language)
+        self.__text_unpacker = TextUnpacker(self.game_path, language)
 
     def init(self):
         pass
@@ -106,6 +106,9 @@ class SaveEditor:
     def get_save_path(self) -> str|None:
         return self.__save_path
     
+    def __change_language(self, language: Language):
+        self.__text_unpacker = TextUnpacker(self.game_path, language)
+    
     def load(self, save_file_path: str):
         """
         加载存档数据
@@ -120,6 +123,23 @@ class SaveEditor:
             self.__preside_data = PresideDataXbox.from_file(self.__save_path)
         else:
             raise ValueError('Invalid save file')
+        
+        # 更新 TextUnpacker
+        lang_id = self.__preside_data.system_data_.option_work_.language_type
+        if lang_id == Language_.USA:
+            self.__change_language('en')
+        elif lang_id == Language_.JAPAN:
+            self.__change_language('jp')
+        elif lang_id == Language_.FRANCE:
+            self.__change_language('fr')
+        elif lang_id == Language_.GERMAN:
+            self.__change_language('de')
+        elif lang_id == Language_.KOREA:
+            self.__change_language('ko')
+        elif lang_id == Language_.CHINA_S:
+            self.__change_language('hans')
+        elif lang_id == Language_.CHINA_T:
+            self.__change_language('hant')
             
     def save(self, save_file_path: str|None = None):
         assert self.__check_save_loaded(self.__preside_data)

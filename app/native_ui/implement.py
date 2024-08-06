@@ -1,6 +1,7 @@
 import sys
 import traceback
 import datetime
+from gettext import gettext as _
 
 import wx
 
@@ -12,10 +13,10 @@ def _excepthook(type, value, tb):
     if type == NoOpenSaveFileError:
         # 不直接调用是因为弹出的消息框会导致原来的焦点控件多次聚焦，
         # 形成多次值改变事件，进而弹出多个消息框
-        wx.CallAfter(wx.MessageBox, '请先打开任意存档文件。', '错误', wx.OK | wx.ICON_ERROR)
+        wx.CallAfter(wx.MessageBox, _(u'请先打开任意存档文件。'), _(u'错误'), wx.OK | wx.ICON_ERROR)
     else:
         # 提示错误
-        wx.MessageBox(''.join(traceback.format_exception(type, value, tb)), '错误', wx.OK | wx.ICON_ERROR)
+        wx.MessageBox(''.join(traceback.format_exception(type, value, tb)), _(u'错误'), wx.OK | wx.ICON_ERROR)
     traceback.print_exception(type, value, tb)
 sys.excepthook = _excepthook
 
@@ -29,7 +30,7 @@ class Dialog(wx.Dialog):
         text_ctrl.SetValue(text)
         sizer.Add(text_ctrl, proportion=1, flag=wx.EXPAND | wx.ALL, border=10)
 
-        button = wx.Button(self, label="确认")
+        button = wx.Button(self, label=_(u"确认"))
         button.Bind(wx.EVT_BUTTON, self.on_confirm)
         sizer.Add(button, flag=wx.ALIGN_CENTER | wx.ALL, border=10)
 
@@ -44,9 +45,8 @@ class FrameMainImpl(FrameMain):
         super().__init__(parent)
         self.m_sld_hp.SetLineSize(8)
 
-        self.editor = SaveEditor(language='hans') # TODO: i18n
+        self.editor = SaveEditor(language='hans')
 
-        
     def sld_hp_on_scroll_changed(self, event):
         # 强制步进 8
         value = self.m_sld_hp.Value
@@ -59,7 +59,7 @@ class FrameMainImpl(FrameMain):
         self.editor.set_court_hp(self.m_chc_saves.GetSelection(), self.m_sld_hp.Value)
             
     def mi_open_on_select(self, event):
-        with wx.FileDialog(self, "打开存档文件", wildcard="存档文件 (*.*)|*.*", style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST) as fileDialog:
+        with wx.FileDialog(self, _(u"打开存档文件"), wildcard=f"{_(u'存档文件')} (*.*)|*.*", style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST) as fileDialog:
             if fileDialog.ShowModal() == wx.ID_CANCEL:
                 return
             path = fileDialog.GetPath()
@@ -78,10 +78,10 @@ class FrameMainImpl(FrameMain):
     
     def mi_save_on_select(self, event):
         self.editor.save()
-        wx.MessageBox('保存成功', '提示', wx.OK | wx.ICON_INFORMATION)
+        wx.MessageBox(_(u'保存成功'), _(u'提示'), wx.OK | wx.ICON_INFORMATION)
     
     def mi_xbox2steam_on_choice(self, event):
-        if not wx.MessageBox('此操作将会覆盖当前 Steam 存档文件，是否继续？', '警告', wx.YES_NO | wx.ICON_WARNING) == wx.YES:
+        if not wx.MessageBox(_(u'此操作将会覆盖当前 Steam 存档文件，是否继续？'), _(u'警告'), wx.YES_NO | wx.ICON_WARNING) == wx.YES:
             return
         xbox_path = locator.system_xbox_save_path[0]
         steam_id, steam_path = locator.system_steam_save_path[0]
@@ -89,37 +89,37 @@ class FrameMainImpl(FrameMain):
         self.editor.set_account_id(int(steam_id))
         self.editor.convert(SaveType.STEAM)
         self.editor.save(steam_path)
-        wx.MessageBox('转换成功', '提示', wx.OK | wx.ICON_INFORMATION)
+        wx.MessageBox(_(u'转换成功'), _(u'提示'), wx.OK | wx.ICON_INFORMATION)
     
     def mi_steam2xbox_on_choice(self, event):
-        if not wx.MessageBox('此操作将会覆盖当前 Xbox 存档文件，是否继续？', '警告', wx.YES_NO | wx.ICON_WARNING) == wx.YES:
+        if not wx.MessageBox(_(u'此操作将会覆盖当前 Xbox 存档文件，是否继续？'), _(u'警告'), wx.YES_NO | wx.ICON_WARNING) == wx.YES:
             return
         xbox_path = locator.system_xbox_save_path[0]
-        _, steam_path = locator.system_steam_save_path[0]
+        __, steam_path = locator.system_steam_save_path[0]
         self.editor.load(steam_path)
         self.editor.convert(SaveType.XBOX)
         self.editor.save(xbox_path)
-        wx.MessageBox('转换成功', '提示', wx.OK | wx.ICON_INFORMATION)
+        wx.MessageBox(_(u'转换成功'), _(u'提示'), wx.OK | wx.ICON_INFORMATION)
     
     def mi_save_as_on_select(self, event):
-        with wx.FileDialog(self, "保存存档文件", wildcard="存档文件 (*.*)|*.*", style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT) as fileDialog:
+        with wx.FileDialog(self, _(u"保存存档文件"), wildcard=f"{_(u'存档文件')} (*.*)|*.*", style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT) as fileDialog:
             if fileDialog.ShowModal() == wx.ID_CANCEL:
                 return
             path = fileDialog.GetPath()
             self.editor.save(path)
-            wx.MessageBox('保存成功', '提示', wx.OK | wx.ICON_INFORMATION)
+            wx.MessageBox(_(u'保存成功'), _(u'提示'), wx.OK | wx.ICON_INFORMATION)
     
     def mi_show_debug_on_select(self, event):
-        msg = 'Steam 路径: ' + repr(locator.steam_path) + '\n'
-        msg += 'Steam 游戏路径: ' + repr(locator.steam_game_path) + '\n'
-        msg += 'Steam 存档路径: ' + repr(locator.system_steam_save_path) + '\n'
-        msg += 'Xbox 游戏路径: ' + repr(locator.xbox_game_path) + '\n'
-        msg += 'Xbox 存档路径: ' + repr(locator.system_xbox_save_path) + '\n'
+        msg = _(u'Steam 路径: ') + repr(locator.steam_path) + '\n'
+        msg += _(u'Steam 游戏路径: ') + repr(locator.steam_game_path) + '\n'
+        msg += _(u'Steam 存档路径: ') + repr(locator.system_steam_save_path) + '\n'
+        msg += _(u'Xbox 游戏路径: ') + repr(locator.xbox_game_path) + '\n'
+        msg += _(u'Xbox 存档路径: ') + repr(locator.system_xbox_save_path) + '\n'
         if self.editor.opened:
-            msg += '存档类型: ' + repr(self.editor.save_type) + '\n'
-            msg += 'Steam ID: ' + repr(self.editor.get_account_id()) + '\n'
+            msg += _(u'存档类型: ') + repr(self.editor.save_type) + '\n'
+            msg += _(u'Steam ID: ') + repr(self.editor.get_account_id()) + '\n'
         # 显示信息
-        dialog = Dialog(self, '调试信息', msg)
+        dialog = Dialog(self, _(u'调试信息'), msg)
         dialog.ShowModal()
         dialog.Destroy()
     
@@ -154,30 +154,30 @@ class FrameMainImpl(FrameMain):
         self.m_sld_hp.Value = self.editor.get_court_hp(slot_number)
 
     def mi_file2steam_on_choice(self, event):
-        with wx.FileDialog(self, "打开文件", wildcard="存档文件 (*.*)|*.*", style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST) as fileDialog:
+        with wx.FileDialog(self, _(u"打开文件"), wildcard=f"{_(u'存档文件')} (*.*)|*.*", style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST) as fileDialog:
             if fileDialog.ShowModal() == wx.ID_CANCEL:
                 return
-            if not wx.MessageBox('此操作将会覆盖当前 Steam 存档文件，是否继续？', '警告', wx.YES_NO | wx.ICON_WARNING) == wx.YES:
+            if not wx.MessageBox(_(u'此操作将会覆盖当前 Steam 存档文件，是否继续？'), _(u'警告'), wx.YES_NO | wx.ICON_WARNING) == wx.YES:
                 return
             path = fileDialog.GetPath()
             self.editor.load(path)
             steam_id, steam_path = locator.system_steam_save_path[0]
             self.editor.set_account_id(int(steam_id))
             self.editor.save(steam_path)
-            wx.MessageBox('导入成功', '提示', wx.OK | wx.ICON_INFORMATION)
+            wx.MessageBox(_(u'导入成功'), _(u'提示'), wx.OK | wx.ICON_INFORMATION)
     
     def mi_steam2file_on_choice(self, event):
         # TODO 自动检测存档类型
-        with wx.FileDialog(self, "保存文件", wildcard="存档文件 (*.*)|*.*", style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT) as fileDialog:
+        with wx.FileDialog(self, _(u"保存文件"), wildcard=f"{_(u'存档文件')} (*.*)|*.*", style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT) as fileDialog:
             if fileDialog.ShowModal() == wx.ID_CANCEL:
                 return
             path = fileDialog.GetPath()
-            _, steam_path = locator.system_steam_save_path[0]
+            __, steam_path = locator.system_steam_save_path[0]
             self.editor.load(steam_path)
-            if wx.MessageBox('是否擦除存档中 Steam ID 信息？', '提示', wx.YES_NO | wx.ICON_QUESTION) == wx.YES:
+            if wx.MessageBox(_(u'是否擦除存档中 Steam ID 信息？'), _(u'提示'), wx.YES_NO | wx.ICON_QUESTION) == wx.YES:
                 self.editor.set_account_id(111111111)
             self.editor.save(path)
-            wx.MessageBox('导出成功', '提示', wx.OK | wx.ICON_INFORMATION)
+            wx.MessageBox(_(u'导出成功'), _(u'提示'), wx.OK | wx.ICON_INFORMATION)
     
     def chc_gs1_on_choice(self, event):
         self.editor.set_unlocked_chapters(1, self.m_chc_gs1.GetSelection() + 1)

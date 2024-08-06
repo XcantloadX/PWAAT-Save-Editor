@@ -1,0 +1,262 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-08-05 18:25+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: app\native_ui\implement.py:121
+msgid "Steam ID: "
+msgstr ""
+
+#: app\native_ui\form.py:176
+msgid "Steam ← 文件..."
+msgstr "Steam ← File..."
+
+#: app\native_ui\form.py:173
+msgid "Steam → 文件..."
+msgstr "Steam → File..."
+
+#: app\native_ui\implement.py:116
+msgid "Steam 存档路径: "
+msgstr "Steam save path:"
+
+#: app\native_ui\implement.py:115
+msgid "Steam 游戏路径: "
+msgstr "Steam game path:"
+
+#: app\native_ui\implement.py:114
+msgid "Steam 路径: "
+msgstr "Steam path:"
+
+#: app\native_ui\form.py:168
+msgid "Xbox ← Steam"
+msgstr ""
+
+#: app\native_ui\form.py:165
+msgid "Xbox → Steam"
+msgstr ""
+
+#: app\native_ui\implement.py:118
+msgid "Xbox 存档路径: "
+msgstr "Xbox save path:"
+
+#: app\native_ui\implement.py:117
+msgid "Xbox 游戏路径: "
+msgstr "Xbox game path:"
+
+#: app\native_ui\form.py:150
+msgid "保存"
+msgstr "Save"
+
+#: app\native_ui\implement.py:106
+msgid "保存存档文件"
+msgstr "Save save file"
+
+#: app\native_ui\implement.py:82 app\native_ui\implement.py:111
+msgid "保存成功"
+msgstr "Saved successfully."
+
+#: app\native_ui\implement.py:172
+msgid "保存文件"
+msgstr "Save file"
+
+#: app\native_ui\form.py:154
+msgid "另存为..."
+msgstr "Save as..."
+
+#: app\native_ui\implement.py:120
+msgid "存档类型: "
+msgstr "Save type:"
+
+#: app\native_ui\form.py:87
+msgid "存档选择"
+msgstr "Save slot selection"
+
+#: app\native_ui\implement.py:168
+msgid "导入成功"
+msgstr "Imported successfully."
+
+#: app\native_ui\implement.py:181
+msgid "导出成功"
+msgstr "Exported successfully."
+
+#: app\native_ui\form.py:123
+msgid "常用设置"
+msgstr "Common settings"
+
+#: app\native_ui\form.py:142
+msgid "打开 Steam 存档"
+msgstr "Open Steam save"
+
+#: app\native_ui\form.py:145
+msgid "打开 Xbox 存档"
+msgstr "Open Xbox save"
+
+#: app\native_ui\form.py:138
+msgid "打开..."
+msgstr "Open..."
+
+#: app\native_ui\implement.py:63
+msgid "打开存档文件"
+msgstr "Open save file"
+
+#: app\native_ui\implement.py:158
+msgid "打开文件"
+msgstr "Open file"
+
+#: app\native_ui\implement.py:82 app\native_ui\implement.py:93
+#: app\native_ui\implement.py:103 app\native_ui\implement.py:111
+#: app\native_ui\implement.py:168 app\native_ui\implement.py:178
+#: app\native_ui\implement.py:181
+msgid "提示"
+msgstr "Message"
+
+#: app\native_ui\form.py:162
+msgid "文件"
+msgstr "File"
+
+#: app\native_ui\implement.py:178
+msgid "是否擦除存档中 Steam ID 信息？"
+msgstr "Do you want to erase the Steam ID in the save?"
+
+#: app\native_ui\form.py:159
+msgid "显示调试信息"
+msgstr "Show debug messages"
+
+#: app\native_ui\implement.py:85 app\native_ui\implement.py:161
+msgid "此操作将会覆盖当前 Steam 存档文件，是否继续？"
+msgstr "Current Steam save will be overwritten. Continue?"
+
+#: app\native_ui\implement.py:96
+msgid "此操作将会覆盖当前 Xbox 存档文件，是否继续？"
+msgstr "Current Xbox save will be overwritten. Continue?"
+
+#: app\native_ui\form.py:102
+msgid "法庭内血量"
+msgstr "Court HP"
+
+#: app\native_ui\form.py:81
+msgid "游戏内"
+msgstr "In-game"
+
+#: app\native_ui\implement.py:33
+msgid "确认"
+msgstr "OK"
+
+#: app\editor\save_editor.py:49 app\editor\save_editor.py:57
+msgid "空"
+msgstr "Empty"
+
+#: app\native_ui\form.py:70
+msgid "第一章 回忆的逆转"
+msgstr "Ep1 The Lost Turnabout"
+
+#: app\native_ui\form.py:60
+msgid "第一章 失落的逆转"
+msgstr "Ep1 Turnabout Memories"
+
+#: app\native_ui\form.py:50
+msgid "第一章 最初的逆转"
+msgstr "Ep1 The First Turnabout"
+
+#: app\native_ui\form.py:50
+msgid "第三章 逆转的大将军"
+msgstr "Ep3 Turnabout Samurai"
+
+#: app\native_ui\form.py:70
+msgid "第三章 逆转的秘方"
+msgstr "Ep3 Recipe for Turnabout"
+
+#: app\native_ui\form.py:60
+msgid "第三章 逆转马戏团"
+msgstr "Ep3 Turnabout Big Top"
+
+#: app\native_ui\form.py:60
+msgid "第二章 再会，然后逆转"
+msgstr "Ep2 Reunion, and Turnabout"
+
+#: app\native_ui\form.py:50
+msgid "第二章 逆转姐妹"
+msgstr "Ep2 Turnabout Sisters"
+
+#: app\native_ui\form.py:70
+msgid "第二章 遭窃的逆转"
+msgstr "Ep2 The Stolen Turnabout"
+
+#: app\native_ui\form.py:70
+msgid "第五章 华丽的逆转"
+msgstr "Ep5 Bridge to the Turnabout"
+
+#: app\native_ui\form.py:50
+msgid "第五章 复苏的逆转"
+msgstr "Ep5 Rise from the Ashes"
+
+#: app\native_ui\form.py:60
+msgid "第四章 再见，逆转"
+msgstr "Ep4 Turnabout Goodbyes"
+
+#: app\native_ui\form.py:70
+msgid "第四章 初始的逆转"
+msgstr "Ep4 Turnabout Beginnings"
+
+#: app\native_ui\form.py:50
+msgid "第四章 逆转，然后再见"
+msgstr "Ep4 Farewell, My Turnabout"
+
+#: app\native_ui\form.py:37
+msgid "解锁章节"
+msgstr "Unlock chapters"
+
+#: app\native_ui\implement.py:85 app\native_ui\implement.py:96
+#: app\native_ui\implement.py:161
+msgid "警告"
+msgstr "Warning"
+
+#: app\native_ui\implement.py:16
+msgid "请先打开任意存档文件。"
+msgstr "Please open a save file first."
+
+#: app\native_ui\implement.py:123
+msgid "调试信息"
+msgstr "Debug messages"
+
+#: app\native_ui\form.py:179
+msgid "转换"
+msgstr "Convert"
+
+#: app\native_ui\implement.py:93 app\native_ui\implement.py:103
+msgid "转换成功"
+msgstr "Converted successfully."
+
+#: app\native_ui\form.py:45
+msgid "逆转裁判 1"
+msgstr "Phoenix Wright: Ace Attorney"
+
+#: app\native_ui\form.py:23
+msgid "逆转裁判 123 存档工具"
+msgstr "PWAAT Save Tool"
+
+#: app\native_ui\form.py:55
+msgid "逆转裁判 2"
+msgstr "PW: AA - Justice for All"
+
+#: app\native_ui\form.py:65
+msgid "逆转裁判 3"
+msgstr "PW: AA - Trials and Tribulations"
+
+#: app\native_ui\implement.py:16 app\native_ui\implement.py:19
+msgid "错误"
+msgstr "Error"

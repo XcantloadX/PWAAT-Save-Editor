@@ -23,6 +23,18 @@ language_suffix: dict[Language, str] = {
 }
 
 # Converted from decomplied code
+
+
+class Language_(IntEnum):
+    JAPAN = 0
+    USA = 1
+    FRANCE = 2
+    GERMAN = 3
+    KOREA = 4
+    CHINA_S = 5
+    CHINA_T = 6
+    
+    
 class ConvertLineData:
     class Data:
         def __init__(self, id: int, text: list[str]):

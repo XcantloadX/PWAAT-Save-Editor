@@ -5,13 +5,9 @@ if (Test-Path output) {
 }
 mkdir output
 
-cd .\ui
-npm run build
-cd ..
-
 &pyinstaller `
-    --add-data "ui/dist;ui" `
     --add-data "res;res" `
+    --add-data "locales;locales" `
 	--noconfirm `
     --name "PWAAT Save Editor" `
     .\app\entry_native.py
