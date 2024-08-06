@@ -1,12 +1,12 @@
 import os
 from dataclasses import dataclass
 from enum import IntEnum
-from typing import TypeGuard
+from typing import TypeGuard, Literal
 from gettext import gettext as _
 
 from app.structs.steam import PresideData
 from app.structs.xbox import PresideDataXbox
-from app.deserializer.types import Int32, Int16, is_struct
+from app.deserializer.types import Int32, Int16, UInt16, is_struct, FixedString
 from app.unpack import TextUnpacker, TitleTextID, SaveTextID, Language, Language_
 from app.deserializer.types import UInt8
 from app.editor.locator import STEAM_SAVE_LENGTH, XBOX_SAVE_LENGTH
@@ -58,6 +58,73 @@ class SaveSlot:
         else:
             return f'{self.title} {self.scenario} {self.progress} {self.time}'
 
+class SaveEditorDialog:
+    def __init__(self, editor: 'SaveEditor') -> None:
+        self.editor = editor
+    
+    @property
+    def dialog_visible(self) -> bool:
+        """是否显示对话框"""
+        return self.editor.preside_data.slot_list_[self.editor.selected_slot].msg_data_.window_visible != 0
+    
+    @dialog_visible.setter
+    def dialog_visible(self, value: bool):
+        self.editor.preside_data.slot_list_[self.editor.selected_slot].msg_data_.window_visible = Int32(value)
+        
+    @property
+    def name_visible(self) -> bool:
+        """是否显示对话框中的名字"""
+        return self.editor.preside_data.slot_list_[self.editor.selected_slot].msg_data_.name_visible != 0
+    
+    @name_visible.setter
+    def name_visible(self, value: bool):
+        self.editor.preside_data.slot_list_[self.editor.selected_slot].msg_data_.name_visible = Int32(value)
+    
+    @property
+    def character_name_id(self) -> int:
+        """对话框中的名字 ID"""
+        return self.editor.preside_data.slot_list_[self.editor.selected_slot].msg_data_.name_no
+    
+    @character_name_id.setter
+    def character_name_id(self, value: int):
+        self.editor.preside_data.slot_list_[self.editor.selected_slot].msg_data_.name_no = UInt16(value)
+    
+    @property
+    def text_line1(self) -> str:
+        """对话框第一行文本"""
+        return self.editor.preside_data.slot_list_[self.editor.selected_slot].msg_data_.msg_line01.decode()
+    
+    @text_line1.setter
+    def text_line1(self, value: str):
+        buff = value.encode()
+        if len(buff) > 512:
+            raise ValueError('Text too long')
+        self.editor.preside_data.slot_list_[self.editor.selected_slot].msg_data_.msg_line01 = FixedString[Literal[512]](buff)
+
+    @property
+    def text_line2(self) -> str:
+        """对话框第二行文本"""
+        return self.editor.preside_data.slot_list_[self.editor.selected_slot].msg_data_.msg_line02.decode()
+    
+    @text_line2.setter
+    def text_line2(self, value: str):
+        buff = value.encode()
+        if len(buff) > 512:
+            raise ValueError('Text too long')
+        self.editor.preside_data.slot_list_[self.editor.selected_slot].msg_data_.msg_line02 = FixedString[Literal[512]](buff)
+        
+    @property
+    def text_line3(self) -> str:
+        """对话框第三行文本"""
+        return self.editor.preside_data.slot_list_[self.editor.selected_slot].msg_data_.msg_line03.decode()
+    
+    @text_line3.setter
+    def text_line3(self, value: str):
+        buff = value.encode()
+        if len(buff) > 512:
+            raise ValueError('Text too long')
+        self.editor.preside_data.slot_list_[self.editor.selected_slot].msg_data_.msg_line03 = FixedString[Literal[512]](buff)
+    
 class SaveEditor:
     def __init__(
         self,
@@ -75,14 +142,20 @@ class SaveEditor:
         
         self.__preside_data: PresideData|PresideDataXbox|None = None
         self.__text_unpacker = TextUnpacker(self.game_path, language)
-
-    def init(self):
-        pass
+        
+        self.selected_slot: int = 0
+        """当前选择的实际存档槽位号。使用 `select_slot()` 方法来选择存档槽位。"""
 
     def __check_save_loaded(self, _ = None) -> TypeGuard[PresideData|PresideDataXbox]:
         if self.__preside_data is None:
             raise NoOpenSaveFileError('No data loaded')
         return True 
+    
+    def __slot_number(self, slot: int|None) -> int:
+        if slot is not None:
+            return self.real_slot_number(slot)
+        else:
+            return self.selected_slot
     
     @property
     def preside_data(self) -> PresideData|PresideDataXbox:
@@ -112,6 +185,10 @@ class SaveEditor:
     @property
     def opened(self) -> bool:
         return self.__preside_data is not None
+    
+    @property
+    def dialog_data(self) -> SaveEditorDialog:
+        return SaveEditorDialog(self)
     
     def get_save_path(self) -> str|None:
         return self.__save_path
@@ -187,6 +264,15 @@ class SaveEditor:
                 self.__preside_data = steam2xbox(self.__preside_data)
             else:
                 raise ValueError('Expected Steam save data, got Xbox save data')
+    
+    def select_slot(self, slot_number: int):
+        """
+        选择存档槽位
+        
+        :param slot_number: 存档槽位号，范围 [0, 9]
+        """
+        assert self.__check_save_loaded(self.__preside_data)
+        self.selected_slot = self.real_slot_number(slot_number)
     
     def set_account_id(self, account_id: int):
         """
@@ -292,38 +378,41 @@ class SaveEditor:
             ))
         return slots
     
-    def get_slot_data(self, slot_number: int):
+    def get_slot_data(self, slot: int|None = None):
         """
         获取指定游戏内槽位的 preside_data.slot_list_ 数据
         
-        :param slot_number: 游戏内存档槽位号，范围 [0, 9]
+        :param slot_number: 游戏内存档槽位号，范围 [0, 9]。若为空，则为当前选择的槽位。
         """
         assert self.__check_save_loaded(self.__preside_data)
-        return self.__preside_data.slot_list_[self.real_slot_number(slot_number)]
+        return self.__preside_data.slot_list_[self.__slot_number(slot)]
     
-    def set_court_hp(self, slot_number: int, hp: int):
+    def set_court_hp(self, hp: int, slot: int|None = None):
         """
         设置法庭日血量值。
-        :param slot_number: 游戏内存档槽位号，范围 [0, 9]
+        
+        :param slot_number: 游戏内存档槽位号，范围 [0, 9]。若为空，则为当前选择的槽位。
         :param hp: 血量值，范围 [0, 80]
         """
         assert self.__check_save_loaded(self.__preside_data)
-        slot_number = self.real_slot_number(slot_number)
-        self.__preside_data.slot_list_[slot_number].global_work_.gauge_hp = Int16(hp)
-        self.__preside_data.slot_list_[slot_number].global_work_.gauge_hp_disp = Int16(hp)
+        slot = self.__slot_number(slot)
+        self.__preside_data.slot_list_[slot].global_work_.gauge_hp = Int16(hp)
+        self.__preside_data.slot_list_[slot].global_work_.gauge_hp_disp = Int16(hp)
 
-    def get_court_hp(self, slot_number: int) -> int:
+    def get_court_hp(self, slot_number: int|None = None) -> int:
         """
         获取法庭日血量值。
-        :param slot_number: 游戏内存档槽位号，范围 [0, 9]
+        
+        :param slot_number: 游戏内存档槽位号，范围 [0, 9]。若为空，则为当前选择的槽位。
         """
         assert self.__check_save_loaded(self.__preside_data)
-        slot_number = self.real_slot_number(slot_number)
+        slot_number = self.__slot_number(slot_number)
         return self.__preside_data.slot_list_[slot_number].global_work_.gauge_hp
     
     def set_unlocked_chapters(self, game_number: int, chapter_count: int):
         """
         设置解锁的章节。
+        
         :param game_number: 游戏编号。范围 [1, 3]
         :param chapter_counts: 解锁的章节数量。
         """
@@ -344,6 +433,7 @@ class SaveEditor:
     def get_unlocked_chapters(self, game_number: int) -> int:
         """
         获取解锁的章节数量。
+        
         :param game_number: 游戏编号。范围 [1, 3]
         """
         assert self.__check_save_loaded(self.__preside_data)

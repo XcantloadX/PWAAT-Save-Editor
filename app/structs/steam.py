@@ -305,16 +305,25 @@ class ObjWork(Struct):
     chou_work: FixedArray['ChouWork', Literal[3]]
     yobi_buffer: Bytes[Literal[120]]
 
-
 @dataclass(init=False)
 class MessageData(Struct):
     msg_line01: FixedString[Literal[512]]
+    """当前显示的消息文本第一行。此字段可以任意修改，且会生效。"""
     msg_line02: FixedString[Literal[512]]
+    """当前显示的消息文本第二行。此字段可以任意修改，且会生效。"""
     msg_line03: FixedString[Literal[512]]
+    """
+    当前显示的消息文本第三行。此字段可以任意修改，且会生效。
+    
+    注意有时候消息框高度不够，第三行会溢出。
+    """
     line_x: FixedArray[int_, Literal[3]]
     name_no: ushort
+    """角色名称编号。"""
     name_visible: bool_
+    """是否在对话框左上角显示角色名称。"""
     window_visible: bool_
+    """是否显示对话框。若为 0，则包括文本在内的对话框内容均不显示。"""
     msg_icon: FixedArray['MessageKeyIconSaveData', Literal[3]]
 
 @dataclass(init=False)

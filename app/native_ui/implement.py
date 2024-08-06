@@ -58,7 +58,7 @@ class FrameMainImpl(FrameMain):
             self.m_sld_hp.Value = value
             
         # 处理事件
-        self.editor.set_court_hp(self.m_chc_saves.GetSelection(), self.m_sld_hp.Value)
+        self.editor.set_court_hp(self.m_sld_hp.Value)
             
     def mi_open_on_select(self, event):
         with wx.FileDialog(self, _(u"打开存档文件"), wildcard=f"{_(u'存档文件')} (*.*)|*.*", style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST) as fileDialog:
@@ -66,17 +66,17 @@ class FrameMainImpl(FrameMain):
                 return
             path = fileDialog.GetPath()
             self.editor.load(path)
-            self.load_ui()
+            self.load_basic_ui()
             
     def mi_open_steam_on_select(self, event):
         _, steam_path = locator.system_steam_save_path[0]
         self.editor.load(steam_path)
-        self.load_ui()
+        self.load_basic_ui()
     
     def mi_open_xbox_on_select(self, event):
         xbox_path = locator.system_xbox_save_path[0]
         self.editor.load(xbox_path)
-        self.load_ui()
+        self.load_basic_ui()
     
     def mi_save_on_select(self, event):
         self.editor.save()
@@ -134,7 +134,7 @@ class FrameMainImpl(FrameMain):
             raise NoOpenSaveFileError()
         subprocess.run(['repl.exe', '-s', path])
     
-    def load_ui(self):
+    def load_basic_ui(self):
         # 解锁章节
         gs1 = self.editor.get_unlocked_chapters(1)
         self.m_chc_gs1.SetSelection(gs1 - 1)
@@ -162,7 +162,16 @@ class FrameMainImpl(FrameMain):
         slot_number = self.m_chc_saves.GetSelection()
         if slot_number == wx.NOT_FOUND:
             return
-        self.m_sld_hp.Value = self.editor.get_court_hp(slot_number)
+        self.editor.select_slot(slot_number)
+        # 法庭血量
+        self.m_sld_hp.Value = self.editor.get_court_hp()
+        # 消息框 Tab
+        self.m_chk_dlg_visible.Value = self.editor.dialog_data.dialog_visible
+        self.m_chk_dlg_name_visible.Value = self.editor.dialog_data.name_visible
+        self.m_spn_dlg_char.Value = self.editor.dialog_data.character_name_id
+        self.m_txt_dlg_line1.Value = self.editor.dialog_data.text_line1
+        self.m_txt_dlg_line2.Value = self.editor.dialog_data.text_line2
+        self.m_txt_dlg_line3.Value = self.editor.dialog_data.text_line3
 
     def mi_file2steam_on_choice(self, event):
         with wx.FileDialog(self, _(u"打开文件"), wildcard=f"{_(u'存档文件')} (*.*)|*.*", style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST) as fileDialog:
@@ -190,6 +199,8 @@ class FrameMainImpl(FrameMain):
             self.editor.save(path)
             wx.MessageBox(_(u'导出成功'), _(u'提示'), wx.OK | wx.ICON_INFORMATION)
     
+    
+    ################ 数据绑定 ################
     def chc_gs1_on_choice(self, event):
         self.editor.set_unlocked_chapters(1, self.m_chc_gs1.GetSelection() + 1)
         
@@ -198,6 +209,28 @@ class FrameMainImpl(FrameMain):
         
     def chc_gs3_on_choice(self, event):
         self.editor.set_unlocked_chapters(3, self.m_chc_gs3.GetSelection() + 1)
+        
+    def m_spn_dlg_char_on_spin_ctrl(self, event):
+        self.editor.dialog_data.character_name_id = self.m_spn_dlg_char.Value
+    
+    def m_chk_dlg_name_visible_on_check(self, event):
+        self.editor.dialog_data.name_visible = self.m_chk_dlg_name_visible.Value
+        
+    def m_chk_dlg_visible_on_check(self, event):
+        self.editor.dialog_data.dialog_visible = self.m_chk_dlg_visible.Value
+
+    def m_chk_dlg_visible_on_checkbox(self, event):
+        self.editor.dialog_data.dialog_visible = self.m_chk_dlg_visible.Value
+        
+    def m_txt_dlg_line1_on_text(self, event):
+        self.editor.dialog_data.text_line1 = self.m_txt_dlg_line1.Value
+        
+    def m_txt_dlg_line2_on_text(self, event):
+        self.editor.dialog_data.text_line2 = self.m_txt_dlg_line2.Value
+        
+    def m_txt_dlg_line3_on_text(self, event):
+        self.editor.dialog_data.text_line3 = self.m_txt_dlg_line3.Value
+        
     
 app = wx.App()
 frame = FrameMainImpl(None)

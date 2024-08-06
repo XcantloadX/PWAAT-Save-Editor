@@ -20,12 +20,27 @@ _ = gettext.gettext
 class FrameMain ( wx.Frame ):
 
     def __init__( self, parent ):
-        wx.Frame.__init__ ( self, parent, id = wx.ID_ANY, title = _(u"逆转裁判 123 存档工具"), pos = wx.DefaultPosition, size = wx.Size( 500,400 ), style = wx.DEFAULT_FRAME_STYLE|wx.TAB_TRAVERSAL )
+        wx.Frame.__init__ ( self, parent, id = wx.ID_ANY, title = _(u"逆转裁判 123 存档工具"), pos = wx.DefaultPosition, size = wx.Size( 563,440 ), style = wx.DEFAULT_FRAME_STYLE|wx.TAB_TRAVERSAL )
 
         self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
         self.SetBackgroundColour( wx.SystemSettings.GetColour( wx.SYS_COLOUR_WINDOW ) )
 
         bSizer1 = wx.BoxSizer( wx.VERTICAL )
+
+        wSizer13 = wx.WrapSizer( wx.HORIZONTAL, wx.WRAPSIZER_DEFAULT_FLAGS )
+
+        self.m_staticText5 = wx.StaticText( self, wx.ID_ANY, _(u"存档选择"), wx.DefaultPosition, wx.DefaultSize, 0 )
+        self.m_staticText5.Wrap( -1 )
+
+        wSizer13.Add( self.m_staticText5, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
+
+        m_chc_savesChoices = []
+        self.m_chc_saves = wx.Choice( self, wx.ID_ANY, wx.DefaultPosition, wx.Size( 350,-1 ), m_chc_savesChoices, 0 )
+        self.m_chc_saves.SetSelection( 0 )
+        wSizer13.Add( self.m_chc_saves, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
+
+
+        bSizer1.Add( wSizer13, 0, wx.EXPAND, 5 )
 
         self.m_panel2 = wx.Panel( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
         bSizer4 = wx.BoxSizer( wx.VERTICAL )
@@ -84,16 +99,6 @@ class FrameMain ( wx.Frame ):
 
         bSizer61 = wx.BoxSizer( wx.HORIZONTAL )
 
-        self.m_staticText5 = wx.StaticText( sbSizer_ingame.GetStaticBox(), wx.ID_ANY, _(u"存档选择"), wx.DefaultPosition, wx.DefaultSize, 0 )
-        self.m_staticText5.Wrap( -1 )
-
-        bSizer61.Add( self.m_staticText5, 0, wx.ALL, 5 )
-
-        m_chc_savesChoices = []
-        self.m_chc_saves = wx.Choice( sbSizer_ingame.GetStaticBox(), wx.ID_ANY, wx.DefaultPosition, wx.Size( 350,-1 ), m_chc_savesChoices, 0 )
-        self.m_chc_saves.SetSelection( 0 )
-        bSizer61.Add( self.m_chc_saves, 0, wx.ALL, 5 )
-
 
         bSizer5.Add( bSizer61, 0, wx.EXPAND, 5 )
 
@@ -120,7 +125,103 @@ class FrameMain ( wx.Frame ):
         self.m_pnl_common.SetSizer( bSizer2 )
         self.m_pnl_common.Layout()
         bSizer2.Fit( self.m_pnl_common )
-        self.m_notebook1.AddPage( self.m_pnl_common, _(u"常用设置"), True )
+        self.m_notebook1.AddPage( self.m_pnl_common, _(u"常用设置"), False )
+        self.m_pnl_dialog = wx.Panel( self.m_notebook1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+        bSizer7 = wx.BoxSizer( wx.VERTICAL )
+
+        wSizer9 = wx.WrapSizer( wx.HORIZONTAL, wx.WRAPSIZER_DEFAULT_FLAGS )
+
+        self.m_staticText11 = wx.StaticText( self.m_pnl_dialog, wx.ID_ANY, _(u"当前功能为高级功能，可能会造成未知存档问题"), wx.DefaultPosition, wx.DefaultSize, wx.ALIGN_CENTER_HORIZONTAL )
+        self.m_staticText11.SetLabelMarkup( _(u"当前功能为高级功能，可能会造成未知存档问题") )
+        self.m_staticText11.Wrap( -1 )
+
+        self.m_staticText11.SetForegroundColour( wx.Colour( 255, 0, 0 ) )
+
+        wSizer9.Add( self.m_staticText11, 0, wx.ALL, 5 )
+
+
+        bSizer7.Add( wSizer9, 0, wx.EXPAND, 5 )
+
+        wSizer7 = wx.WrapSizer( wx.HORIZONTAL, wx.WRAPSIZER_DEFAULT_FLAGS )
+
+        self.m_chk_dlg_visible = wx.CheckBox( self.m_pnl_dialog, wx.ID_ANY, _(u"显示对话框"), wx.DefaultPosition, wx.DefaultSize, 0 )
+        wSizer7.Add( self.m_chk_dlg_visible, 0, wx.ALL, 5 )
+
+
+        bSizer7.Add( wSizer7, 0, wx.EXPAND, 5 )
+
+        wSizer1 = wx.WrapSizer( wx.HORIZONTAL, wx.WRAPSIZER_DEFAULT_FLAGS )
+
+        self.m_staticText6 = wx.StaticText( self.m_pnl_dialog, wx.ID_ANY, _(u"第一行消息"), wx.DefaultPosition, wx.DefaultSize, 0 )
+        self.m_staticText6.Wrap( -1 )
+
+        wSizer1.Add( self.m_staticText6, 0, wx.ALL, 5 )
+
+        self.m_txt_dlg_line1 = wx.TextCtrl( self.m_pnl_dialog, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+        self.m_txt_dlg_line1.SetMaxLength( 512 )
+        self.m_txt_dlg_line1.SetMinSize( wx.Size( 300,-1 ) )
+
+        wSizer1.Add( self.m_txt_dlg_line1, 0, wx.ALL, 5 )
+
+
+        bSizer7.Add( wSizer1, 0, wx.EXPAND, 5 )
+
+        wSizer2 = wx.WrapSizer( wx.HORIZONTAL, wx.WRAPSIZER_DEFAULT_FLAGS )
+
+        self.m_staticText61 = wx.StaticText( self.m_pnl_dialog, wx.ID_ANY, _(u"第二行消息"), wx.DefaultPosition, wx.DefaultSize, 0 )
+        self.m_staticText61.Wrap( -1 )
+
+        wSizer2.Add( self.m_staticText61, 0, wx.ALL, 5 )
+
+        self.m_txt_dlg_line2 = wx.TextCtrl( self.m_pnl_dialog, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+        self.m_txt_dlg_line2.SetMaxLength( 512 )
+        self.m_txt_dlg_line2.SetMinSize( wx.Size( 300,-1 ) )
+
+        wSizer2.Add( self.m_txt_dlg_line2, 0, wx.ALL|wx.EXPAND, 5 )
+
+
+        bSizer7.Add( wSizer2, 0, wx.EXPAND, 5 )
+
+        wSizer3 = wx.WrapSizer( wx.HORIZONTAL, wx.WRAPSIZER_DEFAULT_FLAGS )
+
+        self.m_staticText62 = wx.StaticText( self.m_pnl_dialog, wx.ID_ANY, _(u"第三行消息"), wx.DefaultPosition, wx.DefaultSize, 0 )
+        self.m_staticText62.Wrap( -1 )
+
+        wSizer3.Add( self.m_staticText62, 0, wx.ALL, 5 )
+
+        self.m_txt_dlg_line3 = wx.TextCtrl( self.m_pnl_dialog, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+        self.m_txt_dlg_line3.SetMaxLength( 512 )
+        self.m_txt_dlg_line3.SetMinSize( wx.Size( 300,-1 ) )
+
+        wSizer3.Add( self.m_txt_dlg_line3, 0, wx.ALL|wx.EXPAND, 5 )
+
+
+        bSizer7.Add( wSizer3, 0, wx.EXPAND, 5 )
+
+        wSizer71 = wx.WrapSizer( wx.HORIZONTAL, wx.WRAPSIZER_DEFAULT_FLAGS )
+
+        self.m_chk_dlg_name_visible = wx.CheckBox( self.m_pnl_dialog, wx.ID_ANY, _(u"在对话框中显示角色名称"), wx.DefaultPosition, wx.DefaultSize, 0 )
+        wSizer71.Add( self.m_chk_dlg_name_visible, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
+
+
+        wSizer71.Add( ( 0, 0), 0, wx.LEFT, 20 )
+
+        self.m_staticText10 = wx.StaticText( self.m_pnl_dialog, wx.ID_ANY, _(u"角色编号"), wx.DefaultPosition, wx.DefaultSize, 0 )
+        self.m_staticText10.Wrap( -1 )
+
+        wSizer71.Add( self.m_staticText10, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
+
+        self.m_spn_dlg_char = wx.SpinCtrl( self.m_pnl_dialog, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, wx.SP_ARROW_KEYS, 0, 100, 0 )
+        wSizer71.Add( self.m_spn_dlg_char, 0, wx.ALL, 5 )
+
+
+        bSizer7.Add( wSizer71, 0, wx.EXPAND, 5 )
+
+
+        self.m_pnl_dialog.SetSizer( bSizer7 )
+        self.m_pnl_dialog.Layout()
+        bSizer7.Fit( self.m_pnl_dialog )
+        self.m_notebook1.AddPage( self.m_pnl_dialog, _(u"对话框"), True )
 
         bSizer4.Add( self.m_notebook1, 1, wx.EXPAND, 5 )
 
@@ -187,11 +288,17 @@ class FrameMain ( wx.Frame ):
         self.Centre( wx.BOTH )
 
         # Connect Events
+        self.m_chc_saves.Bind( wx.EVT_CHOICE, self.chc_savs_on_choice )
         self.m_chc_gs1.Bind( wx.EVT_CHOICE, self.chc_gs1_on_choice )
         self.m_chc_gs2.Bind( wx.EVT_CHOICE, self.chc_gs2_on_choice )
         self.m_chc_gs3.Bind( wx.EVT_CHOICE, self.chc_gs3_on_choice )
-        self.m_chc_saves.Bind( wx.EVT_CHOICE, self.chc_savs_on_choice )
         self.m_sld_hp.Bind( wx.EVT_SCROLL_CHANGED, self.sld_hp_on_scroll_changed )
+        self.m_chk_dlg_visible.Bind( wx.EVT_CHECKBOX, self.m_chk_dlg_visible_on_checkbox )
+        self.m_txt_dlg_line1.Bind( wx.EVT_TEXT, self.m_txt_dlg_line1_on_text )
+        self.m_txt_dlg_line2.Bind( wx.EVT_TEXT, self.m_txt_dlg_line2_on_text )
+        self.m_txt_dlg_line3.Bind( wx.EVT_TEXT, self.m_txt_dlg_line3_on_text )
+        self.m_chk_dlg_name_visible.Bind( wx.EVT_CHECKBOX, self.m_chk_dlg_name_visible_on_check )
+        self.m_spn_dlg_char.Bind( wx.EVT_SPINCTRL, self.m_spn_dlg_char_on_spin_ctrl )
         self.Bind( wx.EVT_MENU, self.mi_open_on_select, id = self.m_mi_open.GetId() )
         self.Bind( wx.EVT_MENU, self.mi_open_steam_on_select, id = self.m_mi_open_steam.GetId() )
         self.Bind( wx.EVT_MENU, self.mi_open_xbox_on_select, id = self.m_mi_open_xbox.GetId() )
@@ -209,6 +316,9 @@ class FrameMain ( wx.Frame ):
 
 
     # Virtual event handlers, override them in your derived class
+    def chc_savs_on_choice( self, event ):
+        event.Skip()
+
     def chc_gs1_on_choice( self, event ):
         event.Skip()
 
@@ -218,10 +328,25 @@ class FrameMain ( wx.Frame ):
     def chc_gs3_on_choice( self, event ):
         event.Skip()
 
-    def chc_savs_on_choice( self, event ):
+    def sld_hp_on_scroll_changed( self, event ):
         event.Skip()
 
-    def sld_hp_on_scroll_changed( self, event ):
+    def m_chk_dlg_visible_on_checkbox( self, event ):
+        event.Skip()
+
+    def m_txt_dlg_line1_on_text( self, event ):
+        event.Skip()
+
+    def m_txt_dlg_line2_on_text( self, event ):
+        event.Skip()
+
+    def m_txt_dlg_line3_on_text( self, event ):
+        event.Skip()
+
+    def m_chk_dlg_name_visible_on_check( self, event ):
+        event.Skip()
+
+    def m_spn_dlg_char_on_spin_ctrl( self, event ):
         event.Skip()
 
     def mi_open_on_select( self, event ):

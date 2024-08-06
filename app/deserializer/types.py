@@ -52,6 +52,9 @@ class FixedString(Generic[Len]):
     
     注意，**此类型在运行时是 `bytes` 类型，而不是 `str` 类型**。因此读写时需要 `encode`/`decode。`
     """
+    def __init__(self, *args: Any) -> None: ...
+    def __new__(cls, val: Any) -> Self:
+        return val
     def decode(self, encoding: str = "utf-8", errors: str = "strict") -> str: ...
 class Bytes(Generic[Len]): pass
 

@@ -1,3 +1,4 @@
+import os
 import sys
 
 from Crypto.Cipher import AES
@@ -44,5 +45,15 @@ if __name__ == "__main__":
 
     input_file = sys.argv[1]
     output_file = sys.argv[2]
-
-    decrypt_file(input_file, output_file)
+    
+    if os.path.isdir(input_file) and os.path.isdir(output_file):
+        # Scan input folder for files
+        for filename in os.listdir(input_file):
+            # Construct input and output file paths
+            input_path = os.path.join(input_file, filename)
+            output_path = os.path.join(output_file, filename)
+            
+            # Decrypt the file
+            decrypt_file(input_path, output_path)
+    else:
+        decrypt_file(input_file, output_file)
