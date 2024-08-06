@@ -1,6 +1,8 @@
+import os
 import sys
-import traceback
 import datetime
+import traceback
+import subprocess
 from gettext import gettext as _
 
 import wx
@@ -123,6 +125,15 @@ class FrameMainImpl(FrameMain):
         dialog.ShowModal()
         dialog.Destroy()
     
+    def mi_run_repl_on_select(self, event):
+        if not os.path.exists('repl.exe'):
+            wx.MessageBox(_(u'当前版本为非 REPL 版本。'), _(u'错误'), wx.OK | wx.ICON_ERROR)
+            return
+        path = self.editor.save_path
+        if not path:
+            raise NoOpenSaveFileError()
+        subprocess.run(['repl.exe', '-s', path])
+    
     def load_ui(self):
         # 解锁章节
         gs1 = self.editor.get_unlocked_chapters(1)
@@ -134,7 +145,7 @@ class FrameMainImpl(FrameMain):
         
         # 存档选择
         self.m_chc_saves.Clear()
-        slots = self.editor.get_slots()
+        slots = self.editor.get_slots_info()
         for i, slot in enumerate(slots, 1):
             self.m_chc_saves.Append(f'{i:02d}: ' + slot.short_str)
         newest = max(slots, key=(

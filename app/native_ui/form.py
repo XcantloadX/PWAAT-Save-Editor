@@ -159,6 +159,9 @@ class FrameMain ( wx.Frame ):
         self.m_mi_show_debug = wx.MenuItem( self.m_menu_file, wx.ID_ANY, _(u"显示调试信息"), wx.EmptyString, wx.ITEM_NORMAL )
         self.m_menu_file.Append( self.m_mi_show_debug )
 
+        self.m_mi_run_repl = wx.MenuItem( self.m_menu_file, wx.ID_ANY, _(u"运行 REPL"), wx.EmptyString, wx.ITEM_NORMAL )
+        self.m_menu_file.Append( self.m_mi_run_repl )
+
         self.m_menubar.Append( self.m_menu_file, _(u"文件") )
 
         self.m_menu_convert = wx.Menu()
@@ -195,6 +198,7 @@ class FrameMain ( wx.Frame ):
         self.Bind( wx.EVT_MENU, self.mi_save_on_select, id = self.m_mi_save.GetId() )
         self.Bind( wx.EVT_MENU, self.mi_save_as_on_select, id = self.m_mi_save_as.GetId() )
         self.Bind( wx.EVT_MENU, self.mi_show_debug_on_select, id = self.m_mi_show_debug.GetId() )
+        self.Bind( wx.EVT_MENU, self.mi_run_repl_on_select, id = self.m_mi_run_repl.GetId() )
         self.Bind( wx.EVT_MENU, self.mi_xbox2steam_on_choice, id = self.m_mi_xbox2steam.GetId() )
         self.Bind( wx.EVT_MENU, self.mi_steam2xbox_on_choice, id = self.m_mi_steam2xbox.GetId() )
         self.Bind( wx.EVT_MENU, self.mi_steam2file_on_choice, id = self.m_mi_steam2file.GetId() )
@@ -236,6 +240,9 @@ class FrameMain ( wx.Frame ):
         event.Skip()
 
     def mi_show_debug_on_select( self, event ):
+        event.Skip()
+
+    def mi_run_repl_on_select( self, event ):
         event.Skip()
 
     def mi_xbox2steam_on_choice( self, event ):

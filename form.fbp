@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <wxFormBuilder_Project>
   <FileVersion major="1" minor="17"/>
-  <object class="Project" expanded="false">
+  <object class="Project" expanded="true">
     <property name="class_decoration">; </property>
     <property name="code_generation">Python</property>
     <property name="disconnect_events">1</property>
@@ -1089,6 +1089,20 @@
             <property name="shortcut"></property>
             <property name="unchecked_bitmap"></property>
             <event name="OnMenuSelection">mi_show_debug_on_select</event>
+          </object>
+          <object class="wxMenuItem" expanded="true">
+            <property name="bitmap"></property>
+            <property name="checked">0</property>
+            <property name="enabled">1</property>
+            <property name="help"></property>
+            <property name="id">wxID_ANY</property>
+            <property name="kind">wxITEM_NORMAL</property>
+            <property name="label">运行 REPL</property>
+            <property name="name">m_mi_run_repl</property>
+            <property name="permission">none</property>
+            <property name="shortcut"></property>
+            <property name="unchecked_bitmap"></property>
+            <event name="OnMenuSelection">mi_run_repl_on_select</event>
           </object>
         </object>
         <object class="wxMenu" expanded="false">

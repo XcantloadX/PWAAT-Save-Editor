@@ -1,4 +1,5 @@
 .\.venv\Scripts\activate
+$datetime = Get-Date -Format "yyyy-MM-dd_HH-mm-ss"
 
 if (Test-Path output) { 
     rm -fo -r output
@@ -19,7 +20,18 @@ $bat = @"
 pause
 "@
 Out-File -FilePath ".\dist\PWAAT Save Editor\DEBUG.bat" -InputObject $bat -Encoding ascii
+$file_name = ".\dist\PWAAT_Save_Editor_$datetime.zip"
+Compress-Archive -Force -Path  ".\dist\PWAAT Save Editor" -DestinationPath $file_name
+cp $file_name output
 
-# zip
-$datetime = Get-Date -Format "yyyy-MM-dd_HH-mm-ss"
-Compress-Archive -Force -Path  ".\dist\PWAAT Save Editor" -DestinationPath ".\dist\PWAAT_Save_Editor_$datetime.zip"
+&pyinstaller --noconfirm .\packages.spec
+
+$bat = @"
+@echo off
+"PWAAT Save Editor.exe"
+pause
+"@
+Out-File -FilePath ".\dist\PWAAT Save Editor\DEBUG.bat" -InputObject $bat -Encoding ascii
+$file_name = ".\dist\PWAAT_Save_Editor_REPL_$datetime.zip"
+Compress-Archive -Force -Path  ".\dist\PWAAT Save Editor" -DestinationPath $file_name
+cp $file_name output

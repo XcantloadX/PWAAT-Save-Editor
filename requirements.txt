@@ -1,6 +1,13 @@
-pywebview==5.1
+# decrypt game resources
 pycryptodome==3.20.0
+
+# freeze application
 pyinstaller==6.9.0
+
+# GUI
+wxPython==4.2.1
+
+# Windows API to list installed applications
 winrt-runtime==2.1.0
 winrt-Windows.ApplicationModel==2.1.0
 winrt-Windows.Foundation==2.1.0
@@ -8,4 +15,3 @@ winrt-Windows.Foundation.Collections==2.1.0
 winrt-Windows.Management==2.1.0
 winrt-Windows.Management.Deployment==2.1.0
 winrt-Windows.Storage==2.1.0
-wxPython==4.2.1

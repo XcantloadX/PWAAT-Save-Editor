@@ -86,11 +86,17 @@ class SaveEditor:
     
     @property
     def preside_data(self) -> PresideData|PresideDataXbox:
+        """
+        游戏存档数据根结构体
+        """
         assert self.__check_save_loaded(self.__preside_data)
         return self.__preside_data
     
     @property
     def save_type(self) -> SaveType:
+        """
+        存档类型
+        """
         assert self.__check_save_loaded(self.__preside_data)
         if is_struct(self.__preside_data, PresideData):
             return SaveType.STEAM
@@ -98,6 +104,10 @@ class SaveEditor:
             return SaveType.XBOX
         else:
             return SaveType.UNKNOWN
+    
+    @property
+    def save_path(self) -> str|None:
+        return self.__save_path
     
     @property
     def opened(self) -> bool:
@@ -112,6 +122,7 @@ class SaveEditor:
     def load(self, save_file_path: str):
         """
         加载存档数据
+        
         :param save_file_path: 存档文件路径
         """
         self.__save_path = save_file_path
@@ -140,7 +151,12 @@ class SaveEditor:
             self.__change_language('hans')
         elif lang_id == Language_.CHINA_T:
             self.__change_language('hant')
-            
+    
+    def reload(self):
+        assert self.__check_save_loaded(self.__preside_data)
+        assert self.__save_path is not None
+        self.load(self.__save_path)
+    
     def save(self, save_file_path: str|None = None):
         assert self.__check_save_loaded(self.__preside_data)
         if not save_file_path:
@@ -155,6 +171,11 @@ class SaveEditor:
             raise ValueError('Invalid save data')
     
     def convert(self, target: SaveType):
+        """
+        将当前存档数据转换为指定类型的存档数据。转换后需要手动调用 `save()` 方法保存。
+        
+        :param target: 目标存档类型
+        """
         assert self.__check_save_loaded(self.__preside_data)
         if target == SaveType.STEAM:
             if is_struct(self.__preside_data, PresideDataXbox):
@@ -181,7 +202,7 @@ class SaveEditor:
         assert self.__check_save_loaded(self.__preside_data)
         return self.__preside_data.system_data_.reserve_work_.reserve[1]
     
-    def get_slots(self) -> list[SaveSlot]:
+    def get_slots_info(self) -> list[SaveSlot]:
         """
         获取所有存档槽位的信息
         """
@@ -271,6 +292,15 @@ class SaveEditor:
             ))
         return slots
     
+    def get_slot_data(self, slot_number: int):
+        """
+        获取指定游戏内槽位的 preside_data.slot_list_ 数据
+        
+        :param slot_number: 游戏内存档槽位号，范围 [0, 9]
+        """
+        assert self.__check_save_loaded(self.__preside_data)
+        return self.__preside_data.slot_list_[self.real_slot_number(slot_number)]
+    
     def set_court_hp(self, slot_number: int, hp: int):
         """
         设置法庭日血量值。
@@ -278,7 +308,7 @@ class SaveEditor:
         :param hp: 血量值，范围 [0, 80]
         """
         assert self.__check_save_loaded(self.__preside_data)
-        slot_number = self.__get_real_slot_number(slot_number)
+        slot_number = self.real_slot_number(slot_number)
         self.__preside_data.slot_list_[slot_number].global_work_.gauge_hp = Int16(hp)
         self.__preside_data.slot_list_[slot_number].global_work_.gauge_hp_disp = Int16(hp)
 
@@ -288,7 +318,7 @@ class SaveEditor:
         :param slot_number: 游戏内存档槽位号，范围 [0, 9]
         """
         assert self.__check_save_loaded(self.__preside_data)
-        slot_number = self.__get_real_slot_number(slot_number)
+        slot_number = self.real_slot_number(slot_number)
         return self.__preside_data.slot_list_[slot_number].global_work_.gauge_hp
     
     def set_unlocked_chapters(self, game_number: int, chapter_count: int):
@@ -327,7 +357,7 @@ class SaveEditor:
         else:
             raise ValueError('Invalid game number.')
     
-    def __get_real_slot_number(self, slot_number: int) -> int:
+    def real_slot_number(self, slot_number: int) -> int:
         """
         获取实际存档槽位号
         """
@@ -338,5 +368,5 @@ if __name__ == '__main__':
     from pprint import pprint
     se = SaveEditor(language='hans')
     # se.load()
-    pprint(se.get_slots())
+    pprint(se.get_slots_info())
     

@@ -31,6 +31,11 @@ ulong = Int64
 
 float_ = NewType('float_', float)
 bool_ = Int32 # HACK: 不知道为什么，C# 里 Marshal.SizeOf(true) == 4 
+"""
+布尔类型。
+
+**此类型在运行时是 `int`（Int32） 类型**。
+"""
 
 Len = TypeVar('Len')
 class FixedArray(Generic[T, Len]): 
@@ -42,6 +47,11 @@ class FixedArray(Generic[T, Len]):
     def __contains__(self, item: T) -> bool: ...
     
 class FixedString(Generic[Len]):
+    """
+    长度固定的字符串类型。
+    
+    注意，**此类型在运行时是 `bytes` 类型，而不是 `str` 类型**。因此读写时需要 `encode`/`decode。`
+    """
     def decode(self, encoding: str = "utf-8", errors: str = "strict") -> str: ...
 class Bytes(Generic[Len]): pass
 
