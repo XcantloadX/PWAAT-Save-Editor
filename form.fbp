@@ -325,7 +325,7 @@
                   <object class="notebookpage" expanded="true">
                     <property name="bitmap"></property>
                     <property name="label">常用设置</property>
-                    <property name="select">0</property>
+                    <property name="select">1</property>
                     <object class="wxPanel" expanded="true">
                       <property name="BottomDockable">1</property>
                       <property name="LeftDockable">1</property>
@@ -981,7 +981,7 @@
                   <object class="notebookpage" expanded="true">
                     <property name="bitmap"></property>
                     <property name="label">对话框</property>
-                    <property name="select">1</property>
+                    <property name="select">0</property>
                     <object class="wxPanel" expanded="true">
                       <property name="BottomDockable">1</property>
                       <property name="LeftDockable">1</property>
@@ -1834,7 +1834,7 @@
           </object>
         </object>
       </object>
-      <object class="wxMenuBar" expanded="false">
+      <object class="wxMenuBar" expanded="true">
         <property name="bg"></property>
         <property name="context_help"></property>
         <property name="context_menu">1</property>
@@ -1856,7 +1856,7 @@
         <property name="window_extra_style"></property>
         <property name="window_name"></property>
         <property name="window_style"></property>
-        <object class="wxMenu" expanded="false">
+        <object class="wxMenu" expanded="true">
           <property name="label">文件</property>
           <property name="name">m_menu_file</property>
           <property name="permission">protected</property>
@@ -1952,20 +1952,6 @@
             <property name="unchecked_bitmap"></property>
             <event name="OnMenuSelection">mi_show_debug_on_select</event>
           </object>
-          <object class="wxMenuItem" expanded="true">
-            <property name="bitmap"></property>
-            <property name="checked">0</property>
-            <property name="enabled">1</property>
-            <property name="help"></property>
-            <property name="id">wxID_ANY</property>
-            <property name="kind">wxITEM_NORMAL</property>
-            <property name="label">运行 REPL</property>
-            <property name="name">m_mi_run_repl</property>
-            <property name="permission">none</property>
-            <property name="shortcut"></property>
-            <property name="unchecked_bitmap"></property>
-            <event name="OnMenuSelection">mi_run_repl_on_select</event>
-          </object>
         </object>
         <object class="wxMenu" expanded="false">
           <property name="label">转换</property>
@@ -2030,6 +2016,87 @@
             <property name="shortcut"></property>
             <property name="unchecked_bitmap"></property>
             <event name="OnMenuSelection">mi_file2steam_on_choice</event>
+          </object>
+        </object>
+        <object class="wxMenu" expanded="true">
+          <property name="label">工具</property>
+          <property name="name">m_menu_tools</property>
+          <property name="permission">protected</property>
+          <object class="wxMenuItem" expanded="true">
+            <property name="bitmap"></property>
+            <property name="checked">0</property>
+            <property name="enabled">1</property>
+            <property name="help"></property>
+            <property name="id">wxID_ANY</property>
+            <property name="kind">wxITEM_NORMAL</property>
+            <property name="label">运行 REPL</property>
+            <property name="name">m_mi_run_repl</property>
+            <property name="permission">none</property>
+            <property name="shortcut"></property>
+            <property name="unchecked_bitmap"></property>
+            <event name="OnMenuSelection">mi_run_repl_on_select</event>
+          </object>
+          <object class="submenu" expanded="true">
+            <property name="bitmap"></property>
+            <property name="label">游戏资源加解密</property>
+            <property name="name">m_menu_game_res</property>
+            <property name="permission">protected</property>
+            <object class="wxMenuItem" expanded="true">
+              <property name="bitmap"></property>
+              <property name="checked">0</property>
+              <property name="enabled">1</property>
+              <property name="help"></property>
+              <property name="id">wxID_ANY</property>
+              <property name="kind">wxITEM_NORMAL</property>
+              <property name="label">解密文件...</property>
+              <property name="name">m_mi_decrypt_file</property>
+              <property name="permission">none</property>
+              <property name="shortcut"></property>
+              <property name="unchecked_bitmap"></property>
+              <event name="OnMenuSelection">m_mi_decrypt_file_on_select</event>
+            </object>
+            <object class="wxMenuItem" expanded="true">
+              <property name="bitmap"></property>
+              <property name="checked">0</property>
+              <property name="enabled">1</property>
+              <property name="help"></property>
+              <property name="id">wxID_ANY</property>
+              <property name="kind">wxITEM_NORMAL</property>
+              <property name="label">解密文件夹...</property>
+              <property name="name">m_mi_decrypt_folder</property>
+              <property name="permission">none</property>
+              <property name="shortcut"></property>
+              <property name="unchecked_bitmap"></property>
+              <event name="OnMenuSelection">m_mi_decrypt_folder_on_select</event>
+            </object>
+            <object class="wxMenuItem" expanded="true">
+              <property name="bitmap"></property>
+              <property name="checked">0</property>
+              <property name="enabled">1</property>
+              <property name="help"></property>
+              <property name="id">wxID_ANY</property>
+              <property name="kind">wxITEM_NORMAL</property>
+              <property name="label">加密文件...</property>
+              <property name="name">m_mi_encrypt_file</property>
+              <property name="permission">none</property>
+              <property name="shortcut"></property>
+              <property name="unchecked_bitmap"></property>
+              <event name="OnMenuSelection">m_mi_encrypt_file_on_select</event>
+            </object>
+            <object class="wxMenuItem" expanded="true">
+              <property name="bitmap"></property>
+              <property name="checked">0</property>
+              <property name="enabled">1</property>
+              <property name="help"></property>
+              <property name="id">wxID_ANY</property>
+              <property name="kind">wxITEM_NORMAL</property>
+              <property name="label">加密文件夹...</property>
+              <property name="name">m_mi_encrypt_folder</property>
+              <property name="permission">none</property>
+              <property name="shortcut"></property>
+              <property name="unchecked_bitmap"></property>
+              <event name="OnMenuSelection">m_mi_encrypt_folder_on_select</event>
+            </object>
           </object>
         </object>
       </object>

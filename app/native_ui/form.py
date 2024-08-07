@@ -125,7 +125,7 @@ class FrameMain ( wx.Frame ):
         self.m_pnl_common.SetSizer( bSizer2 )
         self.m_pnl_common.Layout()
         bSizer2.Fit( self.m_pnl_common )
-        self.m_notebook1.AddPage( self.m_pnl_common, _(u"常用设置"), False )
+        self.m_notebook1.AddPage( self.m_pnl_common, _(u"常用设置"), True )
         self.m_pnl_dialog = wx.Panel( self.m_notebook1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
         bSizer7 = wx.BoxSizer( wx.VERTICAL )
 
@@ -221,7 +221,7 @@ class FrameMain ( wx.Frame ):
         self.m_pnl_dialog.SetSizer( bSizer7 )
         self.m_pnl_dialog.Layout()
         bSizer7.Fit( self.m_pnl_dialog )
-        self.m_notebook1.AddPage( self.m_pnl_dialog, _(u"对话框"), True )
+        self.m_notebook1.AddPage( self.m_pnl_dialog, _(u"对话框"), False )
 
         bSizer4.Add( self.m_notebook1, 1, wx.EXPAND, 5 )
 
@@ -260,9 +260,6 @@ class FrameMain ( wx.Frame ):
         self.m_mi_show_debug = wx.MenuItem( self.m_menu_file, wx.ID_ANY, _(u"显示调试信息"), wx.EmptyString, wx.ITEM_NORMAL )
         self.m_menu_file.Append( self.m_mi_show_debug )
 
-        self.m_mi_run_repl = wx.MenuItem( self.m_menu_file, wx.ID_ANY, _(u"运行 REPL"), wx.EmptyString, wx.ITEM_NORMAL )
-        self.m_menu_file.Append( self.m_mi_run_repl )
-
         self.m_menubar.Append( self.m_menu_file, _(u"文件") )
 
         self.m_menu_convert = wx.Menu()
@@ -281,6 +278,27 @@ class FrameMain ( wx.Frame ):
         self.m_menu_convert.Append( self.m_mi_file2steam )
 
         self.m_menubar.Append( self.m_menu_convert, _(u"转换") )
+
+        self.m_menu_tools = wx.Menu()
+        self.m_mi_run_repl = wx.MenuItem( self.m_menu_tools, wx.ID_ANY, _(u"运行 REPL"), wx.EmptyString, wx.ITEM_NORMAL )
+        self.m_menu_tools.Append( self.m_mi_run_repl )
+
+        self.m_menu_game_res = wx.Menu()
+        self.m_mi_decrypt_file = wx.MenuItem( self.m_menu_game_res, wx.ID_ANY, _(u"解密文件..."), wx.EmptyString, wx.ITEM_NORMAL )
+        self.m_menu_game_res.Append( self.m_mi_decrypt_file )
+
+        self.m_mi_decrypt_folder = wx.MenuItem( self.m_menu_game_res, wx.ID_ANY, _(u"解密文件夹..."), wx.EmptyString, wx.ITEM_NORMAL )
+        self.m_menu_game_res.Append( self.m_mi_decrypt_folder )
+
+        self.m_mi_encrypt_file = wx.MenuItem( self.m_menu_game_res, wx.ID_ANY, _(u"加密文件..."), wx.EmptyString, wx.ITEM_NORMAL )
+        self.m_menu_game_res.Append( self.m_mi_encrypt_file )
+
+        self.m_mi_encrypt_folder = wx.MenuItem( self.m_menu_game_res, wx.ID_ANY, _(u"加密文件夹..."), wx.EmptyString, wx.ITEM_NORMAL )
+        self.m_menu_game_res.Append( self.m_mi_encrypt_folder )
+
+        self.m_menu_tools.AppendSubMenu( self.m_menu_game_res, _(u"游戏资源加解密") )
+
+        self.m_menubar.Append( self.m_menu_tools, _(u"工具") )
 
         self.SetMenuBar( self.m_menubar )
 
@@ -305,11 +323,15 @@ class FrameMain ( wx.Frame ):
         self.Bind( wx.EVT_MENU, self.mi_save_on_select, id = self.m_mi_save.GetId() )
         self.Bind( wx.EVT_MENU, self.mi_save_as_on_select, id = self.m_mi_save_as.GetId() )
         self.Bind( wx.EVT_MENU, self.mi_show_debug_on_select, id = self.m_mi_show_debug.GetId() )
-        self.Bind( wx.EVT_MENU, self.mi_run_repl_on_select, id = self.m_mi_run_repl.GetId() )
         self.Bind( wx.EVT_MENU, self.mi_xbox2steam_on_choice, id = self.m_mi_xbox2steam.GetId() )
         self.Bind( wx.EVT_MENU, self.mi_steam2xbox_on_choice, id = self.m_mi_steam2xbox.GetId() )
         self.Bind( wx.EVT_MENU, self.mi_steam2file_on_choice, id = self.m_mi_steam2file.GetId() )
         self.Bind( wx.EVT_MENU, self.mi_file2steam_on_choice, id = self.m_mi_file2steam.GetId() )
+        self.Bind( wx.EVT_MENU, self.mi_run_repl_on_select, id = self.m_mi_run_repl.GetId() )
+        self.Bind( wx.EVT_MENU, self.m_mi_decrypt_file_on_select, id = self.m_mi_decrypt_file.GetId() )
+        self.Bind( wx.EVT_MENU, self.m_mi_decrypt_folder_on_select, id = self.m_mi_decrypt_folder.GetId() )
+        self.Bind( wx.EVT_MENU, self.m_mi_encrypt_file_on_select, id = self.m_mi_encrypt_file.GetId() )
+        self.Bind( wx.EVT_MENU, self.m_mi_encrypt_folder_on_select, id = self.m_mi_encrypt_folder.GetId() )
 
     def __del__( self ):
         pass
@@ -367,9 +389,6 @@ class FrameMain ( wx.Frame ):
     def mi_show_debug_on_select( self, event ):
         event.Skip()
 
-    def mi_run_repl_on_select( self, event ):
-        event.Skip()
-
     def mi_xbox2steam_on_choice( self, event ):
         event.Skip()
 
@@ -380,6 +399,21 @@ class FrameMain ( wx.Frame ):
         event.Skip()
 
     def mi_file2steam_on_choice( self, event ):
+        event.Skip()
+
+    def mi_run_repl_on_select( self, event ):
+        event.Skip()
+
+    def m_mi_decrypt_file_on_select( self, event ):
+        event.Skip()
+
+    def m_mi_decrypt_folder_on_select( self, event ):
+        event.Skip()
+
+    def m_mi_encrypt_file_on_select( self, event ):
+        event.Skip()
+
+    def m_mi_encrypt_folder_on_select( self, event ):
         event.Skip()
 
 

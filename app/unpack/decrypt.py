@@ -4,11 +4,13 @@ import sys
 from Crypto.Cipher import AES
 from Crypto.Protocol.KDF import PBKDF2
 
+PASSWORD = "u8DurGE2"
+SALT = "6BBGizHE"
 
-def decrypt_bytes(encrypted_data, password="u8DurGE2", salt="6BBGizHE"):
+def decrypt_bytes(encrypted_data):
     # Derive key and IV using PBKDF2
-    salt_bytes = salt.encode('utf-8')
-    key_iv = PBKDF2(password, salt_bytes, dkLen=32, count=1000)
+    salt_bytes = SALT.encode('utf-8')
+    key_iv = PBKDF2(PASSWORD, salt_bytes, dkLen=32, count=1000)
     key = key_iv[:16]
     iv = key_iv[16:32]
 
@@ -25,18 +27,97 @@ def decrypt_bytes(encrypted_data, password="u8DurGE2", salt="6BBGizHE"):
     return decrypted_data
 
 
-def decrypt_file(file_path, output_path, password="u8DurGE2", salt="6BBGizHE"):
-    # Read the encrypted file
+def decrypt_file(file_path: str, output_path: str):
     with open(file_path, 'rb') as f:
         encrypted_data = f.read()
 
-    # Decrypt the data
-    decrypted_data = decrypt_bytes(encrypted_data, password, salt)
+    decrypted_data = decrypt_bytes(encrypted_data)
 
-    # Write the decrypted data to the output file
     with open(output_path, 'wb') as f:
         f.write(decrypted_data)
 
+def decrypt_folder(
+    input_folder: str,
+    output_folder: str,
+    recursive: bool = True,
+    mkdir: bool = True,
+    resume_on_error: bool = False,
+    out_failed_files: list[str]|None = None
+):
+    """
+    :param out_failed_files: output list of failed files
+    """
+    if not os.path.exists(output_folder) and mkdir:
+        os.makedirs(output_folder)
+
+    files = os.listdir(input_folder)
+    for file in files:
+        input_path = os.path.join(input_folder, file)
+        output_path = os.path.join(output_folder, file)
+
+        if os.path.isdir(input_path):
+            if recursive:
+                decrypt_folder(
+                    input_path,
+                    output_path,
+                    recursive=recursive,
+                    mkdir=mkdir,
+                    resume_on_error=resume_on_error,
+                    out_failed_files=out_failed_files
+                )
+        else:
+            try:
+                decrypt_file(input_path, output_path)
+            except:
+                if not resume_on_error:
+                    raise
+                else:
+                    if out_failed_files is not None:
+                        out_failed_files.append(input_path)
+
+
+def encrypt_bytes(data):
+    # Derive key and IV using PBKDF2
+    salt_bytes = SALT.encode('utf-8')
+    key_iv = PBKDF2(PASSWORD, salt_bytes, dkLen=32, count=1000)
+    key = key_iv[:16]
+    iv = key_iv[16:32]
+
+    # Initialize AES cipher
+    cipher = AES.new(key, AES.MODE_CBC, iv)
+
+    # Add padding to the data
+    pad_len = AES.block_size - (len(data) % AES.block_size)
+    padded_data = data + bytes([pad_len] * pad_len)
+
+    # Encrypt the data
+    encrypted_data = cipher.encrypt(padded_data)
+
+    return encrypted_data
+
+def encrypt_file(file_path, output_path):
+    with open(file_path, 'rb') as f:
+        data = f.read()
+
+    encrypted_data = encrypt_bytes(data)
+
+    with open(output_path, 'wb') as f:
+        f.write(encrypted_data)
+
+def encrypt_folder(input_folder, output_folder, recursive=True, mkdir=True):
+    if not os.path.exists(output_folder) and mkdir:
+        os.makedirs(output_folder)
+
+    files = os.listdir(input_folder)
+    for file in files:
+        input_path = os.path.join(input_folder, file)
+        output_path = os.path.join(output_folder, file)
+
+        if os.path.isdir(input_path):
+            if recursive:
+                encrypt_folder(input_path, output_path, recursive=recursive, mkdir=mkdir)
+        else:
+            encrypt_file(input_path, output_path)
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:

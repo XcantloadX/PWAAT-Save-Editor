@@ -10,6 +10,7 @@ import wx
 from .form import FrameMain
 from app.editor.save_editor import SaveEditor, NoOpenSaveFileError, SaveType
 import app.editor.locator as locator
+from app.unpack.decrypt import decrypt_file, encrypt_file, decrypt_folder, encrypt_folder
 
 def _excepthook(type, value, tb):
     if type == NoOpenSaveFileError:
@@ -199,6 +200,64 @@ class FrameMainImpl(FrameMain):
             self.editor.save(path)
             wx.MessageBox(_(u'导出成功'), _(u'提示'), wx.OK | wx.ICON_INFORMATION)
     
+    def m_mi_decrypt_file_on_select(self, event):
+        open_path = None
+        save_path = None
+        with wx.FileDialog(self, _(u"打开文件"), wildcard=f"{_(u'所有文件')} (*.*)|*.*", style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST) as fileDialog:
+            if fileDialog.ShowModal() == wx.ID_CANCEL:
+                return
+            open_path = fileDialog.GetPath()
+        with wx.FileDialog(self, _(u"保存文件"), wildcard=f"{_(u'所有文件')} (*.*)|*.*", style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT) as fileDialog:
+            if fileDialog.ShowModal() == wx.ID_CANCEL:
+                return
+            save_path = fileDialog.GetPath()
+        decrypt_file(open_path, save_path)
+        
+    def m_mi_encrypt_file_on_select(self, event):
+        open_path = None
+        save_path = None
+        with wx.FileDialog(self, _(u"打开文件"), wildcard=f"{_(u'所有文件')} (*.*)|*.*", style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST) as fileDialog:
+            if fileDialog.ShowModal() == wx.ID_CANCEL:
+                return
+            open_path = fileDialog.GetPath()
+        with wx.FileDialog(self, _(u"保存文件"), wildcard=f"{_(u'所有文件')} (*.*)|*.*", style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT) as fileDialog:
+            if fileDialog.ShowModal() == wx.ID_CANCEL:
+                return
+            save_path = fileDialog.GetPath()
+        encrypt_file(open_path, save_path)
+        
+    def m_mi_decrypt_folder_on_select(self, event):
+        open_path = None
+        save_path = None
+        with wx.DirDialog(self, _(u"选择输入文件夹"), style=wx.DD_DEFAULT_STYLE) as dirDialog:
+            if dirDialog.ShowModal() == wx.ID_CANCEL:
+                return
+            open_path = dirDialog.GetPath()
+        with wx.DirDialog(self, _(u"选择输出文件夹"), style=wx.DD_DEFAULT_STYLE) as dirDialog:
+            if dirDialog.ShowModal() == wx.ID_CANCEL:
+                return
+            save_path = dirDialog.GetPath()
+        busy = wx.BusyInfo(_(u'正在解密，请稍候...'))
+        error_list = []
+        decrypt_folder(open_path, save_path, resume_on_error=True, out_failed_files=error_list)
+        del busy
+        wx.MessageBox(_(u'解密完成，失败文件列表：\n') + '\n'.join(error_list), _(u'提示'), wx.OK | wx.ICON_INFORMATION)
+        
+    def m_mi_encrypt_folder_on_select(self, event):
+        open_path = None
+        save_path = None
+        with wx.DirDialog(self, _(u"选择输入文件夹"), style=wx.DD_DEFAULT_STYLE) as dirDialog:
+            if dirDialog.ShowModal() == wx.ID_CANCEL:
+                return
+            open_path = dirDialog.GetPath()
+        with wx.DirDialog(self, _(u"选择输出文件夹"), style=wx.DD_DEFAULT_STYLE) as dirDialog:
+            if dirDialog.ShowModal() == wx.ID_CANCEL:
+                return
+            save_path = dirDialog.GetPath()
+        busy = wx.BusyInfo(_(u'正在加密，请稍候...'))
+        encrypt_folder(open_path, save_path)
+        del busy
+        wx.MessageBox(_(u'加密完成'), _(u'提示'), wx.OK | wx.ICON_INFORMATION)
     
     ################ 数据绑定 ################
     def chc_gs1_on_choice(self, event):
