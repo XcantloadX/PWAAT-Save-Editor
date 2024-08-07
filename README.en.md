@@ -60,6 +60,10 @@ You can refer to the structure of the entire save data in the source files `app\
 > [!TIP]  
 > It's recommended to run REPL in Windows Terminal.
 
+> [!CAUTION]  
+> Before using REPL to edit saves, you'd better be aware of what you are doing, or this is the consequence: 
+> <img width="75%" src="./images/corrupted_game.png" alt="corrupted game" />
+
 ## Translation
 1. Install [gettext](https://mlocati.github.io/articles/gettext-iconv-windows.html)
 2. Clone the project

@@ -60,6 +60,10 @@ Xbox 转 Steam：菜单栏 → 转换 → “Xbox → Steam”
 > [!TIP]  
 > 建议使用 Windows Terminal 运行 REPL。
 
+> [!CAUTION]  
+> 在使用 REPL 修改存档之前，你最好要意识到自己在干什么，否则这就是后果：
+> <img width="75%" src="./images/corrupted_game.png" alt="鬼畜的游戏画面" />
+
 ## 翻译
 1. 安装 [gettext](https://mlocati.github.io/articles/gettext-iconv-windows.html)
 2. Clone 项目到本地

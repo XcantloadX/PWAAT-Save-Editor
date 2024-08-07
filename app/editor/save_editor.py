@@ -187,8 +187,15 @@ class SaveEditor:
         return self.__preside_data is not None
     
     @property
-    def dialog_data(self) -> SaveEditorDialog:
+    def dialog(self) -> SaveEditorDialog:
+        """当前存档槽位的对话框编辑器"""
         return SaveEditorDialog(self)
+    
+    @property
+    def selected_game_data(self):
+        """当前选中槽位存档数据的 GameData 结构体"""
+        assert self.__check_save_loaded(self.__preside_data)
+        return self.__preside_data.slot_list_[self.selected_slot]
     
     def get_save_path(self) -> str|None:
         return self.__save_path
@@ -408,6 +415,22 @@ class SaveEditor:
         assert self.__check_save_loaded(self.__preside_data)
         slot_number = self.__slot_number(slot_number)
         return self.__preside_data.slot_list_[slot_number].global_work_.gauge_hp
+    
+    @property
+    def court_pending_damage(self) -> int:
+        """
+        法庭中即将造成的伤害值（血条闪烁部分）。此属性可写且有效。
+        
+        （尚不明确是否对一击必杀的伤害有效。）\n
+        （尚不明确在没有即将造成的伤害时是什么含义，也不明确此时修改造成的影响。）
+        """
+        assert self.__check_save_loaded(self.__preside_data)
+        return self.__preside_data.slot_list_[self.selected_slot].global_work_.gauge_dmg_cnt
+    
+    @court_pending_damage.setter
+    def court_pending_damage(self, value: int):
+        assert self.__check_save_loaded(self.__preside_data)
+        self.__preside_data.slot_list_[self.selected_slot].global_work_.gauge_dmg_cnt = Int16(value)
     
     def set_unlocked_chapters(self, game_number: int, chapter_count: int):
         """

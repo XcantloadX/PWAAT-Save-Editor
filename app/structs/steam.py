@@ -128,6 +128,7 @@ class GameData(Struct):
     menu_work_: 'MenuWork'
     obj_work_: 'ObjWork'
     msg_data_: 'MessageData'
+    """当前对话框数据"""
     tantei_work_: 'TanteiWork'
     inspect_work_: 'InspectWork'
     talk_work_: 'TalkWork'
@@ -172,7 +173,7 @@ class GlobalWork(Struct):
     若修改血量，需要同时修改 `gauge_hp` 和 `gauge_hp_disp。`
     """
     gauge_dmg_cnt: short
-    """即将造成的伤害值（血量条闪烁部分）"""
+    """即将造成的伤害值（血量条闪烁部分）。此属性可以修改且有效。"""
     gauge_cnt_0: short
     gauge_cnt_1: short
     gauge_disp_flag: short
@@ -210,6 +211,7 @@ class MessageWork(Struct):
     status: int_
     status2: int_
     mdt_path: FixedString[Literal[80]]
+    """当前天数对应的 MDT 文件路径"""
     mdt_datas_index: ushort
     mdt_index: uint
     mdt_index_top: uint
@@ -282,7 +284,19 @@ class BgWork(Struct):
 
 @dataclass(init=False)
 class RecordList(Struct):
+    """证物档案"""
     record: FixedArray[int_, Literal[80]]
+    """
+    证物档案 ID 数组。
+    
+    未使用的槽位需要填充 -1。
+    
+    相关 C# 类/方法：
+    * advCtrl.scenarioCoroutine()
+    * recordListCtrl
+    * piceDataCtrl
+    * recordListCtrl.RecodeData
+    """
 
 @dataclass(init=False)
 class MenuWork(Struct):

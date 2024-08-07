@@ -6,6 +6,8 @@ if (Test-Path output) {
 }
 mkdir output
 
+.\translation.ps1 compile
+
 &pyinstaller `
     --add-data "res;res" `
     --add-data "locales;locales" `
