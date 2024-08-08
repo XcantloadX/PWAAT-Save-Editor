@@ -8,6 +8,7 @@ mkdir output
 
 .\translation.ps1 compile
 
+# Non-REPL
 &pyinstaller `
     --add-data "res;res" `
     --add-data "locales;locales" `
@@ -15,6 +16,7 @@ mkdir output
     --name "PWAAT Save Editor" `
     .\app\entry_native.py
 	# app\entry.py
+sleep 1
 
 $bat = @"
 @echo off
@@ -26,7 +28,11 @@ $file_name = ".\dist\PWAAT_Save_Editor_$datetime.zip"
 Compress-Archive -Force -Path  ".\dist\PWAAT Save Editor" -DestinationPath $file_name
 cp $file_name output
 
+
+
+# REPL
 &pyinstaller --noconfirm .\packages.spec
+sleep 1
 
 $bat = @"
 @echo off

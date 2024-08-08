@@ -47,6 +47,7 @@ class FrameMainImpl(FrameMain):
     def __init__(self, parent):
         super().__init__(parent)
         self.m_sld_hp.SetLineSize(8)
+        self.m_notebook1.SetSelection(0)
 
         self.editor = SaveEditor(language='hans')
 

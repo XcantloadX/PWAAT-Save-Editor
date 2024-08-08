@@ -5,6 +5,7 @@ from ctypes import Structure
 
 from .steam import *
 from .xbox import *
+import app.utils as utils
 
 T = TypeVar('T')
 def _copy_attr(from_: object, to: T, ignore_incompatible_types: bool = True) -> T:
@@ -56,7 +57,7 @@ def xbox2steam(data: PresideDataXbox) -> PresideData:
     Xbox 存档中缺少的数据将会从默认空存档中读取。
     """
     steam = PresideData.new()
-    default_save = PresideData.from_file('res/steam_empty_save')
+    default_save = PresideData.from_file(utils.abspath('res/steam_empty_save'))
     # OptionWork
     option_work_xbox = data.system_data_.option_work_
     option_work_steam = OptionWork.new()
