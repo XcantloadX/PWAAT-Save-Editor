@@ -29,6 +29,46 @@ class SaveType(IntEnum):
 class NoOpenSaveFileError(Exception):
     pass
 
+def lang2lang_id(language: Language) -> int:
+    match language:
+        case 'en':
+            return Language_.USA
+        case 'jp':
+            return Language_.JAPAN
+        case 'fr':
+            return Language_.FRANCE
+        case 'de':
+            return Language_.GERMAN
+        case 'ko':
+            return Language_.KOREA
+        case 'hans':
+            return Language_.CHINA_S
+        case 'hant':
+            return Language_.CHINA_T
+        case _:
+            logger.warning(f'Unknown language: {language}')
+            return Language_.USA
+
+def lang_id2lang(language_id: int) -> Language:
+    match language_id:
+        case Language_.USA:
+            return 'en'
+        case Language_.JAPAN:
+            return 'jp'
+        case Language_.FRANCE:
+            return 'fr'
+        case Language_.GERMAN:
+            return 'de'
+        case Language_.KOREA:
+            return 'ko'
+        case Language_.CHINA_S:
+            return 'hans'
+        case Language_.CHINA_T:
+            return 'hant'
+        case _:
+            logger.warning(f'Unknown language id: {language_id}')
+            return 'en'
+
 @dataclass
 class SaveSlot:
     time: str
@@ -142,6 +182,7 @@ class SaveEditor:
         
         self.__preside_data: PresideData|PresideDataXbox|None = None
         self.__text_unpacker = TextUnpacker(self.game_path, language)
+        self.__current_language: Language = 'en'
         
         self.selected_slot: int = 0
         """当前选择的实际存档槽位号。使用 `select_slot()` 方法来选择存档槽位。"""
@@ -197,11 +238,49 @@ class SaveEditor:
         assert self.__check_save_loaded(self.__preside_data)
         return self.__preside_data.slot_list_[self.selected_slot]
     
+    @property
+    def game_language_id(self) -> int:
+        """游戏语言 ID"""
+        assert self.__check_save_loaded(self.__preside_data)
+        return self.__preside_data.system_data_.option_work_.language_type
+    
+    @property
+    def game_language(self) -> Language:
+        """游戏语言"""
+        assert self.__check_save_loaded(self.__preside_data)
+        lang_id = self.__preside_data.system_data_.option_work_.language_type
+        return lang_id2lang(lang_id)
+    
     def get_save_path(self) -> str|None:
         return self.__save_path
     
-    def __change_language(self, language: Language):
+    @property
+    def editor_language(self) -> Language:
+        """
+        编辑器语言。修改后当前选中的存档槽位会被重置为 0。
+        """
+        return self.__current_language
+    
+    @editor_language.setter
+    def editor_language(self, language: Language|int):
+        if isinstance(language, int):
+            lang_id = language
+            language = lang_id2lang(lang_id)
+        self.__current_language = language
         self.__text_unpacker = TextUnpacker(self.game_path, language)
+        self.select_slot(0)    
+    
+    @property
+    def editor_language_id(self) -> int:
+        """
+        编辑器语言 ID
+        """
+        return lang2lang_id(self.editor_language)
+    
+    @editor_language_id.setter
+    def editor_language_id(self, language_id: int):
+        self.editor_language = lang_id2lang(language_id)
+        
     
     def load(self, save_file_path: str):
         """
@@ -220,21 +299,7 @@ class SaveEditor:
             raise ValueError('Invalid save file')
         
         # 更新 TextUnpacker
-        lang_id = self.__preside_data.system_data_.option_work_.language_type
-        if lang_id == Language_.USA:
-            self.__change_language('en')
-        elif lang_id == Language_.JAPAN:
-            self.__change_language('jp')
-        elif lang_id == Language_.FRANCE:
-            self.__change_language('fr')
-        elif lang_id == Language_.GERMAN:
-            self.__change_language('de')
-        elif lang_id == Language_.KOREA:
-            self.__change_language('ko')
-        elif lang_id == Language_.CHINA_S:
-            self.__change_language('hans')
-        elif lang_id == Language_.CHINA_T:
-            self.__change_language('hant')
+        self.editor_language = self.game_language
     
     def reload(self):
         assert self.__check_save_loaded(self.__preside_data)
@@ -301,7 +366,7 @@ class SaveEditor:
         """
         assert self.__check_save_loaded(self.__preside_data)
         slots = []
-        start = self.preside_data.system_data_.option_work_.language_type * 10
+        start = self.editor_language_id * 10
         end = start + 10
         for i in range(start, end):
             slot = self.__preside_data.system_data_.slot_data_.save_data_[i]
@@ -475,7 +540,7 @@ class SaveEditor:
         获取实际存档槽位号
         """
         assert self.__check_save_loaded(self.__preside_data)
-        return slot_number + self.preside_data.system_data_.option_work_.language_type * 10
+        return slot_number + self.editor_language_id * 10
 
 if __name__ == '__main__':
     from pprint import pprint

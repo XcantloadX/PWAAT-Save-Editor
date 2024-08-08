@@ -20,7 +20,7 @@ _ = gettext.gettext
 class FrameMain ( wx.Frame ):
 
     def __init__( self, parent ):
-        wx.Frame.__init__ ( self, parent, id = wx.ID_ANY, title = _(u"逆转裁判 123 存档工具"), pos = wx.DefaultPosition, size = wx.Size( 563,440 ), style = wx.DEFAULT_FRAME_STYLE|wx.TAB_TRAVERSAL )
+        wx.Frame.__init__ ( self, parent, id = wx.ID_ANY, title = _(u"逆转裁判 123 存档工具"), pos = wx.DefaultPosition, size = wx.Size( 633,440 ), style = wx.DEFAULT_FRAME_STYLE|wx.TAB_TRAVERSAL )
 
         self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
         self.SetBackgroundColour( wx.SystemSettings.GetColour( wx.SYS_COLOUR_WINDOW ) )
@@ -29,7 +29,17 @@ class FrameMain ( wx.Frame ):
 
         wSizer13 = wx.WrapSizer( wx.HORIZONTAL, wx.WRAPSIZER_DEFAULT_FLAGS )
 
-        self.m_staticText5 = wx.StaticText( self, wx.ID_ANY, _(u"存档选择"), wx.DefaultPosition, wx.DefaultSize, 0 )
+        self.m_staticText111 = wx.StaticText( self, wx.ID_ANY, _(u"语言"), wx.DefaultPosition, wx.DefaultSize, 0 )
+        self.m_staticText111.Wrap( -1 )
+
+        wSizer13.Add( self.m_staticText111, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
+
+        m_chc_langChoices = [ _(u"日语"), _(u"英语"), _(u"法语"), _(u"德语"), _(u"韩语"), _(u"简体中文"), _(u"繁体中文") ]
+        self.m_chc_lang = wx.Choice( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, m_chc_langChoices, 0 )
+        self.m_chc_lang.SetSelection( 0 )
+        wSizer13.Add( self.m_chc_lang, 0, wx.ALL, 5 )
+
+        self.m_staticText5 = wx.StaticText( self, wx.ID_ANY, _(u"槽位"), wx.DefaultPosition, wx.DefaultSize, 0 )
         self.m_staticText5.Wrap( -1 )
 
         wSizer13.Add( self.m_staticText5, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
@@ -125,7 +135,7 @@ class FrameMain ( wx.Frame ):
         self.m_pnl_common.SetSizer( bSizer2 )
         self.m_pnl_common.Layout()
         bSizer2.Fit( self.m_pnl_common )
-        self.m_notebook1.AddPage( self.m_pnl_common, _(u"常用设置"), True )
+        self.m_notebook1.AddPage( self.m_pnl_common, _(u"常用设置"), False )
         self.m_pnl_dialog = wx.Panel( self.m_notebook1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
         bSizer7 = wx.BoxSizer( wx.VERTICAL )
 
@@ -221,7 +231,7 @@ class FrameMain ( wx.Frame ):
         self.m_pnl_dialog.SetSizer( bSizer7 )
         self.m_pnl_dialog.Layout()
         bSizer7.Fit( self.m_pnl_dialog )
-        self.m_notebook1.AddPage( self.m_pnl_dialog, _(u"对话框"), False )
+        self.m_notebook1.AddPage( self.m_pnl_dialog, _(u"对话框"), True )
 
         bSizer4.Add( self.m_notebook1, 1, wx.EXPAND, 5 )
 
@@ -306,6 +316,7 @@ class FrameMain ( wx.Frame ):
         self.Centre( wx.BOTH )
 
         # Connect Events
+        self.m_chc_lang.Bind( wx.EVT_CHOICE, self.m_chc_lang_on_choice )
         self.m_chc_saves.Bind( wx.EVT_CHOICE, self.chc_savs_on_choice )
         self.m_chc_gs1.Bind( wx.EVT_CHOICE, self.chc_gs1_on_choice )
         self.m_chc_gs2.Bind( wx.EVT_CHOICE, self.chc_gs2_on_choice )
@@ -338,6 +349,9 @@ class FrameMain ( wx.Frame ):
 
 
     # Virtual event handlers, override them in your derived class
+    def m_chc_lang_on_choice( self, event ):
+        event.Skip()
+
     def chc_savs_on_choice( self, event ):
         event.Skip()
 

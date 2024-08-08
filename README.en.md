@@ -76,3 +76,4 @@ You can refer to the structure of the entire save data in the source files `app\
 ## References
 * [Phoenix Wright Trilogy Save Data Research](https://gist.github.com/emiyl/1435ce18a6b1e0a5c2a74e15c19f4884)
 * [emiyl / PWAATeditor](https://github.com/emiyl/PWAATeditor/tree/v0.3.0)
+* [PCGamingWiki](https://www.pcgamingwiki.com/wiki/Phoenix_Wright:_Ace_Attorney_Trilogy#cite_ref-6)

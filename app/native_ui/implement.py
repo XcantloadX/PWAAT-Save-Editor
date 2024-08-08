@@ -144,6 +144,9 @@ class FrameMainImpl(FrameMain):
         gs3 = self.editor.get_unlocked_chapters(3)
         self.m_chc_gs3.SetSelection(gs3 - 1)
         
+        # 存档语言
+        self.m_chc_lang.SetSelection(self.editor.editor_language_id)
+        
         # 存档选择
         self.m_chc_saves.Clear()
         slots = self.editor.get_slots_info()
@@ -290,6 +293,9 @@ class FrameMainImpl(FrameMain):
     def m_txt_dlg_line3_on_text(self, event):
         self.editor.dialog.text_line3 = self.m_txt_dlg_line3.Value
         
+    def m_chc_lang_on_choice(self, event):
+        self.editor.editor_language_id = self.m_chc_lang.GetSelection()
+        self.load_basic_ui()
     
 app = wx.App()
 frame = FrameMainImpl(None)
