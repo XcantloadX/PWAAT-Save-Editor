@@ -29,8 +29,10 @@ class FrameMain ( wx.Frame ):
 
         wSizer13 = wx.WrapSizer( wx.HORIZONTAL, wx.WRAPSIZER_DEFAULT_FLAGS )
 
-        self.m_staticText111 = wx.StaticText( self, wx.ID_ANY, _(u"语言"), wx.DefaultPosition, wx.DefaultSize, 0 )
+        self.m_staticText111 = wx.StaticText( self, wx.ID_ANY, _(u"语言(?)"), wx.DefaultPosition, wx.DefaultSize, 0 )
         self.m_staticText111.Wrap( -1 )
+
+        self.m_staticText111.SetToolTip( _(u"游戏内设置的语言。\n不同语言之间的存档槽位不互通。") )
 
         wSizer13.Add( self.m_staticText111, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
 
@@ -103,39 +105,43 @@ class FrameMain ( wx.Frame ):
 
         bSizer2.Add( sbSizer_chapters, 1, wx.EXPAND, 5 )
 
-        sbSizer_ingame = wx.StaticBoxSizer( wx.StaticBox( self.m_pnl_common, wx.ID_ANY, _(u"游戏内") ), wx.VERTICAL )
+        sbSizer_court = wx.StaticBoxSizer( wx.StaticBox( self.m_pnl_common, wx.ID_ANY, _(u"法庭") ), wx.VERTICAL )
 
-        bSizer5 = wx.BoxSizer( wx.VERTICAL )
+        fgSizer2 = wx.FlexGridSizer( 0, 2, 0, 20 )
+        fgSizer2.SetFlexibleDirection( wx.BOTH )
+        fgSizer2.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
 
-        bSizer61 = wx.BoxSizer( wx.HORIZONTAL )
-
-
-        bSizer5.Add( bSizer61, 0, wx.EXPAND, 5 )
-
-        bSizer6 = wx.BoxSizer( wx.HORIZONTAL )
-
-        self.m_staticText4 = wx.StaticText( sbSizer_ingame.GetStaticBox(), wx.ID_ANY, _(u"法庭内血量"), wx.DefaultPosition, wx.DefaultSize, 0 )
+        self.m_staticText4 = wx.StaticText( sbSizer_court.GetStaticBox(), wx.ID_ANY, _(u"血量(?)"), wx.DefaultPosition, wx.DefaultSize, 0 )
         self.m_staticText4.Wrap( -1 )
 
-        bSizer6.Add( self.m_staticText4, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
+        self.m_staticText4.SetToolTip( _(u"游戏内血量条为 10 格，1 格 = 8 点血量") )
 
-        self.m_sld_hp = wx.Slider( sbSizer_ingame.GetStaticBox(), wx.ID_ANY, 0, 0, 80, wx.DefaultPosition, wx.Size( 150,-1 ), wx.SL_LABELS )
-        bSizer6.Add( self.m_sld_hp, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
+        fgSizer2.Add( self.m_staticText4, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
+
+        self.m_sld_hp = wx.Slider( sbSizer_court.GetStaticBox(), wx.ID_ANY, 0, 0, 80, wx.DefaultPosition, wx.Size( 150,-1 ), wx.SL_LABELS )
+        fgSizer2.Add( self.m_sld_hp, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
+
+        self.m_staticText12 = wx.StaticText( sbSizer_court.GetStaticBox(), wx.ID_ANY, _(u"待定伤害值(?)"), wx.DefaultPosition, wx.DefaultSize, 0 )
+        self.m_staticText12.Wrap( -1 )
+
+        self.m_staticText12.SetToolTip( _(u"血量条中闪烁的部分。\n（尚不明确没有即将造成的伤害时修改该值有什么影响）") )
+
+        fgSizer2.Add( self.m_staticText12, 0, wx.ALL, 5 )
+
+        self.m_sld_court_damage = wx.Slider( sbSizer_court.GetStaticBox(), wx.ID_ANY, 0, 0, 80, wx.DefaultPosition, wx.Size( 150,-1 ), wx.SL_HORIZONTAL|wx.SL_LABELS )
+        fgSizer2.Add( self.m_sld_court_damage, 0, wx.ALL, 5 )
 
 
-        bSizer5.Add( bSizer6, 0, wx.EXPAND, 5 )
+        sbSizer_court.Add( fgSizer2, 1, wx.EXPAND, 5 )
 
 
-        sbSizer_ingame.Add( bSizer5, 1, wx.EXPAND, 5 )
-
-
-        bSizer2.Add( sbSizer_ingame, 1, wx.EXPAND, 5 )
+        bSizer2.Add( sbSizer_court, 1, wx.EXPAND, 5 )
 
 
         self.m_pnl_common.SetSizer( bSizer2 )
         self.m_pnl_common.Layout()
         bSizer2.Fit( self.m_pnl_common )
-        self.m_notebook1.AddPage( self.m_pnl_common, _(u"常用设置"), False )
+        self.m_notebook1.AddPage( self.m_pnl_common, _(u"常用设置"), True )
         self.m_pnl_dialog = wx.Panel( self.m_notebook1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
         bSizer7 = wx.BoxSizer( wx.VERTICAL )
 
@@ -231,7 +237,7 @@ class FrameMain ( wx.Frame ):
         self.m_pnl_dialog.SetSizer( bSizer7 )
         self.m_pnl_dialog.Layout()
         bSizer7.Fit( self.m_pnl_dialog )
-        self.m_notebook1.AddPage( self.m_pnl_dialog, _(u"对话框"), True )
+        self.m_notebook1.AddPage( self.m_pnl_dialog, _(u"对话框"), False )
 
         bSizer4.Add( self.m_notebook1, 1, wx.EXPAND, 5 )
 
@@ -322,6 +328,7 @@ class FrameMain ( wx.Frame ):
         self.m_chc_gs2.Bind( wx.EVT_CHOICE, self.chc_gs2_on_choice )
         self.m_chc_gs3.Bind( wx.EVT_CHOICE, self.chc_gs3_on_choice )
         self.m_sld_hp.Bind( wx.EVT_SCROLL_CHANGED, self.sld_hp_on_scroll_changed )
+        self.m_sld_court_damage.Bind( wx.EVT_SCROLL_CHANGED, self.m_sld_court_danmage_on_scroll_changed )
         self.m_chk_dlg_visible.Bind( wx.EVT_CHECKBOX, self.m_chk_dlg_visible_on_checkbox )
         self.m_txt_dlg_line1.Bind( wx.EVT_TEXT, self.m_txt_dlg_line1_on_text )
         self.m_txt_dlg_line2.Bind( wx.EVT_TEXT, self.m_txt_dlg_line2_on_text )
@@ -365,6 +372,9 @@ class FrameMain ( wx.Frame ):
         event.Skip()
 
     def sld_hp_on_scroll_changed( self, event ):
+        event.Skip()
+
+    def m_sld_court_danmage_on_scroll_changed( self, event ):
         event.Skip()
 
     def m_chk_dlg_visible_on_checkbox( self, event ):

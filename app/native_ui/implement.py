@@ -47,6 +47,7 @@ class FrameMainImpl(FrameMain):
     def __init__(self, parent):
         super().__init__(parent)
         self.m_sld_hp.SetLineSize(8)
+        self.m_sld_court_damage.SetLineSize(8)
         self.m_notebook1.SetSelection(0)
 
         self.editor = SaveEditor(language='hans')
@@ -61,7 +62,18 @@ class FrameMainImpl(FrameMain):
             
         # 处理事件
         self.editor.set_court_hp(self.m_sld_hp.Value)
-            
+    
+    def m_sld_court_danmage_on_scroll_changed(self, event):
+        # 强制步进 8
+        value = self.m_sld_court_damage.Value
+        remainder = value % 8
+        if remainder != 0:
+            value -= remainder
+            self.m_sld_court_damage.Value = value
+        
+        # 处理事件
+        self.editor.court_pending_damage = self.m_sld_court_damage.Value
+    
     def mi_open_on_select(self, event):
         with wx.FileDialog(self, _(u"打开存档文件"), wildcard=f"{_(u'存档文件')} (*.*)|*.*", style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST) as fileDialog:
             if fileDialog.ShowModal() == wx.ID_CANCEL:
@@ -168,8 +180,9 @@ class FrameMainImpl(FrameMain):
         if slot_number == wx.NOT_FOUND:
             return
         self.editor.select_slot(slot_number)
-        # 法庭血量
+        # 法庭血量/伤害
         self.m_sld_hp.Value = self.editor.get_court_hp()
+        self.m_sld_court_damage.Value = self.editor.court_pending_damage
         # 消息框 Tab
         self.m_chk_dlg_visible.Value = self.editor.dialog.dialog_visible
         self.m_chk_dlg_name_visible.Value = self.editor.dialog.name_visible
