@@ -282,7 +282,7 @@ class FrameMain ( wx.Frame ):
         self.m_mi_xbox2steam = wx.MenuItem( self.m_menu_convert, wx.ID_ANY, _(u"Xbox → Steam"), wx.EmptyString, wx.ITEM_NORMAL )
         self.m_menu_convert.Append( self.m_mi_xbox2steam )
 
-        self.m_mi_steam2xbox = wx.MenuItem( self.m_menu_convert, wx.ID_ANY, _(u"Xbox ← Steam"), wx.EmptyString, wx.ITEM_NORMAL )
+        self.m_mi_steam2xbox = wx.MenuItem( self.m_menu_convert, wx.ID_ANY, _(u"Steam → Xbox"), wx.EmptyString, wx.ITEM_NORMAL )
         self.m_menu_convert.Append( self.m_mi_steam2xbox )
 
         self.m_menu_convert.AppendSeparator()
@@ -290,7 +290,7 @@ class FrameMain ( wx.Frame ):
         self.m_mi_steam2file = wx.MenuItem( self.m_menu_convert, wx.ID_ANY, _(u"Steam → 文件..."), wx.EmptyString, wx.ITEM_NORMAL )
         self.m_menu_convert.Append( self.m_mi_steam2file )
 
-        self.m_mi_file2steam = wx.MenuItem( self.m_menu_convert, wx.ID_ANY, _(u"Steam ← 文件..."), wx.EmptyString, wx.ITEM_NORMAL )
+        self.m_mi_file2steam = wx.MenuItem( self.m_menu_convert, wx.ID_ANY, _(u"文件 → Steam..."), wx.EmptyString, wx.ITEM_NORMAL )
         self.m_menu_convert.Append( self.m_mi_file2steam )
 
         self.m_menubar.Append( self.m_menu_convert, _(u"转换") )

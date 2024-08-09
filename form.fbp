@@ -2195,7 +2195,7 @@
             <event name="OnMenuSelection">mi_show_debug_on_select</event>
           </object>
         </object>
-        <object class="wxMenu" expanded="false">
+        <object class="wxMenu" expanded="true">
           <property name="label">转换</property>
           <property name="name">m_menu_convert</property>
           <property name="permission">protected</property>
@@ -2220,7 +2220,7 @@
             <property name="help"></property>
             <property name="id">wxID_ANY</property>
             <property name="kind">wxITEM_NORMAL</property>
-            <property name="label">Xbox ← Steam</property>
+            <property name="label">Steam → Xbox</property>
             <property name="name">m_mi_steam2xbox</property>
             <property name="permission">none</property>
             <property name="shortcut"></property>
@@ -2252,7 +2252,7 @@
             <property name="help"></property>
             <property name="id">wxID_ANY</property>
             <property name="kind">wxITEM_NORMAL</property>
-            <property name="label">Steam ← 文件...</property>
+            <property name="label">文件 → Steam...</property>
             <property name="name">m_mi_file2steam</property>
             <property name="permission">none</property>
             <property name="shortcut"></property>
