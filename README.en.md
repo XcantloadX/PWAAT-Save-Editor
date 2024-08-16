@@ -8,10 +8,10 @@
 * Edit dialogue-box-related data
 
 ## Todo
-- [ ] Save slot management, including delete, copy, import/export, and sort save slots
+- [x] Save slot management, including delete, copy, import/export, and sort save slots
 - [ ] Forcefully convert save file language
 - [ ] Support version on other platforms (Android, iOS, cracked Switch, etc.)
-- [ ] Support for pirated PC copy
+- [x] Support for pirated PC copy
 - [ ] Automatically detect and convert save file types upon import
 - [ ] Tool for quick saves management
 
@@ -21,21 +21,18 @@
    (Both versions with and without `REPL` will work)
 2. Extract the files and run `PWAAT Save Editor.exe`
 
+
 ### Import/Export Save Files
-**Steam to Xbox:** Menu → Convert → "Xbox ← Steam"
+See the "Convert" menu.
 
-**Xbox to Steam:** Menu → Convert → "Xbox → Steam"
-
-**Import Steam Save:** Menu → Convert → "Steam ← File..."
-
-**Export Steam Save:** Menu → Convert → "Steam → File..."
+### Convert Xbox/Steam Save Files
+See the "Convert" menu.
 
 ### Unlock Chapters
-1. Close the game
-2. Open any save file from the "File" menu
-3. Adjust the settings in the "Unlock Chapters" group box as needed
-4. "File" → "Save"
-5. Re-launch the game
+1. Open any save file from the "File" menu
+2. Adjust the settings in the "Unlock Chapters" box as desired
+3. "File" → "Save"
+4. Restart the game
 
 ### Modify Health
 1. Open any save file from the "File" menu
