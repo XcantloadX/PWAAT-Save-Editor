@@ -12,3 +12,7 @@ def abspath(path: str) -> str:
     else:
         root_path = os.path.abspath('.')
     return os.path.join(root_path, path)
+
+def img_path(path: str) -> str:
+    path = path.strip('../').strip('../')
+    return abspath(path)

@@ -296,6 +296,9 @@ class FrameMain ( wx.Frame ):
         self.m_menubar.Append( self.m_menu_convert, _(u"转换") )
 
         self.m_menu_tools = wx.Menu()
+        self.m_mi_slot_manager = wx.MenuItem( self.m_menu_tools, wx.ID_ANY, _(u"存档槽位管理..."), wx.EmptyString, wx.ITEM_NORMAL )
+        self.m_menu_tools.Append( self.m_mi_slot_manager )
+
         self.m_mi_run_repl = wx.MenuItem( self.m_menu_tools, wx.ID_ANY, _(u"运行 REPL"), wx.EmptyString, wx.ITEM_NORMAL )
         self.m_menu_tools.Append( self.m_mi_run_repl )
 
@@ -312,7 +315,7 @@ class FrameMain ( wx.Frame ):
         self.m_mi_encrypt_folder = wx.MenuItem( self.m_menu_game_res, wx.ID_ANY, _(u"加密文件夹..."), wx.EmptyString, wx.ITEM_NORMAL )
         self.m_menu_game_res.Append( self.m_mi_encrypt_folder )
 
-        self.m_menu_tools.AppendSubMenu( self.m_menu_game_res, _(u"游戏资源加解密") )
+        self.m_menu_tools.AppendSubMenu( self.m_menu_game_res, _(u"游戏资源") )
 
         self.m_menubar.Append( self.m_menu_tools, _(u"工具") )
 
@@ -345,6 +348,7 @@ class FrameMain ( wx.Frame ):
         self.Bind( wx.EVT_MENU, self.mi_steam2xbox_on_choice, id = self.m_mi_steam2xbox.GetId() )
         self.Bind( wx.EVT_MENU, self.mi_steam2file_on_choice, id = self.m_mi_steam2file.GetId() )
         self.Bind( wx.EVT_MENU, self.mi_file2steam_on_choice, id = self.m_mi_file2steam.GetId() )
+        self.Bind( wx.EVT_MENU, self.m_mi_slot_manager_on_select, id = self.m_mi_slot_manager.GetId() )
         self.Bind( wx.EVT_MENU, self.mi_run_repl_on_select, id = self.m_mi_run_repl.GetId() )
         self.Bind( wx.EVT_MENU, self.m_mi_decrypt_file_on_select, id = self.m_mi_decrypt_file.GetId() )
         self.Bind( wx.EVT_MENU, self.m_mi_decrypt_folder_on_select, id = self.m_mi_decrypt_folder.GetId() )
@@ -425,6 +429,9 @@ class FrameMain ( wx.Frame ):
     def mi_file2steam_on_choice( self, event ):
         event.Skip()
 
+    def m_mi_slot_manager_on_select( self, event ):
+        event.Skip()
+
     def mi_run_repl_on_select( self, event ):
         event.Skip()
 
@@ -439,5 +446,237 @@ class FrameMain ( wx.Frame ):
 
     def m_mi_encrypt_folder_on_select( self, event ):
         event.Skip()
+
+    # Virtual image path resolution method. Override this in your derived class.
+    def img_path( self, bitmap_path ):
+        return bitmap_path
+
+
+###########################################################################
+## Class FrameSlotManager
+###########################################################################
+
+class FrameSlotManager ( wx.Frame ):
+
+    def __init__( self, parent ):
+        wx.Frame.__init__ ( self, parent, id = wx.ID_ANY, title = _(u"存档槽位管理"), pos = wx.DefaultPosition, size = wx.Size( 751,400 ), style = wx.DEFAULT_FRAME_STYLE|wx.TAB_TRAVERSAL )
+
+        self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
+
+        bSizer8 = wx.BoxSizer( wx.VERTICAL )
+
+        self.m_panel4 = wx.Panel( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+        bSizer14 = wx.BoxSizer( wx.HORIZONTAL )
+
+        bSizer9 = wx.BoxSizer( wx.VERTICAL )
+
+        self.m_toolbar_l = wx.ToolBar( self.m_panel4, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TB_HORIZONTAL )
+        self.m_toolbar_l.SetToolBitmapSize( wx.Size( 20,20 ) )
+        self.m_toolbar_l.SetToolPacking( 5 )
+        self.m_tol_l_load = self.m_toolbar_l.AddTool( wx.ID_ANY, _(u"tool"), wx.Bitmap( self.img_path( u"../../res/icons/open.png" ), wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, _(u"载入..."), wx.EmptyString, None )
+
+        self.m_tol_l_load_steam = self.m_toolbar_l.AddTool( wx.ID_ANY, _(u"tool"), wx.Bitmap( self.img_path( u"../../res/icons/steam.png" ), wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, _(u"载入 Steam"), wx.EmptyString, None )
+
+        self.m_tol_l_load_xbox = self.m_toolbar_l.AddTool( wx.ID_ANY, _(u"tool"), wx.Bitmap( self.img_path( u"../../res/icons/xbox.png" ), wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, _(u"载入 Xbox"), wx.EmptyString, None )
+
+        self.m_tol_l_save = self.m_toolbar_l.AddTool( wx.ID_ANY, _(u"tool"), wx.Bitmap( self.img_path( u"../../res/icons/save.png" ), wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, _(u"保存"), wx.EmptyString, None )
+
+        self.m_toolbar_l.AddSeparator()
+
+        self.m_tol_l_up = self.m_toolbar_l.AddTool( wx.ID_ANY, _(u"tool"), wx.Bitmap( self.img_path( u"../../res/icons/arrow_Up_16xLG.png" ), wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, _(u"上移"), wx.EmptyString, None )
+
+        self.m_tol_l_down = self.m_toolbar_l.AddTool( wx.ID_ANY, _(u"tool"), wx.Bitmap( self.img_path( u"../../res/icons/arrow_Down_16xLG.png" ), wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, _(u"下移"), wx.EmptyString, None )
+
+        self.m_tol_l_move_to_right = self.m_toolbar_l.AddTool( wx.ID_ANY, _(u"tool"), wx.Bitmap( self.img_path( u"../../res/icons/cut.png" ), wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, _(u"移动到右边"), wx.EmptyString, None )
+
+        self.m_tol_l_copy_to_right = self.m_toolbar_l.AddTool( wx.ID_ANY, _(u"tool"), wx.Bitmap( self.img_path( u"../../res/icons/copy.png" ), wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, _(u"复制到右边"), wx.EmptyString, None )
+
+        self.m_tol_l_delete = self.m_toolbar_l.AddTool( wx.ID_ANY, _(u"tool"), wx.Bitmap( self.img_path( u"../../res/icons/Remove_16xLG.png" ), wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, _(u"删除"), wx.EmptyString, None )
+
+        self.m_toolbar_l.Realize()
+
+        bSizer9.Add( self.m_toolbar_l, 0, wx.EXPAND, 5 )
+
+        bSizer11 = wx.BoxSizer( wx.HORIZONTAL )
+
+        self.m_staticText13 = wx.StaticText( self.m_panel4, wx.ID_ANY, _(u"语言"), wx.DefaultPosition, wx.DefaultSize, 0 )
+        self.m_staticText13.Wrap( -1 )
+
+        bSizer11.Add( self.m_staticText13, 0, wx.ALIGN_CENTER|wx.ALL, 5 )
+
+        m_chc_l_langChoices = [ _(u"日语"), _(u"英语"), _(u"法语"), _(u"德语"), _(u"韩语"), _(u"简体中文"), _(u"繁体中文") ]
+        self.m_chc_l_lang = wx.Choice( self.m_panel4, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, m_chc_l_langChoices, 0 )
+        self.m_chc_l_lang.SetSelection( 0 )
+        bSizer11.Add( self.m_chc_l_lang, 1, wx.ALL, 5 )
+
+
+        bSizer9.Add( bSizer11, 0, wx.EXPAND, 5 )
+
+        bSizer12 = wx.BoxSizer( wx.HORIZONTAL )
+
+        m_lst_l_slotsChoices = []
+        self.m_lst_l_slots = wx.ListBox( self.m_panel4, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, m_lst_l_slotsChoices, 0 )
+        bSizer12.Add( self.m_lst_l_slots, 1, wx.ALL|wx.EXPAND, 5 )
+
+
+        bSizer9.Add( bSizer12, 1, wx.EXPAND, 5 )
+
+
+        bSizer14.Add( bSizer9, 1, wx.EXPAND, 5 )
+
+        bSizer16 = wx.BoxSizer( wx.VERTICAL )
+
+        self.m_toolbar_r = wx.ToolBar( self.m_panel4, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TB_HORIZONTAL )
+        self.m_toolbar_r.SetToolBitmapSize( wx.Size( 20,20 ) )
+        self.m_toolbar_r.SetToolPacking( 5 )
+        self.m_tol_r_sync_left = self.m_toolbar_r.AddTool( wx.ID_ANY, _(u"tool"), wx.Bitmap( self.img_path( u"../../res/icons/sync.png" ), wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, _(u"同步左边"), wx.EmptyString, None )
+
+        self.m_tol_r_load = self.m_toolbar_r.AddTool( wx.ID_ANY, _(u"tool"), wx.Bitmap( self.img_path( u"../../res/icons/open.png" ), wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, _(u"载入..."), wx.EmptyString, None )
+
+        self.m_tol_r_load_steam = self.m_toolbar_r.AddTool( wx.ID_ANY, _(u"tool"), wx.Bitmap( self.img_path( u"../../res/icons/steam.png" ), wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, _(u"载入 Steam"), wx.EmptyString, None )
+
+        self.m_tol_r_load_xbox = self.m_toolbar_r.AddTool( wx.ID_ANY, _(u"tool"), wx.Bitmap( self.img_path( u"../../res/icons/xbox.png" ), wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, _(u"载入 Xbox"), wx.EmptyString, None )
+
+        self.m_tol_r_save = self.m_toolbar_r.AddTool( wx.ID_ANY, _(u"tool"), wx.Bitmap( self.img_path( u"../../res/icons/save.png" ), wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, _(u"保存"), wx.EmptyString, None )
+
+        self.m_toolbar_r.AddSeparator()
+
+        self.m_tol_r_up = self.m_toolbar_r.AddTool( wx.ID_ANY, _(u"tool"), wx.Bitmap( self.img_path( u"../../res/icons/arrow_Up_16xLG.png" ), wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, _(u"上移"), wx.EmptyString, None )
+
+        self.m_tol_r_down = self.m_toolbar_r.AddTool( wx.ID_ANY, _(u"tool"), wx.Bitmap( self.img_path( u"../../res/icons/arrow_Down_16xLG.png" ), wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, _(u"下移"), wx.EmptyString, None )
+
+        self.m_tol_r_move_to_left = self.m_toolbar_r.AddTool( wx.ID_ANY, _(u"tool"), wx.Bitmap( self.img_path( u"../../res/icons/cut.png" ), wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, _(u"移动到左边"), wx.EmptyString, None )
+
+        self.m_tol_r_copy_to_left = self.m_toolbar_r.AddTool( wx.ID_ANY, _(u"tool"), wx.Bitmap( self.img_path( u"../../res/icons/copy.png" ), wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, _(u"复制到左边"), wx.EmptyString, None )
+
+        self.m_tol_r_delete = self.m_toolbar_r.AddTool( wx.ID_ANY, _(u"tool"), wx.Bitmap( self.img_path( u"../../res/icons/Remove_16xLG.png" ), wx.BITMAP_TYPE_ANY ), wx.NullBitmap, wx.ITEM_NORMAL, _(u"下移"), wx.EmptyString, None )
+
+        self.m_toolbar_r.Realize()
+
+        bSizer16.Add( self.m_toolbar_r, 0, wx.EXPAND, 5 )
+
+        bSizer111 = wx.BoxSizer( wx.HORIZONTAL )
+
+        self.m_staticText131 = wx.StaticText( self.m_panel4, wx.ID_ANY, _(u"语言"), wx.DefaultPosition, wx.DefaultSize, 0 )
+        self.m_staticText131.Wrap( -1 )
+
+        bSizer111.Add( self.m_staticText131, 0, wx.ALIGN_CENTER|wx.ALL, 5 )
+
+        m_chc_r_langChoices = [ _(u"日语"), _(u"英语"), _(u"法语"), _(u"德语"), _(u"韩语"), _(u"简体中文"), _(u"繁体中文") ]
+        self.m_chc_r_lang = wx.Choice( self.m_panel4, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, m_chc_r_langChoices, 0 )
+        self.m_chc_r_lang.SetSelection( 0 )
+        bSizer111.Add( self.m_chc_r_lang, 1, wx.ALL, 5 )
+
+
+        bSizer16.Add( bSizer111, 0, wx.EXPAND, 5 )
+
+        bSizer121 = wx.BoxSizer( wx.HORIZONTAL )
+
+        m_lst_r_slotsChoices = []
+        self.m_lst_r_slots = wx.ListBox( self.m_panel4, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, m_lst_r_slotsChoices, 0 )
+        bSizer121.Add( self.m_lst_r_slots, 1, wx.ALL|wx.EXPAND, 5 )
+
+
+        bSizer16.Add( bSizer121, 1, wx.EXPAND, 5 )
+
+
+        bSizer14.Add( bSizer16, 1, wx.EXPAND, 5 )
+
+
+        self.m_panel4.SetSizer( bSizer14 )
+        self.m_panel4.Layout()
+        bSizer14.Fit( self.m_panel4 )
+        bSizer8.Add( self.m_panel4, 1, wx.EXPAND, 5 )
+
+
+        self.SetSizer( bSizer8 )
+        self.Layout()
+
+        self.Centre( wx.BOTH )
+
+        # Connect Events
+        self.Bind( wx.EVT_CLOSE, self.on_close )
+        self.Bind( wx.EVT_TOOL, self.m_tol_load_on_clicked, id = self.m_tol_l_load.GetId() )
+        self.Bind( wx.EVT_TOOL, self.m_tol_load_steam_on_clicked, id = self.m_tol_l_load_steam.GetId() )
+        self.Bind( wx.EVT_TOOL, self.m_tol_load_xbox_on_clicked, id = self.m_tol_l_load_xbox.GetId() )
+        self.Bind( wx.EVT_TOOL, self.m_tol_save_on_clicked, id = self.m_tol_l_save.GetId() )
+        self.Bind( wx.EVT_TOOL, self.m_tol_up_on_clicked, id = self.m_tol_l_up.GetId() )
+        self.Bind( wx.EVT_TOOL, self.m_tol_down_on_clicked, id = self.m_tol_l_down.GetId() )
+        self.Bind( wx.EVT_TOOL, self.m_tol_l_move_to_right_on_clicked, id = self.m_tol_l_move_to_right.GetId() )
+        self.Bind( wx.EVT_TOOL, self.m_tol_l_copy_to_right_on_clicked, id = self.m_tol_l_copy_to_right.GetId() )
+        self.Bind( wx.EVT_TOOL, self.m_tol_delete_on_clicked, id = self.m_tol_l_delete.GetId() )
+        self.m_chc_l_lang.Bind( wx.EVT_CHOICE, self.m_chc_l_lang_on_choice )
+        self.Bind( wx.EVT_TOOL, self.m_tol_r_sync_left_on_clicked, id = self.m_tol_r_sync_left.GetId() )
+        self.Bind( wx.EVT_TOOL, self.m_tol_load_on_clicked, id = self.m_tol_r_load.GetId() )
+        self.Bind( wx.EVT_TOOL, self.m_tol_load_steam_on_clicked, id = self.m_tol_r_load_steam.GetId() )
+        self.Bind( wx.EVT_TOOL, self.m_tol_load_xbox_on_clicked, id = self.m_tol_r_load_xbox.GetId() )
+        self.Bind( wx.EVT_TOOL, self.m_tol_save_on_clicked, id = self.m_tol_r_save.GetId() )
+        self.Bind( wx.EVT_TOOL, self.m_tol_up_on_clicked, id = self.m_tol_r_up.GetId() )
+        self.Bind( wx.EVT_TOOL, self.m_tol_down_on_clicked, id = self.m_tol_r_down.GetId() )
+        self.Bind( wx.EVT_TOOL, self.m_tol_r_move_to_left_on_clicked, id = self.m_tol_r_move_to_left.GetId() )
+        self.Bind( wx.EVT_TOOL, self.m_tol_r_copy_to_left_on_clicked, id = self.m_tol_r_copy_to_left.GetId() )
+        self.Bind( wx.EVT_TOOL, self.m_tol_delete_on_clicked, id = self.m_tol_r_delete.GetId() )
+        self.m_chc_r_lang.Bind( wx.EVT_CHOICE, self.m_chc_r_lang_on_choice )
+
+    def __del__( self ):
+        pass
+
+
+    # Virtual event handlers, override them in your derived class
+    def on_close( self, event ):
+        event.Skip()
+
+    def m_tol_load_on_clicked( self, event ):
+        event.Skip()
+
+    def m_tol_load_steam_on_clicked( self, event ):
+        event.Skip()
+
+    def m_tol_load_xbox_on_clicked( self, event ):
+        event.Skip()
+
+    def m_tol_save_on_clicked( self, event ):
+        event.Skip()
+
+    def m_tol_up_on_clicked( self, event ):
+        event.Skip()
+
+    def m_tol_down_on_clicked( self, event ):
+        event.Skip()
+
+    def m_tol_l_move_to_right_on_clicked( self, event ):
+        event.Skip()
+
+    def m_tol_l_copy_to_right_on_clicked( self, event ):
+        event.Skip()
+
+    def m_tol_delete_on_clicked( self, event ):
+        event.Skip()
+
+    def m_chc_l_lang_on_choice( self, event ):
+        event.Skip()
+
+    def m_tol_r_sync_left_on_clicked( self, event ):
+        event.Skip()
+
+
+
+
+
+
+
+    def m_tol_r_move_to_left_on_clicked( self, event ):
+        event.Skip()
+
+    def m_tol_r_copy_to_left_on_clicked( self, event ):
+        event.Skip()
+
+
+    def m_chc_r_lang_on_choice( self, event ):
+        event.Skip()
+
+    # Virtual image path resolution method. Override this in your derived class.
+    def img_path( self, bitmap_path ):
+        return bitmap_path
 
 

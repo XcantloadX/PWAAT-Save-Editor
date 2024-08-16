@@ -1,7 +1,7 @@
 import os
 from dataclasses import dataclass
 from enum import IntEnum
-from typing import TypeGuard, Literal
+from typing import TypeGuard, Literal, TypeVar, Generic, cast, overload
 from gettext import gettext as _
 
 from app.structs.steam import PresideData
@@ -164,8 +164,9 @@ class SaveEditorDialog:
         if len(buff) > 512:
             raise ValueError('Text too long')
         self.editor.preside_data.slot_list_[self.editor.selected_slot].msg_data_.msg_line03 = FixedString[Literal[512]](buff)
-    
-class SaveEditor:
+
+T = TypeVar('T', PresideData, PresideDataXbox)
+class SaveEditor(Generic[T]):
     def __init__(
         self,
         game_path: str|None = None,
@@ -180,14 +181,14 @@ class SaveEditor:
         
         self.__save_path: str|None = None
         
-        self.__preside_data: PresideData|PresideDataXbox|None = None
+        self.__preside_data: T|None = None
         self.__text_unpacker = TextUnpacker(self.game_path, language)
         self.__current_language: Language = 'en'
         
         self.selected_slot: int = 0
         """当前选择的实际存档槽位号。使用 `select_slot()` 方法来选择存档槽位。"""
 
-    def __check_save_loaded(self, _ = None) -> TypeGuard[PresideData|PresideDataXbox]:
+    def __check_save_loaded(self, _ = None) -> TypeGuard[T]:
         if self.__preside_data is None:
             raise NoOpenSaveFileError('No data loaded')
         return True 
@@ -199,7 +200,7 @@ class SaveEditor:
             return self.selected_slot
     
     @property
-    def preside_data(self) -> PresideData|PresideDataXbox:
+    def preside_data(self) -> T:
         """
         游戏存档数据根结构体
         """
@@ -282,7 +283,7 @@ class SaveEditor:
         self.editor_language = lang_id2lang(language_id)
         
     
-    def load(self, save_file_path: str):
+    def __load_file(self, save_file_path: str):
         """
         加载存档数据
         
@@ -292,14 +293,40 @@ class SaveEditor:
         # 判断存档类型
         size = os.path.getsize(self.__save_path)
         if size == STEAM_SAVE_LENGTH:
-            self.__preside_data = PresideData.from_file(self.__save_path)
+            self.__preside_data = cast(T, PresideData.from_file(self.__save_path))
         elif size == XBOX_SAVE_LENGTH:
-            self.__preside_data = PresideDataXbox.from_file(self.__save_path)
+            self.__preside_data = cast(T, PresideDataXbox.from_file(self.__save_path))
         else:
             raise ValueError('Invalid save file')
         
         # 更新 TextUnpacker
         self.editor_language = self.game_language
+    
+    def __load_memory(self, save_data: T):
+        """
+        加载存档数据
+        
+        :param save_data: 存档数据
+        """
+        self.__preside_data = save_data
+        self.__save_path = None
+        self.editor_language = self.game_language
+    
+    @overload
+    def load(self, save_data: str) -> None: ...
+    @overload
+    def load(self, save_data: T) -> None: ...
+    
+    def load(self, save_data: T|str):
+        """
+        加载存档数据
+        
+        :param save_data: 存档数据或存档文件路径
+        """
+        if isinstance(save_data, str):
+            self.__load_file(save_data)
+        else:
+            self.__load_memory(save_data)
     
     def reload(self):
         assert self.__check_save_loaded(self.__preside_data)
@@ -319,7 +346,7 @@ class SaveEditor:
         else:
             raise ValueError('Invalid save data')
     
-    def convert(self, target: SaveType):
+    def convert(self, target: SaveType) -> 'SaveEditor':
         """
         将当前存档数据转换为指定类型的存档数据。转换后需要手动调用 `save()` 方法保存。
         
@@ -328,14 +355,44 @@ class SaveEditor:
         assert self.__check_save_loaded(self.__preside_data)
         if target == SaveType.STEAM:
             if is_struct(self.__preside_data, PresideDataXbox):
-                self.__preside_data = xbox2steam(self.__preside_data)
+                editor = SaveEditor[PresideData](
+                    self.game_path,
+                    None,
+                    self.editor_language
+                )
+                editor.load(xbox2steam(self.__preside_data))
+                return editor
             else:
                 raise ValueError('Expected Xbox save data, got Steam save data')
         elif target == SaveType.XBOX:
             if is_struct(self.__preside_data, PresideData):
-                self.__preside_data = steam2xbox(self.__preside_data)
+                editor = SaveEditor[PresideDataXbox](
+                    self.game_path,
+                    None,
+                    self.editor_language
+                )
+                editor.load(steam2xbox(self.__preside_data))
+                return editor
+                # self.__preside_data = steam2xbox(self.__preside_data)
             else:
                 raise ValueError('Expected Steam save data, got Xbox save data')
+        else:
+            raise ValueError('Invalid target save type')
+    
+    def shadow(self) -> 'SaveEditor':
+        """
+        创建当前 SaveEditor 实例的副本，两个实例共享存档数据，但可以独立选中不同的槽位/语言。
+        """
+        assert self.__check_save_loaded(self.__preside_data)
+        editor = SaveEditor[T](
+            self.game_path,
+            None,
+            self.editor_language
+        )
+        editor.__preside_data = self.__preside_data
+        editor.__save_path = self.__save_path
+        editor.selected_slot = self.selected_slot
+        return editor
     
     def select_slot(self, slot_number: int):
         """

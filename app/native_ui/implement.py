@@ -4,19 +4,28 @@ import datetime
 import traceback
 import subprocess
 from gettext import gettext as _
+from typing import cast
 
 import wx
 
-from .form import FrameMain
-from app.editor.save_editor import SaveEditor, NoOpenSaveFileError, SaveType
+import app.utils as utils
 import app.editor.locator as locator
+from .form import FrameMain, FrameSlotManager
+from app.editor.slot_editor import SlotEditor, IncompatibleSlotError
+from app.editor.save_editor import SaveEditor, NoOpenSaveFileError, SaveType
 from app.unpack.decrypt import decrypt_file, encrypt_file, decrypt_folder, encrypt_folder
 
 def _excepthook(type, value, tb):
+    print('=' * 40)
     if type == NoOpenSaveFileError:
         # 不直接调用是因为弹出的消息框会导致原来的焦点控件多次聚焦，
         # 形成多次值改变事件，进而弹出多个消息框
+        print('Ignorable error:')
         wx.CallAfter(wx.MessageBox, _(u'请先打开任意存档文件。'), _(u'错误'), wx.OK | wx.ICON_ERROR)
+    elif type == IncompatibleSlotError:
+        print('Ignorable error:')
+        value = cast(IncompatibleSlotError, value)
+        wx.CallAfter(wx.MessageBox, _(u'存档类型不兼容。\n左侧：%s，右侧：%s' % (value.left_type, value.right_type)), _(u'错误'), wx.OK | wx.ICON_ERROR)
     else:
         # 提示错误
         wx.MessageBox(''.join(traceback.format_exception(type, value, tb)), _(u'错误'), wx.OK | wx.ICON_ERROR)
@@ -101,10 +110,11 @@ class FrameMainImpl(FrameMain):
             return
         xbox_path = locator.system_xbox_save_path[0]
         steam_id, steam_path = locator.system_steam_save_path[0]
-        self.editor.load(xbox_path)
-        self.editor.set_account_id(int(steam_id))
-        self.editor.convert(SaveType.STEAM)
-        self.editor.save(steam_path)
+        editor = SaveEditor()
+        editor.load(xbox_path)
+        editor.set_account_id(int(steam_id))
+        new_editor = editor.convert(SaveType.STEAM)
+        new_editor.save(steam_path)
         wx.MessageBox(_(u'转换成功'), _(u'提示'), wx.OK | wx.ICON_INFORMATION)
     
     def mi_steam2xbox_on_choice(self, event):
@@ -112,9 +122,10 @@ class FrameMainImpl(FrameMain):
             return
         xbox_path = locator.system_xbox_save_path[0]
         __, steam_path = locator.system_steam_save_path[0]
-        self.editor.load(steam_path)
-        self.editor.convert(SaveType.XBOX)
-        self.editor.save(xbox_path)
+        editor = SaveEditor()
+        editor.load(steam_path)
+        new_editor = editor.convert(SaveType.XBOX)
+        new_editor.save(xbox_path)
         wx.MessageBox(_(u'转换成功'), _(u'提示'), wx.OK | wx.ICON_INFORMATION)
     
     def mi_save_as_on_select(self, event):
@@ -174,7 +185,11 @@ class FrameMainImpl(FrameMain):
         
         # 触发选择存档事件
         self.chc_savs_on_choice(None)
-        
+    
+    def reload(self):
+        self.editor.reload()
+        self.load_basic_ui()
+    
     def chc_savs_on_choice(self, event):
         slot_number = self.m_chc_saves.GetSelection()
         if slot_number == wx.NOT_FOUND:
@@ -276,6 +291,10 @@ class FrameMainImpl(FrameMain):
         del busy
         wx.MessageBox(_(u'加密完成'), _(u'提示'), wx.OK | wx.ICON_INFORMATION)
     
+    def m_mi_slot_manager_on_select(self, event):
+        frame = FrameSlotManagerImpl(self)
+        frame.Show()
+    
     ################ 数据绑定 ################
     def chc_gs1_on_choice(self, event):
         self.editor.set_unlocked_chapters(1, self.m_chc_gs1.GetSelection() + 1)
@@ -310,6 +329,154 @@ class FrameMainImpl(FrameMain):
     def m_chc_lang_on_choice(self, event):
         self.editor.editor_language_id = self.m_chc_lang.GetSelection()
         self.load_basic_ui()
+
+
+class FrameSlotManagerImpl(FrameSlotManager):
+    def __init__(self, parent: FrameMainImpl):
+        super().__init__(parent)
+        self.__parent = parent
+        self.left_editor = SlotEditor(SaveEditor())
+        self.right_editor = SlotEditor(SaveEditor())
+    
+    def img_path(self, bitmap_path):
+        return utils.img_path(bitmap_path)
+    
+    def load_ui(self):
+        if self.left_editor.editor.opened:
+            idx = self.m_lst_l_slots.GetSelection()
+            self.m_chc_l_lang.SetSelection(self.left_editor.editor.editor_language_id)
+            self.m_lst_l_slots.Clear()
+            slots = self.left_editor.editor.get_slots_info()
+            for i, slot in enumerate(slots, 1):
+                self.m_lst_l_slots.Append(f'{i:02d}: ' + slot.short_str)
+            idx = 0 if idx < 0 else idx
+            idx = 0 if idx >= len(slots) else idx
+            self.m_lst_l_slots.SetSelection(idx)
+        
+        if self.right_editor.editor.opened:
+            idx = self.m_lst_r_slots.GetSelection()
+            self.m_chc_r_lang.SetSelection(self.right_editor.editor.editor_language_id)
+            self.m_lst_r_slots.Clear()
+            slots = self.right_editor.editor.get_slots_info()
+            for i, slot in enumerate(slots, 1):
+                self.m_lst_r_slots.Append(f'{i:02d}: ' + slot.short_str)
+            idx = 0 if idx < 0 else idx
+            idx = 0 if idx >= len(slots) else idx
+            self.m_lst_r_slots.SetSelection(idx)
+
+    
+    def on_close(self, event):
+        if wx.MessageBox(_(u'所有未保存修改将丢失，是否继续？'), _(u'提示'), wx.YES_NO | wx.ICON_QUESTION) == wx.YES:
+            self.Destroy()
+        if (
+            self.__parent.editor.opened
+            and wx.MessageBox(_(u'是否立即重载存档编辑器？'), _(u'提示'), wx.YES_NO | wx.ICON_QUESTION) == wx.YES
+        ):
+            self.__parent.reload()
+
+    ################ 事件绑定 ################
+    def __editor(self, event):
+        if event.EventObject == self.m_toolbar_l:
+            return self.left_editor
+        else:
+            return self.right_editor
+    
+    def __slots_list(self, event):
+        if event.EventObject == self.m_toolbar_l:
+            return self.m_lst_l_slots
+        else:
+            return self.m_lst_r_slots
+    
+    def m_tol_load_on_clicked(self, event):
+        with wx.FileDialog(self, _(u"打开存档文件"), wildcard=f"{_(u'存档文件')} (*.*)|*.*", style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST) as fileDialog:
+            if fileDialog.ShowModal() == wx.ID_CANCEL:
+                return
+            path = fileDialog.GetPath()
+            self.__editor(event).editor.load(path)
+            self.load_ui()
+    
+    def m_tol_load_steam_on_clicked(self, event):
+        _, steam_path = locator.system_steam_save_path[0] # TODO: 支持多个存档/无存档
+        self.__editor(event).editor.load(steam_path)
+        self.load_ui()
+        
+    def m_tol_load_xbox_on_clicked(self, event):
+        xbox_path = locator.system_xbox_save_path[0] # TODO: 支持多个存档/无存档
+        self.__editor(event).editor.load(xbox_path)
+        self.load_ui()
+        
+    def m_tol_save_on_clicked(self, event):
+        self.__editor(event).save()
+        wx.MessageBox(_(u'保存成功'), _(u'提示'), wx.OK | wx.ICON_INFORMATION)
+        
+    def m_tol_delete_on_clicked(self, event):
+        if wx.MessageBox(_(u'是否删除选中存档？'), _(u'提示'), wx.YES_NO | wx.ICON_QUESTION) == wx.YES:
+            self.__editor(event).delete(self.__slots_list(event).GetSelection())
+            self.load_ui()
+
+    def m_tol_up_on_clicked(self, event):
+        i = self.__editor(event).move_up(self.__slots_list(event).GetSelection())
+        self.load_ui()
+        self.__slots_list(event).SetSelection(i)
+    
+    def m_tol_down_on_clicked(self, event):
+        i = self.__editor(event).move_down(self.__slots_list(event).GetSelection())
+        self.load_ui()
+        self.__slots_list(event).SetSelection(i)
+        
+    ################ 左侧事件绑定 ################
+    def m_chc_l_lang_on_choice(self, event):
+        self.left_editor.editor.editor_language_id = self.m_chc_l_lang.GetSelection()
+        self.load_ui()
+    
+    def m_tol_l_copy_to_right_on_clicked(self, event):
+        if wx.MessageBox(_(u'即将覆盖右侧选中存档槽位，是否继续？'), _(u'提示'), wx.YES_NO | wx.ICON_QUESTION) == wx.NO:
+            return
+        self.left_editor.copy_to(
+            self.m_lst_l_slots.GetSelection(),
+            self.right_editor,
+            self.m_lst_r_slots.GetSelection()
+        )
+        self.load_ui()
+    
+    def m_tol_l_move_to_right_on_clicked(self, event):
+        if wx.MessageBox(_(u'即将覆盖右侧选中存档槽位，是否继续？'), _(u'提示'), wx.YES_NO | wx.ICON_QUESTION) == wx.NO:
+            return
+        self.left_editor.move_to(
+            self.m_lst_l_slots.GetSelection(),
+            self.right_editor,
+            self.m_lst_r_slots.GetSelection()
+        )
+        self.load_ui()
+    
+    ################ 右侧事件绑定 ################
+    def m_chc_r_lang_on_choice(self, event):
+        self.right_editor.editor.editor_language_id = self.m_chc_r_lang.GetSelection()
+        self.load_ui()
+    
+    def m_tol_r_sync_left_on_clicked(self, event):
+        self.right_editor.editor = self.left_editor.editor.shadow()
+        self.load_ui()
+        
+    def m_tol_r_copy_to_left_on_clicked(self, event):
+        if wx.MessageBox(_(u'即将覆盖左侧选中存档槽位，是否继续？'), _(u'提示'), wx.YES_NO | wx.ICON_QUESTION) == wx.NO:
+            return
+        self.right_editor.copy_to(
+            self.m_lst_r_slots.GetSelection(),
+            self.left_editor,
+            self.m_lst_l_slots.GetSelection()
+        )
+        self.load_ui()
+        
+    def m_tol_r_move_to_left_on_clicked(self, event):
+        if wx.MessageBox(_(u'即将覆盖左侧选中存档槽位，是否继续？'), _(u'提示'), wx.YES_NO | wx.ICON_QUESTION) == wx.NO:
+            return
+        self.right_editor.move_to(
+            self.m_lst_r_slots.GetSelection(),
+            self.left_editor,
+            self.m_lst_l_slots.GetSelection()
+        )
+        self.load_ui()
     
 app = wx.App()
 frame = FrameMainImpl(None)
