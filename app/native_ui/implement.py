@@ -25,7 +25,7 @@ def _excepthook(type, value, tb):
     elif type == IncompatibleSlotError:
         print('Ignorable error:')
         value = cast(IncompatibleSlotError, value)
-        wx.CallAfter(wx.MessageBox, _(u'存档类型不兼容。\n左侧：%s，右侧：%s' % (value.left_type, value.right_type)), _(u'错误'), wx.OK | wx.ICON_ERROR)
+        wx.CallAfter(wx.MessageBox, _(u'存档类型不兼容。\n左侧：%s，右侧：%s') % (value.left_type, value.right_type), _(u'错误'), wx.OK | wx.ICON_ERROR)
     else:
         # 提示错误
         wx.MessageBox(''.join(traceback.format_exception(type, value, tb)), _(u'错误'), wx.OK | wx.ICON_ERROR)
