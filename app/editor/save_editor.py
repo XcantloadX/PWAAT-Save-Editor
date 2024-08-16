@@ -29,6 +29,9 @@ class SaveType(IntEnum):
 class NoOpenSaveFileError(Exception):
     pass
 
+class NoGameFoundError(Exception):
+    pass
+
 def lang2lang_id(language: Language) -> int:
     match language:
         case 'en':
@@ -176,7 +179,7 @@ class SaveEditor(Generic[T]):
         game_path = game_path or locator.steam_game_path or locator.xbox_game_path
         logger.debug(f'game_path: {game_path}')
         if not game_path:
-            raise FileNotFoundError('Could not find game path')
+            raise NoGameFoundError('Could not find game path')
         self.game_path = game_path
         
         self.__save_path: str|None = None

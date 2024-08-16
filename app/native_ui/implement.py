@@ -12,7 +12,7 @@ import app.utils as utils
 import app.editor.locator as locator
 from .form import FrameMain, FrameSlotManager
 from app.editor.slot_editor import SlotEditor, IncompatibleSlotError
-from app.editor.save_editor import SaveEditor, NoOpenSaveFileError, SaveType
+from app.editor.save_editor import NoGameFoundError, SaveEditor, NoOpenSaveFileError, SaveType
 from app.unpack.decrypt import decrypt_file, encrypt_file, decrypt_folder, encrypt_folder
 
 def _excepthook(type, value, tb):
@@ -59,7 +59,27 @@ class FrameMainImpl(FrameMain):
         self.m_sld_court_damage.SetLineSize(8)
         self.m_notebook1.SetSelection(0)
 
-        self.editor = SaveEditor(language='hans')
+        self.editor: SaveEditor
+        def __exit():
+            wx.MessageBox(_(u'未选择任何有效路径，即将退出程序。'), _(u'提示'), wx.OK | wx.ICON_INFORMATION)
+            sys.exit(1)
+        try:
+            self.editor = SaveEditor(language='hans')
+        except NoGameFoundError:
+            dlg = wx.MessageDialog(self, _(u'未找到游戏安装路径。是否手动选择游戏路径？'), _(u'警告'), wx.YES_NO | wx.ICON_WARNING)
+            if dlg.ShowModal() == wx.ID_YES:
+                with wx.DirDialog(self, _(u"选择游戏安装路径"), style=wx.DD_DEFAULT_STYLE | wx.DD_DIR_MUST_EXIST) as dirDialog:
+                    if dirDialog.ShowModal() == wx.ID_CANCEL:
+                        __exit()
+                    else:
+                        game_path = dirDialog.GetPath()
+                        try:
+                            self.editor = SaveEditor(game_path=game_path, language='hans')
+                        except NoGameFoundError:
+                            wx.MessageBox(_(u'选择的路径无效。'), _(u'错误'), wx.OK | wx.ICON_ERROR)
+                            __exit()
+            else:
+                __exit()
 
     def sld_hp_on_scroll_changed(self, event):
         # 强制步进 8
@@ -92,14 +112,38 @@ class FrameMainImpl(FrameMain):
             self.load_basic_ui()
             
     def mi_open_steam_on_select(self, event):
-        _, steam_path = locator.system_steam_save_path[0]
-        self.editor.load(steam_path)
-        self.load_basic_ui()
+        steam_saves = locator.system_steam_save_path
+        if not steam_saves:
+            wx.MessageBox(_(u'未找到任何 Steam 存档。'), _(u'错误'), wx.OK | wx.ICON_ERROR)
+            return
+        elif len(steam_saves) > 1:
+            dlg = wx.SingleChoiceDialog(self, _(u'找到多个 Steam 存档，请选择一个:'), _(u'选择存档'), [path for _, path in steam_saves])
+            if dlg.ShowModal() == wx.ID_OK:
+                selected_path = dlg.GetStringSelection()
+                self.editor.load(selected_path)
+                self.load_basic_ui()
+            dlg.Destroy()
+        else:
+            __, steam_path = steam_saves[0]
+            self.editor.load(steam_path)
+            self.load_basic_ui()
     
     def mi_open_xbox_on_select(self, event):
-        xbox_path = locator.system_xbox_save_path[0]
-        self.editor.load(xbox_path)
-        self.load_basic_ui()
+        xbox_saves = locator.system_xbox_save_path
+        if not xbox_saves:
+            wx.MessageBox(_(u'未找到任何 Xbox 存档。'), _(u'错误'), wx.OK | wx.ICON_ERROR)
+            return
+        elif len(xbox_saves) > 1:
+            dlg = wx.SingleChoiceDialog(self, _(u'找到多个 Xbox 存档，请选择一个:'), _(u'选择存档'), xbox_saves)
+            if dlg.ShowModal() == wx.ID_OK:
+                selected_path = dlg.GetStringSelection()
+                self.editor.load(selected_path)
+                self.load_basic_ui()
+            dlg.Destroy()
+        else:
+            xbox_path = xbox_saves[0]
+            self.editor.load(xbox_path)
+            self.load_basic_ui()
     
     def mi_save_on_select(self, event):
         self.editor.save()

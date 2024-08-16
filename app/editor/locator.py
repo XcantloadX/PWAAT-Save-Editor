@@ -105,7 +105,11 @@ class _Locator:
         """
         Xbox 游戏安装路径。
         """
-        app = self.__xbox_app()
+        app = None
+        try:
+            app = self.__xbox_app()
+        except Exception as e:
+            logger.warning(e)
         return app.installed_path if app else None
 
 _ins = _Locator()
