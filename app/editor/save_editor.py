@@ -4,11 +4,10 @@ from enum import IntEnum
 from typing import TypeGuard, Literal, TypeVar, Generic, cast, overload
 from gettext import gettext as _
 
-from app.structs.steam import PresideData
+from app.structs.steam import PresideData, GameData
 from app.structs.xbox import PresideDataXbox
-from app.deserializer.types import Int32, Int16, UInt16, is_struct, FixedString
+from app.deserializer.types import Int32, Int16, UInt16, UInt8, Int8, is_struct, FixedString
 from app.unpack import TextUnpacker, TitleTextID, SaveTextID, Language, Language_
-from app.deserializer.types import UInt8
 from app.editor.locator import STEAM_SAVE_LENGTH, XBOX_SAVE_LENGTH
 import app.editor.locator as locator
 from app.structs.conventor import xbox2steam, steam2xbox
@@ -519,43 +518,157 @@ class SaveEditor(Generic[T]):
         assert self.__check_save_loaded(self.__preside_data)
         return self.__preside_data.slot_list_[self.__slot_number(slot)]
     
-    def set_court_hp(self, hp: int, slot: int|None = None):
-        """
-        设置法庭日血量值。
-        
-        :param slot_number: 游戏内存档槽位号，范围 [0, 9]。若为空，则为当前选择的槽位。
-        :param hp: 血量值，范围 [0, 80]
-        """
-        assert self.__check_save_loaded(self.__preside_data)
-        slot = self.__slot_number(slot)
-        self.__preside_data.slot_list_[slot].global_work_.gauge_hp = Int16(hp)
-        self.__preside_data.slot_list_[slot].global_work_.gauge_hp_disp = Int16(hp)
-
-    def get_court_hp(self, slot_number: int|None = None) -> int:
-        """
-        获取法庭日血量值。
-        
-        :param slot_number: 游戏内存档槽位号，范围 [0, 9]。若为空，则为当前选择的槽位。
-        """
-        assert self.__check_save_loaded(self.__preside_data)
-        slot_number = self.__slot_number(slot_number)
-        return self.__preside_data.slot_list_[slot_number].global_work_.gauge_hp
-    
     @property
     def court_pending_damage(self) -> int:
         """
         法庭中即将造成的伤害值（血条闪烁部分）。此属性可写且有效。
         
+        范围 [0, 10]，对应游戏里血量条的格数。
+        
+        **注意**：\n
         （尚不明确是否对一击必杀的伤害有效。）\n
         （尚不明确在没有即将造成的伤害时是什么含义，也不明确此时修改造成的影响。）
+        
+        **参考代码**：
+        ```csharp
+        private int GetDamage()
+        {
+            if (GSStatic.global_work_.title == TitleId.GS1)
+            {
+                if (this.debug_instant_death_)
+                {
+                    return (int)GSStatic.global_work_.rest * 10 / 5;
+                }
+                return 2;
+            }
+            else
+            {
+                if (this.debug_instant_death_)
+                {
+                    return (int)(GSStatic.global_work_.gauge_hp * 10 / 5);
+                }
+                return (int)(GSStatic.global_work_.gauge_dmg_cnt * 10 / 80);
+            }
+        }
+        ```
         """
         assert self.__check_save_loaded(self.__preside_data)
-        return self.__preside_data.slot_list_[self.selected_slot].global_work_.gauge_dmg_cnt
+        global_work = cast(GameData, self.selected_game_data).global_work_
+        if global_work.title == TitleId.GS1:
+            return 2
+        else:
+            return int(global_work.gauge_dmg_cnt * 10 / 80)
+        # return self.__preside_data.slot_list_[self.selected_slot].global_work_.gauge_dmg_cnt
     
     @court_pending_damage.setter
     def court_pending_damage(self, value: int):
         assert self.__check_save_loaded(self.__preside_data)
-        self.__preside_data.slot_list_[self.selected_slot].global_work_.gauge_dmg_cnt = Int16(value)
+        global_work = cast(GameData, self.selected_game_data).global_work_
+        if global_work.title == TitleId.GS1:
+            raise ValueError('Cannot set pending damage for GS1')
+        else:
+            global_work.gauge_dmg_cnt = Int16(int(value * 80 / 10))
+    
+    @property
+    def court_pending_danmage_changable(self) -> bool:
+        """
+        法庭中即将造成的伤害值是否可修改。
+        """
+        assert self.__check_save_loaded(self.__preside_data)
+        global_work = cast(GameData, self.selected_game_data).global_work_
+        return global_work.title != TitleId.GS1
+    
+    @property
+    def old_hp(self) -> int:
+        """
+        法庭日血量值的旧值。范围 [0, 10]，对应游戏里血量条的格数。
+        
+        对应 `gauge_hp_disp` 或 `rest_old` 字段。
+        
+        参考代码：
+        ```csharp
+        private int GetOldLife()
+        {
+            if (GSStatic.global_work_.gauge_hp_disp == 1)
+            {
+                return 1;
+            }
+            if (GSStatic.global_work_.title == TitleId.GS1)
+            {
+                return (int)(GSStatic.global_work_.rest_old * 10 / 5);
+            }
+            return (int)(GSStatic.global_work_.gauge_hp_disp * 10 / 80);
+        }
+        ```
+        """
+        assert self.__check_save_loaded(self.__preside_data)
+        global_work = cast(GameData, self.selected_game_data).global_work_
+        if global_work.gauge_hp_disp == 1:
+            return 1
+        if global_work.title == TitleId.GS1:
+            return int(global_work.rest_old * 10 / 5)
+        return int(global_work.gauge_hp_disp * 10 / 80)
+    
+    @old_hp.setter
+    def old_hp(self, value: int):
+        assert self.__check_save_loaded(self.__preside_data)
+        global_work = cast(GameData, self.selected_game_data).global_work_
+        if global_work.title == TitleId.GS1:
+            global_work.rest_old = UInt8(int(value * 5 / 10))
+        else:
+            global_work.gauge_hp_disp = Int16(int(value * 80 / 10))
+            
+    @property
+    def new_hp(self) -> int:
+        """
+        法庭日血量值的新值。范围 [0, 10]，对应游戏里血量条的格数。
+        
+        对应 `gauge_hp` 或 `rest` 字段。
+        
+        参考代码：
+        ```csharp
+        private int GetNowLife()
+        {
+            if (GSStatic.global_work_.gauge_hp == 1)
+            {
+                return 1;
+            }
+            if (GSStatic.global_work_.title == TitleId.GS1)
+            {
+                if (this.debug_no_damage_)
+                {
+                    return (int)(GSStatic.global_work_.rest_old * 10 / 5);
+                }
+                return (int)GSStatic.global_work_.rest * 10 / 5;
+            }
+            else
+            {
+                if (this.debug_no_damage_)
+                {
+                    return (int)(GSStatic.global_work_.gauge_hp_disp * 10 / 80);
+                }
+                return (int)(GSStatic.global_work_.gauge_hp * 10 / 80);
+            }
+        }
+        ```
+        """
+        assert self.__check_save_loaded(self.__preside_data)
+        global_work = cast(GameData, self.selected_game_data).global_work_
+        if global_work.gauge_hp == 1:
+            return 1
+        if global_work.title == TitleId.GS1:
+            return int(global_work.rest * 10 / 5)
+        else:
+            return int(global_work.gauge_hp * 10 / 80)
+        
+    @new_hp.setter
+    def new_hp(self, value: int):
+        assert self.__check_save_loaded(self.__preside_data)
+        global_work = cast(GameData, self.selected_game_data).global_work_
+        if global_work.title == TitleId.GS1:
+            global_work.rest = Int8(int(value * 5 / 10))
+        else:
+            global_work.gauge_hp = Int16(int(value * 80 / 10))
     
     def set_unlocked_chapters(self, game_number: int, chapter_count: int):
         """
@@ -598,6 +711,8 @@ class SaveEditor(Generic[T]):
     def real_slot_number(self, slot_number: int) -> int:
         """
         获取实际存档槽位号
+        
+        :param slot_number: 游戏内存档槽位号，范围 [0, 9]
         """
         assert self.__check_save_loaded(self.__preside_data)
         return slot_number + self.editor_language_id * 10

@@ -118,7 +118,7 @@ class FrameMain ( wx.Frame ):
 
         fgSizer2.Add( self.m_staticText4, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
 
-        self.m_sld_hp = wx.Slider( sbSizer_court.GetStaticBox(), wx.ID_ANY, 0, 0, 80, wx.DefaultPosition, wx.Size( 150,-1 ), wx.SL_LABELS )
+        self.m_sld_hp = wx.Slider( sbSizer_court.GetStaticBox(), wx.ID_ANY, 0, 0, 10, wx.DefaultPosition, wx.Size( 150,-1 ), wx.SL_LABELS )
         fgSizer2.Add( self.m_sld_hp, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
 
         self.m_staticText12 = wx.StaticText( sbSizer_court.GetStaticBox(), wx.ID_ANY, _(u"待定伤害值(?)"), wx.DefaultPosition, wx.DefaultSize, 0 )
@@ -128,7 +128,7 @@ class FrameMain ( wx.Frame ):
 
         fgSizer2.Add( self.m_staticText12, 0, wx.ALL, 5 )
 
-        self.m_sld_court_damage = wx.Slider( sbSizer_court.GetStaticBox(), wx.ID_ANY, 0, 0, 80, wx.DefaultPosition, wx.Size( 150,-1 ), wx.SL_HORIZONTAL|wx.SL_LABELS )
+        self.m_sld_court_damage = wx.Slider( sbSizer_court.GetStaticBox(), wx.ID_ANY, 0, 0, 10, wx.DefaultPosition, wx.Size( 150,-1 ), wx.SL_HORIZONTAL|wx.SL_LABELS )
         fgSizer2.Add( self.m_sld_court_damage, 0, wx.ALL, 5 )
 
 

@@ -164,13 +164,18 @@ class GlobalWork(Struct):
     gauge_rno_1: byte
     gauge_hp: short
     """
-    血量（？），满血为 80，总共有 10 格，一格血量为 8。\n
+    游戏 2、3 的现行血量。
+    
+    满血为 80，总共有 10 格，一格血量为 8。\n
     若修改血量，需要同时修改 `gauge_hp` 和 `gauge_hp_disp。`
     """
     gauge_hp_disp: short
     """
-    显示血量（？可能与动画有关）。在存档数据中总是与 `gauge_hp` 相同（？）\n
-    若修改血量，需要同时修改 `gauge_hp` 和 `gauge_hp_disp。`
+    游戏 2、3 的显示血量。
+    
+    在存档数据中总是与 `gauge_hp` 相同（？）\n
+    
+    另见 `gauge_hp`。
     """
     gauge_dmg_cnt: short
     """即将造成的伤害值（血量条闪烁部分）。此属性可以修改且有效。"""
@@ -186,6 +191,9 @@ class GlobalWork(Struct):
     scenario: byte
     Scenario_enable: byte
     rest: sbyte
+    """
+    游戏 1 的现行血量。
+    """
     sce_flag: FixedArray[uint, Literal[8]]
     status_flag: uint
     talk_end_flag: FixedArray[uint, Literal[12]]

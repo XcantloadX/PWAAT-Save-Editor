@@ -82,24 +82,10 @@ class FrameMainImpl(FrameMain):
                 __exit()
 
     def sld_hp_on_scroll_changed(self, event):
-        # 强制步进 8
-        value = self.m_sld_hp.Value
-        remainder = value % 8
-        if remainder != 0:
-            value -= remainder
-            self.m_sld_hp.Value = value
-            
         # 处理事件
-        self.editor.set_court_hp(self.m_sld_hp.Value)
+        self.editor.new_hp = self.editor.old_hp = self.m_sld_hp.Value
     
     def m_sld_court_danmage_on_scroll_changed(self, event):
-        # 强制步进 8
-        value = self.m_sld_court_damage.Value
-        remainder = value % 8
-        if remainder != 0:
-            value -= remainder
-            self.m_sld_court_damage.Value = value
-        
         # 处理事件
         self.editor.court_pending_damage = self.m_sld_court_damage.Value
     
@@ -240,8 +226,9 @@ class FrameMainImpl(FrameMain):
             return
         self.editor.select_slot(slot_number)
         # 法庭血量/伤害
-        self.m_sld_hp.Value = self.editor.get_court_hp()
+        self.m_sld_hp.Value = self.editor.new_hp
         self.m_sld_court_damage.Value = self.editor.court_pending_damage
+        self.m_sld_court_damage.Enabled = self.editor.court_pending_danmage_changable
         # 消息框 Tab
         self.m_chk_dlg_visible.Value = self.editor.dialog.dialog_visible
         self.m_chk_dlg_name_visible.Value = self.editor.dialog.name_visible
