@@ -40,6 +40,10 @@ class _Locator:
             logger.warning('Steam not found')
             return []
         saves_path = os.path.join(steam_path, 'userdata')
+        logger.debug(f'saves_path: {saves_path}')
+        if not os.path.exists(saves_path):
+            logger.warning('Steam saves does not exist')
+            return []
         # 列出子文件夹（多账号）
         accounts = os.listdir(saves_path)
         save_files: list[tuple[str, str]] = []

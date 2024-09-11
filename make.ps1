@@ -16,7 +16,7 @@ mkdir output
     --name "PWAAT Save Editor" `
     .\app\entry_native.py
 	# app\entry.py
-sleep 1
+sleep 3
 
 $bat = @"
 @echo off
@@ -32,7 +32,7 @@ cp $file_name output
 
 # REPL
 &pyinstaller --noconfirm .\packages.spec
-sleep 1
+sleep 3
 
 $bat = @"
 @echo off

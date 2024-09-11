@@ -1,5 +1,6 @@
 import os
 import sys
+import logging
 import datetime
 import traceback
 import subprocess
@@ -7,6 +8,8 @@ from gettext import gettext as _
 from typing import cast
 
 import wx
+
+logging.basicConfig(format='[%(asctime)s][%(levelname)s] %(message)s', level=logging.DEBUG)
 
 import app.utils as utils
 import app.editor.locator as locator
