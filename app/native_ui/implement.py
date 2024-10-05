@@ -66,7 +66,7 @@ class Dialog(wx.Dialog):
         sizer.Add(button, flag=wx.ALIGN_CENTER | wx.ALL, border=10)
 
         self.SetSizerAndFit(sizer)
-        self.SetSize(600, 400)
+        self.SetSize(self.FromDIP(600), self.FromDIP(400))
 
     def on_confirm(self, event):
         self.EndModal(wx.ID_OK)

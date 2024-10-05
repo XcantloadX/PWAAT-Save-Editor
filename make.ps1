@@ -14,6 +14,7 @@ mkdir output
     --add-data "locales;locales" `
 	--noconfirm `
     --name "PWAAT Save Editor" `
+    --manifest ".\manifest.xml" `
     .\app\entry_native.py
 	# app\entry.py
 sleep 3
