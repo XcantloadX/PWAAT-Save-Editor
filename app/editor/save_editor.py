@@ -175,7 +175,7 @@ class SaveEditor(Generic[T]):
         default_save_path: str|None = None,
         language: Language = 'en'
     ) -> None:
-        game_path = game_path or locator.steam_game_path or locator.xbox_game_path
+        game_path = game_path or locator.game_path
         logger.debug(f'game_path: {game_path}')
         if not game_path:
             raise NoGameFoundError('Could not find game path')

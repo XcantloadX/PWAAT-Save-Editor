@@ -69,20 +69,22 @@ class FrameMainImpl(FrameMain):
         try:
             self.editor = SaveEditor(language='hans')
         except NoGameFoundError:
-            dlg = wx.MessageDialog(self, _(u'未找到游戏安装路径。是否手动选择游戏路径？'), _(u'警告'), wx.YES_NO | wx.ICON_WARNING)
-            if dlg.ShowModal() == wx.ID_YES:
-                with wx.DirDialog(self, _(u"选择游戏安装路径"), style=wx.DD_DEFAULT_STYLE | wx.DD_DIR_MUST_EXIST) as dirDialog:
-                    if dirDialog.ShowModal() == wx.ID_CANCEL:
-                        __exit()
-                    else:
-                        game_path = dirDialog.GetPath()
-                        try:
-                            self.editor = SaveEditor(game_path=game_path, language='hans')
-                        except NoGameFoundError:
-                            wx.MessageBox(_(u'选择的路径无效。'), _(u'错误'), wx.OK | wx.ICON_ERROR)
+            while True:
+                dlg = wx.MessageDialog(self, _(u'未找到游戏安装路径。是否手动选择游戏路径？'), _(u'警告'), wx.YES_NO | wx.ICON_WARNING)
+                if dlg.ShowModal() == wx.ID_YES:
+                    with wx.DirDialog(self, _(u"选择游戏安装路径"), style=wx.DD_DEFAULT_STYLE | wx.DD_DIR_MUST_EXIST) as dirDialog:
+                        if dirDialog.ShowModal() == wx.ID_CANCEL:
                             __exit()
-            else:
-                __exit()
+                        else:
+                            game_path = dirDialog.GetPath()
+                            locator.game_path = game_path
+                            try:
+                                self.editor = SaveEditor(language='hans')
+                                break
+                            except NoGameFoundError:
+                                wx.MessageBox(_(u'选择的路径无效。'), _(u'错误'), wx.OK | wx.ICON_ERROR)
+                else:
+                    __exit()
 
     def sld_hp_on_scroll_changed(self, event):
         # 处理事件

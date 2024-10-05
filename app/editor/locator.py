@@ -25,7 +25,7 @@ STEAM_APP_NAME = 'Steam App 787480'
 class _Locator:
     
     def __init__(self) -> None:
-        self.__xbox_app_cache: App | None = None
+        self._custom_game_path: str|None = None
     
     def __xbox_app(self) -> App | None:
         return find_universal_app(XBOX_APP_NAME)
@@ -102,7 +102,12 @@ class _Locator:
         Steam 游戏安装路径。
         """
         app = find_desktop_app(STEAM_APP_NAME)
-        return app.installed_path if app else None
+        if not app:
+            return None
+        path = app.installed_path or ''
+        if not os.path.exists(path):
+            return None
+        return path
     
     @property
     def xbox_game_path(self) -> str | None:
@@ -115,6 +120,28 @@ class _Locator:
         except Exception as e:
             logger.warning(e)
         return app.installed_path if app else None
+    
+    @property
+    def game_path(self) -> str|None:
+        """
+        游戏安装路径。
+        优先级：自定义路径 > Steam > Xbox
+        """
+        if self._custom_game_path:
+            return self._custom_game_path
+        elif self.steam_game_path:
+            return self.steam_game_path
+        elif self.xbox_game_path:
+            return self.xbox_game_path
+        else:
+            return None
+
+    @game_path.setter
+    def game_path(self, value: str|None):
+        """
+        设置自定义游戏路径。
+        """
+        self._custom_game_path = value
 
 _ins = _Locator()
 
@@ -124,7 +151,7 @@ system_xbox_save_path = _ins.system_xbox_save_path
 steam_path = _ins.steam_path
 steam_game_path = _ins.steam_game_path
 xbox_game_path = _ins.xbox_game_path
-
+game_path = _ins.game_path
 
 if __name__ == '__main__':
     print(_ins.steam_path)
