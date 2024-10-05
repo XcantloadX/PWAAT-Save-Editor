@@ -1,5 +1,6 @@
 import os
 import sys
+import shutil
 import logging
 import datetime
 import traceback
@@ -14,6 +15,8 @@ logging.basicConfig(format='[%(asctime)s][%(levelname)s] %(message)s', level=log
 import app.utils as utils
 import app.editor.locator as locator
 from .form import FrameMain, FrameSlotManager
+from app.structs.steam import PresideData, GameData
+from app.structs.xbox import PresideDataXbox
 from app.editor.slot_editor import SlotEditor, IncompatibleSlotError
 from app.editor.save_editor import NoGameFoundError, SaveEditor, NoOpenSaveFileError, SaveType
 from app.unpack.decrypt import decrypt_file, encrypt_file, decrypt_folder, encrypt_folder
@@ -34,6 +37,19 @@ def _excepthook(type, value, tb):
         wx.MessageBox(''.join(traceback.format_exception(type, value, tb)), _(u'错误'), wx.OK | wx.ICON_ERROR)
     traceback.print_exception(type, value, tb)
 sys.excepthook = _excepthook
+
+def save_hook(editor: SaveEditor, save: PresideData | PresideDataXbox):
+    ret = wx.MessageBox(_(u'是否备份当前存档？'), '提示', wx.OK | wx.CANCEL | wx.ICON_QUESTION)
+    if ret == wx.OK:
+        save_path = wx.SaveFileSelector('请选择备份路径', '.bak', default_name=_(u'逆转裁判存档备份.bak'))
+        if not save_path:
+            wx.MessageBox(_(u'备份已取消。'), _(u'提示'), wx.OK | wx.ICON_INFORMATION)
+        else:
+            original_save_path = editor.save_path
+            if not original_save_path:
+                raise NoOpenSaveFileError()
+            shutil.copy2(original_save_path, save_path)
+    return True
 
 class Dialog(wx.Dialog):
     def __init__(self, parent, title, text):
@@ -67,7 +83,7 @@ class FrameMainImpl(FrameMain):
             wx.MessageBox(_(u'未选择任何有效路径，即将退出程序。'), _(u'提示'), wx.OK | wx.ICON_INFORMATION)
             sys.exit(1)
         try:
-            self.editor = SaveEditor(language='hans')
+            self.editor = SaveEditor(language='hans', presave_event=save_hook)
         except NoGameFoundError:
             while True:
                 dlg = wx.MessageDialog(self, _(u'未找到游戏安装路径。是否手动选择游戏路径？'), _(u'警告'), wx.YES_NO | wx.ICON_WARNING)
@@ -79,7 +95,7 @@ class FrameMainImpl(FrameMain):
                             game_path = dirDialog.GetPath()
                             locator.game_path = game_path
                             try:
-                                self.editor = SaveEditor(language='hans')
+                                self.editor = SaveEditor(language='hans', presave_event=save_hook)
                                 break
                             except NoGameFoundError:
                                 wx.MessageBox(_(u'选择的路径无效。'), _(u'错误'), wx.OK | wx.ICON_ERROR)
@@ -145,7 +161,7 @@ class FrameMainImpl(FrameMain):
             return
         xbox_path = locator.system_xbox_save_path[0]
         steam_id, steam_path = locator.system_steam_save_path[0]
-        editor = SaveEditor()
+        editor = SaveEditor(presave_event=save_hook)
         editor.load(xbox_path)
         editor.set_account_id(int(steam_id))
         new_editor = editor.convert(SaveType.STEAM)
@@ -157,7 +173,7 @@ class FrameMainImpl(FrameMain):
             return
         xbox_path = locator.system_xbox_save_path[0]
         __, steam_path = locator.system_steam_save_path[0]
-        editor = SaveEditor()
+        editor = SaveEditor(presave_event=save_hook)
         editor.load(steam_path)
         new_editor = editor.convert(SaveType.XBOX)
         new_editor.save(xbox_path)
@@ -371,8 +387,8 @@ class FrameSlotManagerImpl(FrameSlotManager):
     def __init__(self, parent: FrameMainImpl):
         super().__init__(parent)
         self.__parent = parent
-        self.left_editor = SlotEditor(SaveEditor())
-        self.right_editor = SlotEditor(SaveEditor())
+        self.left_editor = SlotEditor(SaveEditor(presave_event=save_hook))
+        self.right_editor = SlotEditor(SaveEditor(presave_event=save_hook))
     
     def img_path(self, bitmap_path):
         return utils.img_path(bitmap_path)
@@ -402,7 +418,7 @@ class FrameSlotManagerImpl(FrameSlotManager):
 
     
     def on_close(self, event):
-        if wx.MessageBox(_(u'所有未保存修改将丢失，是否继续？'), _(u'提示'), wx.YES_NO | wx.ICON_QUESTION) == wx.YES:
+        if wx.MessageBox(_(u'退出前确保你已保存存档。\n所有未保存修改将丢失，是否继续？'), _(u'提示'), wx.YES_NO | wx.ICON_QUESTION) == wx.YES:
             self.Destroy()
         if (
             self.__parent.editor.opened

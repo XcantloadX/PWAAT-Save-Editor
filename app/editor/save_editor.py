@@ -1,7 +1,7 @@
 import os
 from dataclasses import dataclass
 from enum import IntEnum
-from typing import TypeGuard, Literal, TypeVar, Generic, cast, overload
+from typing import TypeGuard, Literal, TypeVar, Generic, cast, overload, Callable
 from gettext import gettext as _
 
 from app.structs.steam import PresideData, GameData
@@ -168,12 +168,14 @@ class SaveEditorDialog:
         self.editor.preside_data.slot_list_[self.editor.selected_slot].msg_data_.msg_line03 = FixedString[Literal[512]](buff)
 
 T = TypeVar('T', PresideData, PresideDataXbox)
+PreSaveCallback = Callable[['SaveEditor', T], bool]
 class SaveEditor(Generic[T]):
     def __init__(
         self,
         game_path: str|None = None,
         default_save_path: str|None = None,
-        language: Language = 'en'
+        language: Language = 'en',
+        presave_event: PreSaveCallback = lambda _, __: True
     ) -> None:
         game_path = game_path or locator.game_path
         logger.debug(f'game_path: {game_path}')
@@ -189,6 +191,12 @@ class SaveEditor(Generic[T]):
         
         self.selected_slot: int = 0
         """当前选择的实际存档槽位号。使用 `select_slot()` 方法来选择存档槽位。"""
+        self.presave_event: PreSaveCallback = presave_event
+        """
+        在存档数据即将保存时触发的回调函数。
+        
+        :return: 是否继续保存
+        """
 
     def __check_save_loaded(self, _ = None) -> TypeGuard[T]:
         if self.__preside_data is None:
@@ -337,6 +345,8 @@ class SaveEditor(Generic[T]):
     
     def save(self, save_file_path: str|None = None):
         assert self.__check_save_loaded(self.__preside_data)
+        if not self.presave_event(self, self.__preside_data):
+            return
         if not save_file_path:
             save_file_path = self.__save_path
         if save_file_path is None:
