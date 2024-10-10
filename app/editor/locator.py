@@ -7,6 +7,12 @@ from .installed_apps import find_desktop_app, find_universal_app, App
 
 logger = getLogger(__name__)
 
+class InvaildSaveLengthError(Exception):
+    def __init__(self, path: str, expected: int, actual: int):
+        self.path = path
+        self.expected = expected
+        self.actual = actual
+        super().__init__(f'Invalid save file length: {path}, expected {expected}, actual {actual}')
 
 def _read_reg(ep, p = r"", k = ''):
     try:
@@ -50,7 +56,8 @@ class _Locator:
         for account in accounts:
             save_file = os.path.join(saves_path, account, '787480', 'remote', 'systemdata')
             if os.path.exists(save_file):
-                assert os.path.getsize(save_file) == STEAM_SAVE_LENGTH
+                if os.path.getsize(save_file) != STEAM_SAVE_LENGTH:
+                    raise InvaildSaveLengthError(save_file, STEAM_SAVE_LENGTH, os.path.getsize(save_file))
                 save_files.append((account, save_file))
         return save_files
     
@@ -69,8 +76,9 @@ class _Locator:
         for root, _, files in os.walk(save_folder):
             for file in files:
                 path = os.path.join(root, file)
-                if os.path.getsize(path) == XBOX_SAVE_LENGTH:
-                    save_files.append(path)
+                if not os.path.getsize(path) == XBOX_SAVE_LENGTH:
+                    raise InvaildSaveLengthError(path, XBOX_SAVE_LENGTH, os.path.getsize(path))
+                save_files.append(path)
         return save_files
         
     @property
