@@ -39,16 +39,16 @@ def _excepthook(type, value, tb):
 sys.excepthook = _excepthook
 
 def save_hook(editor: SaveEditor, save: PresideData | PresideDataXbox):
-    ret = wx.MessageBox(_(u'是否备份当前存档？'), '提示', wx.OK | wx.CANCEL | wx.ICON_QUESTION)
-    if ret == wx.OK:
-        save_path = wx.SaveFileSelector('请选择备份路径', '.bak', default_name=_(u'逆转裁判存档备份.bak'))
-        if not save_path:
-            wx.MessageBox(_(u'备份已取消。'), _(u'提示'), wx.OK | wx.ICON_INFORMATION)
-        else:
-            original_save_path = editor.save_path
-            if not original_save_path:
-                raise NoOpenSaveFileError()
-            shutil.copy2(original_save_path, save_path)
+    # ret = wx.MessageBox(_(u'是否备份当前存档？'), '提示', wx.OK | wx.CANCEL | wx.ICON_QUESTION)
+    # if ret == wx.OK:
+    #     save_path = wx.SaveFileSelector('请选择备份路径', '.bak', default_name=_(u'逆转裁判存档备份.bak'))
+    #     if not save_path:
+    #         wx.MessageBox(_(u'备份已取消。'), _(u'提示'), wx.OK | wx.ICON_INFORMATION)
+    #     else:
+    #         original_save_path = editor.save_path
+    #         if not original_save_path:
+    #             raise NoOpenSaveFileError()
+    #         shutil.copy2(original_save_path, save_path)
     return True
 
 class Dialog(wx.Dialog):
