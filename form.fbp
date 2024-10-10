@@ -2195,7 +2195,7 @@
             <event name="OnMenuSelection">mi_show_debug_on_select</event>
           </object>
         </object>
-        <object class="wxMenu" expanded="false">
+        <object class="wxMenu" expanded="true">
           <property name="label">转换</property>
           <property name="name">m_menu_convert</property>
           <property name="permission">protected</property>
@@ -2258,6 +2258,38 @@
             <property name="shortcut"></property>
             <property name="unchecked_bitmap"></property>
             <event name="OnMenuSelection">mi_file2steam_on_choice</event>
+          </object>
+          <object class="separator" expanded="true">
+            <property name="name">m_separator4</property>
+            <property name="permission">none</property>
+          </object>
+          <object class="wxMenuItem" expanded="true">
+            <property name="bitmap"></property>
+            <property name="checked">0</property>
+            <property name="enabled">1</property>
+            <property name="help"></property>
+            <property name="id">wxID_ANY</property>
+            <property name="kind">wxITEM_NORMAL</property>
+            <property name="label">Xbox → 文件...</property>
+            <property name="name">m_mi_xbox2file</property>
+            <property name="permission">none</property>
+            <property name="shortcut"></property>
+            <property name="unchecked_bitmap"></property>
+            <event name="OnMenuSelection">mi_xbox2file_on_choice</event>
+          </object>
+          <object class="wxMenuItem" expanded="true">
+            <property name="bitmap"></property>
+            <property name="checked">0</property>
+            <property name="enabled">1</property>
+            <property name="help"></property>
+            <property name="id">wxID_ANY</property>
+            <property name="kind">wxITEM_NORMAL</property>
+            <property name="label">文件 → Xbox...</property>
+            <property name="name">m_mi_file2xbox</property>
+            <property name="permission">none</property>
+            <property name="shortcut"></property>
+            <property name="unchecked_bitmap"></property>
+            <event name="OnMenuSelection">mi_file2xbox_on_choice</event>
           </object>
         </object>
         <object class="wxMenu" expanded="true">

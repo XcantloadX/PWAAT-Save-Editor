@@ -76,9 +76,8 @@ class _Locator:
         for root, _, files in os.walk(save_folder):
             for file in files:
                 path = os.path.join(root, file)
-                if not os.path.getsize(path) == XBOX_SAVE_LENGTH:
-                    raise InvaildSaveLengthError(path, XBOX_SAVE_LENGTH, os.path.getsize(path))
-                save_files.append(path)
+                if os.path.getsize(path) == XBOX_SAVE_LENGTH:
+                    save_files.append(path)
         return save_files
         
     @property

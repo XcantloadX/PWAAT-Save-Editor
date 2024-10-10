@@ -225,6 +225,47 @@ class FrameMainImpl(FrameMain):
             self.editor.save(path)
             wx.MessageBox(_(u'导出成功'), _(u'提示'), wx.OK | wx.ICON_INFORMATION)
     
+    def mi_xbox2file_on_choice(self, event):
+        if not locator.system_xbox_save_path:
+            wx.MessageBox(_(u'未找到 Xbox 存档文件'), _(u'错误'), wx.OK | wx.ICON_ERROR)
+            return
+        with wx.FileDialog(self, _(u"保存文件"), wildcard=f"{_(u'存档文件')} (*.*)|*.*", style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT) as fileDialog:
+            if fileDialog.ShowModal() == wx.ID_CANCEL:
+                return
+            path = fileDialog.GetPath()
+            xbox_path = locator.system_xbox_save_path[0]
+            editor = SaveEditor() # 无需 save_hook
+            editor.load(xbox_path)
+            if wx.MessageBox(_(u'是否将存档类型转换为 Steam 类型？'), _(u'提示'), wx.YES_NO | wx.ICON_QUESTION) == wx.YES:
+                editor = editor.convert(SaveType.STEAM)
+            else:
+                editor = editor
+            editor.save(path)
+            wx.MessageBox(_(u'导出成功'), _(u'提示'), wx.OK | wx.ICON_INFORMATION)
+
+    def mi_file2xbox_on_choice(self, event):
+        if not locator.system_xbox_save_path:
+            wx.MessageBox(_(u'未找到 Xbox 存档文件'), _(u'错误'), wx.OK | wx.ICON_ERROR)
+            return
+        
+        with wx.FileDialog(self, _(u"打开文件"), wildcard=f"{_(u'存档文件')} (*.*)|*.*", style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST) as fileDialog:
+            if fileDialog.ShowModal() == wx.ID_CANCEL:
+                return
+            path = fileDialog.GetPath()
+            editor = SaveEditor(presave_event=save_hook)
+            editor.load(path)
+            if editor.save_type != SaveType.XBOX:
+                if wx.MessageBox(_(u'当前存档类型不是 Xbox 类型，是否将存档类型转换为 Xbox 类型？'), _(u'提示'), wx.YES_NO | wx.ICON_QUESTION) == wx.YES:
+                    editor = editor.convert(SaveType.XBOX)
+                else:
+                    wx.MessageBox(_(u'已取消导入'), _(u'提示'), wx.OK | wx.ICON_INFORMATION)
+                    return
+            if not wx.MessageBox(_(u'此操作将会覆盖当前 Xbox 存档文件，是否继续？'), _(u'警告'), wx.YES_NO | wx.ICON_WARNING) == wx.YES:
+                return
+            xbox_path = locator.system_xbox_save_path[0]
+            editor.save(xbox_path)
+            wx.MessageBox(_(u'导入成功'), _(u'提示'), wx.OK | wx.ICON_INFORMATION)
+    
     def mi_save_as_on_select(self, event):
         with wx.FileDialog(self, _(u"保存存档文件"), wildcard=f"{_(u'存档文件')} (*.*)|*.*", style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT) as fileDialog:
             if fileDialog.ShowModal() == wx.ID_CANCEL:

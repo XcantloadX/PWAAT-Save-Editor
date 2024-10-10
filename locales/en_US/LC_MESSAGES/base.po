@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-10-10 10:59+0800\n"
-"PO-Revision-Date: 2024-10-10 11:05+0800\n"
+"POT-Creation-Date: 2024-10-10 11:30+0800\n"
+"PO-Revision-Date: 2024-10-10 11:33+0800\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: en_US\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 3.5\n"
 
-#: app\native_ui\implement.py:244
+#: app\native_ui\implement.py:285
 msgid "Steam ID: "
 msgstr "Steam ID: "
 
@@ -30,15 +30,15 @@ msgstr "Steam → Xbox"
 msgid "Steam → 文件..."
 msgstr "Steam → File..."
 
-#: app\native_ui\implement.py:239
+#: app\native_ui\implement.py:280
 msgid "Steam 存档路径: "
 msgstr "Steam save path: "
 
-#: app\native_ui\implement.py:238
+#: app\native_ui\implement.py:279
 msgid "Steam 游戏路径: "
 msgstr "Steam game path: "
 
-#: app\native_ui\implement.py:237
+#: app\native_ui\implement.py:278
 msgid "Steam 路径: "
 msgstr "Steam path: "
 
@@ -46,76 +46,80 @@ msgstr "Steam path: "
 msgid "Xbox → Steam"
 msgstr "Xbox → Steam"
 
-#: app\native_ui\implement.py:241
+#: app\native_ui\form.py:298
+msgid "Xbox → 文件..."
+msgstr "Xbox → File..."
+
+#: app\native_ui\implement.py:282
 msgid "Xbox 存档路径: "
 msgstr "Xbox save path: "
 
-#: app\native_ui\implement.py:240
+#: app\native_ui\implement.py:281
 msgid "Xbox 游戏路径: "
 msgstr "Xbox game path: "
 
-#: app\native_ui\form.py:476 app\native_ui\form.py:478
-#: app\native_ui\form.py:480 app\native_ui\form.py:482
-#: app\native_ui\form.py:486 app\native_ui\form.py:488
-#: app\native_ui\form.py:490 app\native_ui\form.py:492
-#: app\native_ui\form.py:494 app\native_ui\form.py:532
-#: app\native_ui\form.py:534 app\native_ui\form.py:536
-#: app\native_ui\form.py:538 app\native_ui\form.py:540
-#: app\native_ui\form.py:544 app\native_ui\form.py:546
-#: app\native_ui\form.py:548 app\native_ui\form.py:550
-#: app\native_ui\form.py:552
+#: app\native_ui\form.py:492 app\native_ui\form.py:494
+#: app\native_ui\form.py:496 app\native_ui\form.py:498
+#: app\native_ui\form.py:502 app\native_ui\form.py:504
+#: app\native_ui\form.py:506 app\native_ui\form.py:508
+#: app\native_ui\form.py:510 app\native_ui\form.py:548
+#: app\native_ui\form.py:550 app\native_ui\form.py:552
+#: app\native_ui\form.py:554 app\native_ui\form.py:556
+#: app\native_ui\form.py:560 app\native_ui\form.py:562
+#: app\native_ui\form.py:564 app\native_ui\form.py:566
+#: app\native_ui\form.py:568
 msgid "tool"
 msgstr "tool"
 
-#: app\native_ui\form.py:486 app\native_ui\form.py:544
+#: app\native_ui\form.py:502 app\native_ui\form.py:560
 msgid "上移"
 msgstr "Up"
 
-#: app\native_ui\form.py:488 app\native_ui\form.py:546
-#: app\native_ui\form.py:552
+#: app\native_ui\form.py:504 app\native_ui\form.py:562
+#: app\native_ui\form.py:568
 msgid "下移"
 msgstr "Down"
 
-#: app\native_ui\form.py:267 app\native_ui\form.py:482
-#: app\native_ui\form.py:540
+#: app\native_ui\form.py:267 app\native_ui\form.py:498
+#: app\native_ui\form.py:556
 msgid "保存"
 msgstr "Save"
 
-#: app\native_ui\implement.py:229
+#: app\native_ui\implement.py:270
 msgid "保存存档文件"
 msgstr "Save save file"
 
-#: app\native_ui\implement.py:157 app\native_ui\implement.py:234
-#: app\native_ui\implement.py:482
+#: app\native_ui\implement.py:157 app\native_ui\implement.py:275
+#: app\native_ui\implement.py:523
 msgid "保存成功"
 msgstr "Saved successfully."
 
-#: app\native_ui\implement.py:217 app\native_ui\implement.py:314
-#: app\native_ui\implement.py:327
+#: app\native_ui\implement.py:217 app\native_ui\implement.py:232
+#: app\native_ui\implement.py:355 app\native_ui\implement.py:368
 msgid "保存文件"
 msgstr "Save file"
 
-#: app\native_ui\form.py:494
+#: app\native_ui\form.py:510
 msgid "删除"
 msgstr "Delete"
 
-#: app\native_ui\implement.py:364
+#: app\native_ui\implement.py:405
 msgid "加密完成"
 msgstr "Encryption completed."
 
-#: app\native_ui\form.py:312
+#: app\native_ui\form.py:320
 msgid "加密文件..."
 msgstr "Encrypt File..."
 
-#: app\native_ui\form.py:315
+#: app\native_ui\form.py:323
 msgid "加密文件夹..."
 msgstr "Encrypt Folder..."
 
-#: app\native_ui\implement.py:505 app\native_ui\implement.py:515
+#: app\native_ui\implement.py:546 app\native_ui\implement.py:556
 msgid "即将覆盖右侧选中存档槽位，是否继续？"
 msgstr "Are you sure you want to overwrite the selected save slot?"
 
-#: app\native_ui\implement.py:534 app\native_ui\implement.py:544
+#: app\native_ui\implement.py:575 app\native_ui\implement.py:585
 msgid "即将覆盖左侧选中存档槽位，是否继续？"
 msgstr "Are you sure you want to overwrite the selected save slot?"
 
@@ -123,7 +127,7 @@ msgstr "Are you sure you want to overwrite the selected save slot?"
 msgid "另存为..."
 msgstr "Save As..."
 
-#: app\native_ui\form.py:532
+#: app\native_ui\form.py:548
 msgid "同步左边"
 msgstr "Sync Left"
 
@@ -135,23 +139,23 @@ msgstr "Show character name in dialog box"
 msgid "备份已取消。"
 msgstr "Backup operation cancelled."
 
-#: app\native_ui\form.py:492
+#: app\native_ui\form.py:508
 msgid "复制到右边"
 msgstr "Copy to Right"
 
-#: app\native_ui\form.py:550
+#: app\native_ui\form.py:566
 msgid "复制到左边"
 msgstr "Copy to Left"
 
-#: app\native_ui\form.py:462
+#: app\native_ui\form.py:478
 msgid "存档槽位管理"
 msgstr "Save Slot Management"
 
-#: app\native_ui\form.py:299
+#: app\native_ui\form.py:307
 msgid "存档槽位管理..."
 msgstr "Save Slot Management..."
 
-#: app\native_ui\implement.py:243
+#: app\native_ui\implement.py:284
 msgid "存档类型: "
 msgstr "Save type:"
 
@@ -168,17 +172,21 @@ msgstr ""
 msgid "对话框"
 msgstr "Dialog Box"
 
-#: app\native_ui\implement.py:209
+#: app\native_ui\implement.py:209 app\native_ui\implement.py:267
 msgid "导入成功"
 msgstr "Imported successfully."
 
-#: app\native_ui\implement.py:226
+#: app\native_ui\implement.py:226 app\native_ui\implement.py:244
 msgid "导出成功"
 msgstr "Exported successfully."
 
-#: app\native_ui\form.py:320
+#: app\native_ui\form.py:328
 msgid "工具"
 msgstr "Tools"
+
+#: app\native_ui\implement.py:261
+msgid "已取消导入"
+msgstr "Import operation cancelled."
 
 #: app\native_ui\form.py:144
 msgid "常用设置"
@@ -188,7 +196,13 @@ msgstr "Common Settings"
 msgid "当前功能为高级功能，可能会造成未知存档问题"
 msgstr "This is an advanced feature and may cause unknown issues."
 
-#: app\native_ui\implement.py:252
+#: app\native_ui\implement.py:258
+msgid "当前存档类型不是 Xbox 类型，是否将存档类型转换为 Xbox 类型？"
+msgstr ""
+"The save file is not an Xbox file. Do you want to convert it to an Xbox save "
+"file?"
+
+#: app\native_ui\implement.py:293
 msgid "当前版本为非 REPL 版本。"
 msgstr "Current version is not a REPL version."
 
@@ -196,7 +210,7 @@ msgstr "Current version is not a REPL version."
 msgid "待定伤害值(?)"
 msgstr "Pending Damage Value (?)"
 
-#: app\native_ui\form.py:39 app\native_ui\form.py:507 app\native_ui\form.py:565
+#: app\native_ui\form.py:39 app\native_ui\form.py:523 app\native_ui\form.py:581
 msgid "德语"
 msgstr "German"
 
@@ -212,12 +226,12 @@ msgstr "Open Xbox Save"
 msgid "打开..."
 msgstr "Open..."
 
-#: app\native_ui\implement.py:114 app\native_ui\implement.py:463
+#: app\native_ui\implement.py:114 app\native_ui\implement.py:504
 msgid "打开存档文件"
 msgstr "Open Save File"
 
-#: app\native_ui\implement.py:199 app\native_ui\implement.py:310
-#: app\native_ui\implement.py:323
+#: app\native_ui\implement.py:199 app\native_ui\implement.py:251
+#: app\native_ui\implement.py:351 app\native_ui\implement.py:364
 msgid "打开文件"
 msgstr "Open File"
 
@@ -233,12 +247,14 @@ msgstr "Multiple Xbox saves found, please select one:"
 #: app\native_ui\implement.py:157 app\native_ui\implement.py:175
 #: app\native_ui\implement.py:192 app\native_ui\implement.py:209
 #: app\native_ui\implement.py:223 app\native_ui\implement.py:226
-#: app\native_ui\implement.py:234 app\native_ui\implement.py:348
-#: app\native_ui\implement.py:364 app\native_ui\implement.py:441
-#: app\native_ui\implement.py:445 app\native_ui\implement.py:482
-#: app\native_ui\implement.py:485 app\native_ui\implement.py:505
-#: app\native_ui\implement.py:515 app\native_ui\implement.py:534
-#: app\native_ui\implement.py:544
+#: app\native_ui\implement.py:239 app\native_ui\implement.py:244
+#: app\native_ui\implement.py:258 app\native_ui\implement.py:261
+#: app\native_ui\implement.py:267 app\native_ui\implement.py:275
+#: app\native_ui\implement.py:389 app\native_ui\implement.py:405
+#: app\native_ui\implement.py:482 app\native_ui\implement.py:486
+#: app\native_ui\implement.py:523 app\native_ui\implement.py:526
+#: app\native_ui\implement.py:546 app\native_ui\implement.py:556
+#: app\native_ui\implement.py:575 app\native_ui\implement.py:585
 msgid "提示"
 msgstr "Message"
 
@@ -250,11 +266,15 @@ msgstr "File"
 msgid "文件 → Steam..."
 msgstr "File → Steam..."
 
-#: app\native_ui\form.py:39 app\native_ui\form.py:507 app\native_ui\form.py:565
+#: app\native_ui\form.py:301
+msgid "文件 → Xbox..."
+msgstr "File → Xbox..."
+
+#: app\native_ui\form.py:39 app\native_ui\form.py:523 app\native_ui\form.py:581
 msgid "日语"
 msgstr "Japanese"
 
-#: app\native_ui\implement.py:485
+#: app\native_ui\implement.py:526
 msgid "是否删除选中存档？"
 msgstr "Are you sure you want to delete the selected save?"
 
@@ -262,11 +282,15 @@ msgstr "Are you sure you want to delete the selected save?"
 msgid "是否备份当前存档？"
 msgstr "Do you want to back up the current save?"
 
+#: app\native_ui\implement.py:239
+msgid "是否将存档类型转换为 Steam 类型？"
+msgstr "Do you want to convert the save file to Steam save file?"
+
 #: app\native_ui\implement.py:223
 msgid "是否擦除存档中 Steam ID 信息？"
 msgstr "Do you want to erase the Steam ID in the save?"
 
-#: app\native_ui\implement.py:445
+#: app\native_ui\implement.py:486
 msgid "是否立即重载存档编辑器？"
 msgstr "Do you want to reload the save editor now?"
 
@@ -284,6 +308,7 @@ msgid "未找到 Steam 存档文件"
 msgstr "No Steam saves found."
 
 #: app\native_ui\implement.py:163 app\native_ui\implement.py:179
+#: app\native_ui\implement.py:230 app\native_ui\implement.py:248
 msgid "未找到 Xbox 存档文件"
 msgstr "No Xbox saves found."
 
@@ -308,11 +333,11 @@ msgstr "No valid path selected. Exiting..."
 msgid "槽位"
 msgstr "Slot"
 
-#: app\native_ui\implement.py:361
+#: app\native_ui\implement.py:402
 msgid "正在加密，请稍候..."
 msgstr "Encrypting, please wait..."
 
-#: app\native_ui\implement.py:344
+#: app\native_ui\implement.py:385
 msgid "正在解密，请稍候..."
 msgstr "Decrypting, please wait..."
 
@@ -320,7 +345,7 @@ msgstr "Decrypting, please wait..."
 msgid "此操作将会覆盖当前 Steam 存档文件，是否继续？"
 msgstr "Current Steam save will be overwritten. Continue?"
 
-#: app\native_ui\implement.py:184
+#: app\native_ui\implement.py:184 app\native_ui\implement.py:263
 msgid "此操作将会覆盖当前 Xbox 存档文件，是否继续？"
 msgstr "Current Xbox save will be overwritten. Continue?"
 
@@ -328,7 +353,7 @@ msgstr "Current Xbox save will be overwritten. Continue?"
 msgid "法庭"
 msgstr "Court"
 
-#: app\native_ui\form.py:39 app\native_ui\form.py:507 app\native_ui\form.py:565
+#: app\native_ui\form.py:39 app\native_ui\form.py:523 app\native_ui\form.py:581
 msgid "法语"
 msgstr "French"
 
@@ -346,7 +371,7 @@ msgstr ""
 "Language in-game.\n"
 "Different languages do not share save slots."
 
-#: app\native_ui\form.py:318
+#: app\native_ui\form.py:326
 msgid "游戏资源"
 msgstr "Game Resource"
 
@@ -354,11 +379,11 @@ msgstr "Game Resource"
 msgid "确认"
 msgstr "OK"
 
-#: app\native_ui\form.py:490
+#: app\native_ui\form.py:506
 msgid "移动到右边"
 msgstr "Move to Right"
 
-#: app\native_ui\form.py:548
+#: app\native_ui\form.py:564
 msgid "移动到左边"
 msgstr "Move to Left"
 
@@ -434,15 +459,15 @@ msgstr "Ep4 Turnabout Beginnings"
 msgid "第四章 逆转，然后再见"
 msgstr "Ep4 Farewell, My Turnabout"
 
-#: app\native_ui\form.py:39 app\native_ui\form.py:507 app\native_ui\form.py:565
+#: app\native_ui\form.py:39 app\native_ui\form.py:523 app\native_ui\form.py:581
 msgid "简体中文"
 msgstr "Simplified Chinese"
 
-#: app\native_ui\form.py:39 app\native_ui\form.py:507 app\native_ui\form.py:565
+#: app\native_ui\form.py:39 app\native_ui\form.py:523 app\native_ui\form.py:581
 msgid "繁体中文"
 msgstr "Traditional Chinese"
 
-#: app\native_ui\form.py:39 app\native_ui\form.py:507 app\native_ui\form.py:565
+#: app\native_ui\form.py:39 app\native_ui\form.py:523 app\native_ui\form.py:581
 msgid "英语"
 msgstr "English"
 
@@ -463,15 +488,15 @@ msgstr ""
 msgid "角色编号"
 msgstr "Character ID"
 
-#: app\native_ui\implement.py:348
+#: app\native_ui\implement.py:389
 msgid "解密完成，失败文件列表：\n"
 msgstr "Decryption completed. Failed files: \n"
 
-#: app\native_ui\form.py:306
+#: app\native_ui\form.py:314
 msgid "解密文件..."
 msgstr "Decrypt File..."
 
-#: app\native_ui\form.py:309
+#: app\native_ui\form.py:317
 msgid "解密文件夹..."
 msgstr "Decrypt Folder..."
 
@@ -481,10 +506,11 @@ msgstr "Unlock Chapters"
 
 #: app\native_ui\implement.py:89 app\native_ui\implement.py:160
 #: app\native_ui\implement.py:184 app\native_ui\implement.py:202
+#: app\native_ui\implement.py:263
 msgid "警告"
 msgstr "Warning"
 
-#: app\native_ui\form.py:502 app\native_ui\form.py:560
+#: app\native_ui\form.py:518 app\native_ui\form.py:576
 msgid "语言"
 msgstr "Language"
 
@@ -496,11 +522,11 @@ msgstr "Language (?)"
 msgid "请先打开任意存档文件。"
 msgstr "Please open a save file first."
 
-#: app\native_ui\implement.py:246
+#: app\native_ui\implement.py:287
 msgid "调试信息"
 msgstr "Debug Messages"
 
-#: app\native_ui\form.py:296
+#: app\native_ui\form.py:304
 msgid "转换"
 msgstr "Convert"
 
@@ -508,23 +534,23 @@ msgstr "Convert"
 msgid "转换成功"
 msgstr "Converted successfully."
 
-#: app\native_ui\form.py:478 app\native_ui\form.py:536
+#: app\native_ui\form.py:494 app\native_ui\form.py:552
 msgid "载入 Steam"
 msgstr "Load Steam"
 
-#: app\native_ui\form.py:480 app\native_ui\form.py:538
+#: app\native_ui\form.py:496 app\native_ui\form.py:554
 msgid "载入 Xbox"
 msgstr "Load Xbox"
 
-#: app\native_ui\form.py:476 app\native_ui\form.py:534
+#: app\native_ui\form.py:492 app\native_ui\form.py:550
 msgid "载入..."
 msgstr "Load..."
 
-#: app\native_ui\form.py:302
+#: app\native_ui\form.py:310
 msgid "运行 REPL"
 msgstr "Run REPL"
 
-#: app\native_ui\implement.py:441
+#: app\native_ui\implement.py:482
 msgid ""
 "退出前确保你已保存存档。\n"
 "所有未保存修改将丢失，是否继续？"
@@ -562,11 +588,11 @@ msgstr "Select Game Path"
 msgid "选择的路径无效。"
 msgstr "Selected path is invalid."
 
-#: app\native_ui\implement.py:336 app\native_ui\implement.py:353
+#: app\native_ui\implement.py:377 app\native_ui\implement.py:394
 msgid "选择输入文件夹"
 msgstr "Choose input folder"
 
-#: app\native_ui\implement.py:340 app\native_ui\implement.py:357
+#: app\native_ui\implement.py:381 app\native_ui\implement.py:398
 msgid "选择输出文件夹"
 msgstr "Choose output folder"
 
@@ -576,10 +602,11 @@ msgstr "Choose output folder"
 #: app\native_ui\implement.py:163 app\native_ui\implement.py:166
 #: app\native_ui\implement.py:179 app\native_ui\implement.py:182
 #: app\native_ui\implement.py:196 app\native_ui\implement.py:213
-#: app\native_ui\implement.py:252
+#: app\native_ui\implement.py:230 app\native_ui\implement.py:248
+#: app\native_ui\implement.py:293
 msgid "错误"
 msgstr "Error"
 
-#: app\native_ui\form.py:39 app\native_ui\form.py:507 app\native_ui\form.py:565
+#: app\native_ui\form.py:39 app\native_ui\form.py:523 app\native_ui\form.py:581
 msgid "韩语"
 msgstr "Korean"
