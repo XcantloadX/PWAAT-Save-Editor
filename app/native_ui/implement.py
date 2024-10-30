@@ -20,6 +20,7 @@ from app.structs.xbox import PresideDataXbox
 from app.editor.slot_editor import SlotEditor, IncompatibleSlotError
 from app.editor.save_editor import NoGameFoundError, SaveEditor, NoOpenSaveFileError, SaveType
 from app.unpack.decrypt import decrypt_file, encrypt_file, decrypt_folder, encrypt_folder
+from app.exceptions import GameFileMissingError
 
 def _excepthook(type, value, tb):
     print('=' * 40)
@@ -101,6 +102,9 @@ class FrameMainImpl(FrameMain):
                                 wx.MessageBox(_(u'选择的路径无效。'), _(u'错误'), wx.OK | wx.ICON_ERROR)
                 else:
                     __exit()
+        except GameFileMissingError as e:
+            wx.MessageBox(_(u'游戏文件 {} 缺失。请检查游戏完整性。'.format(e.file)), _(u'错误'), wx.OK | wx.ICON_ERROR)
+            sys.exit(2)
 
     def sld_hp_on_scroll_changed(self, event):
         # 处理事件

@@ -4,6 +4,7 @@ from enum import IntEnum
 from typing import TypeGuard, Literal, TypeVar, Generic, cast, overload, Callable
 from gettext import gettext as _
 
+from app.exceptions import NoGameFoundError, NoOpenSaveFileError
 from app.structs.steam import PresideData, GameData
 from app.structs.xbox import PresideDataXbox
 from app.deserializer.types import Int32, Int16, UInt16, UInt8, Int8, is_struct, FixedString
@@ -25,11 +26,6 @@ class SaveType(IntEnum):
     STEAM = 0
     XBOX = 1
 
-class NoOpenSaveFileError(Exception):
-    pass
-
-class NoGameFoundError(Exception):
-    pass
 
 def lang2lang_id(language: Language) -> int:
     match language:

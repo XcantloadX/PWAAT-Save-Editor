@@ -4,15 +4,10 @@ from logging import getLogger
 from typing import Any
 
 from .installed_apps import find_desktop_app, find_universal_app, App
+from app.exceptions import InvaildSaveLengthError
 
 logger = getLogger(__name__)
 
-class InvaildSaveLengthError(Exception):
-    def __init__(self, path: str, expected: int, actual: int):
-        self.path = path
-        self.expected = expected
-        self.actual = actual
-        super().__init__(f'Invalid save file length: {path}, expected {expected}, actual {actual}')
 
 def _read_reg(ep, p = r"", k = ''):
     try:
@@ -28,6 +23,7 @@ STEAM_SAVE_LENGTH = 1496880
 XBOX_SAVE_LENGTH = 1492008
 XBOX_APP_NAME = 'F024294D.PhoenixWrightAceAttorneyTrilogy_8fty0by30jkny'
 STEAM_APP_NAME = 'Steam App 787480'
+
 class _Locator:
     
     def __init__(self) -> None:

@@ -4,9 +4,7 @@ from copy import deepcopy
 from .save_editor import SaveEditor, SaveType
 from app.structs.steam import PresideData, GameData, SaveData
 from app.structs.xbox import PresideDataXbox, GameDataXbox
-
-class IncompatibleSlotError(Exception):
-    pass
+from app.exceptions import IncompatibleSlotError
 
 def is_steam_editor(editor: SaveEditor) -> TypeGuard[SaveEditor[PresideData]]:
     if not isinstance(editor, SaveEditor):
@@ -37,11 +35,7 @@ def is_same_slot_type(editor1: SaveEditor, editor2: SaveEditor) -> bool:
         return True
     return False
 
-class IncompatibleSlotError(Exception):
-    def __init__(self, left_type: SaveType, right_type: SaveType) -> None:
-        super().__init__(f'Incompatible slot types: {left_type} and {right_type}')
-        self.left_type = left_type
-        self.right_type = right_type
+
 
 T = TypeVar('T', PresideData, PresideDataXbox)
 class SlotEditor(Generic[T]):

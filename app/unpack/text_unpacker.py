@@ -4,7 +4,7 @@ from typing import TypeAlias, Union, Literal, overload
 from .decompiled import *
 from .decrypt import decrypt_bytes
 import app.editor.locator as locator
-
+from app.exceptions import GameFileMissingError
 
 class TextUnpacker:
     def __init__(
@@ -28,6 +28,11 @@ class TextUnpacker:
         save_text_path = os.path.join(self.game_path, 'PWAAT_Data', 'StreamingAssets', 'menu', 'text', f'save_text{suffix}.bin')
         platform_text_path = os.path.join(self.game_path, 'PWAAT_Data', 'StreamingAssets', 'menu', 'text', f'platform_text{suffix}.bin')
         system_text_path = os.path.join(self.game_path, 'PWAAT_Data', 'StreamingAssets', 'menu', 'text', f'system_text{suffix}.bin')
+        
+        if not os.path.exists(title_text_path):
+            raise GameFileMissingError(title_text_path)
+        if not os.path.exists(save_text_path):
+            raise GameFileMissingError(save_text_path)
         
         self.title_text_data = self.__load_text(title_text_path, language)
         self.save_text_data = self.__load_text(save_text_path, language)
