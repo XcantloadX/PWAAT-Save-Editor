@@ -53,7 +53,9 @@ class _Locator:
             save_file = os.path.join(saves_path, account, '787480', 'remote', 'systemdata')
             if os.path.exists(save_file):
                 if os.path.getsize(save_file) != STEAM_SAVE_LENGTH:
-                    raise InvaildSaveLengthError(save_file, STEAM_SAVE_LENGTH, os.path.getsize(save_file))
+                    # raise InvaildSaveLengthError(save_file, STEAM_SAVE_LENGTH, os.path.getsize(save_file))
+                    logger.warning(f'Save file "{save_file}" length is not {STEAM_SAVE_LENGTH}, skipped.')
+                    continue
                 save_files.append((account, save_file))
         return save_files
     

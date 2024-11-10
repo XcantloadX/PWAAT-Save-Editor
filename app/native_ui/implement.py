@@ -18,7 +18,7 @@ from .form import FrameMain, FrameSlotManager
 from app.structs.steam import PresideData, GameData
 from app.structs.xbox import PresideDataXbox
 from app.editor.slot_editor import SlotEditor, IncompatibleSlotError
-from app.editor.save_editor import NoGameFoundError, SaveEditor, NoOpenSaveFileError, SaveType
+from app.editor.save_editor import NoGameFoundError, SaveEditor, NoOpenSaveFileError, SaveType, logger
 from app.unpack.decrypt import decrypt_file, encrypt_file, decrypt_folder, encrypt_folder
 from app.exceptions import GameFileMissingError
 
@@ -119,7 +119,12 @@ class FrameMainImpl(FrameMain):
             if fileDialog.ShowModal() == wx.ID_CANCEL:
                 return
             path = fileDialog.GetPath()
-            self.editor.load(path)
+            try:
+                self.editor.load(path)
+            except ValueError:
+                logger.warning(f'Invalid save file "{path}"')
+                wx.MessageBox(_(u'无效的存档文件。'), _(u'错误'), wx.OK | wx.ICON_ERROR)
+                return
             self.load_basic_ui()
             
     def mi_open_steam_on_select(self, event):
