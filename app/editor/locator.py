@@ -4,7 +4,7 @@ from logging import getLogger
 from typing import Any
 
 from .installed_apps import find_desktop_app, find_universal_app, App
-from app.exceptions import InvaildSaveLengthError
+from app.exceptions import InvalidSaveLengthError
 
 logger = getLogger(__name__)
 

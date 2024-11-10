@@ -22,7 +22,7 @@ class GameFileMissingError(PWAATEditorError):
             "Try to check game integrity."
         ).format(file))
 
-class InvaildSaveLengthError(PWAATEditorError):
+class InvalidSaveLengthError(PWAATEditorError):
     """存档实际长度与预期长度不正确"""
     def __init__(self, path: str, expected: int, actual: int):
         self.path = path
