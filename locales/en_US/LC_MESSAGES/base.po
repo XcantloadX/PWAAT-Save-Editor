@@ -155,7 +155,7 @@ msgstr "Save As..."
 
 #: app\native_ui\form.py:548
 msgid "同步左边"
-msgstr "Sync Left"
+msgstr "Sync from Left"
 
 #: app\native_ui\form.py:219
 msgid "在对话框中显示角色名称"
