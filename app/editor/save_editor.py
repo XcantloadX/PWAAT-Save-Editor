@@ -69,6 +69,8 @@ def lang_id2lang(language_id: int) -> Language:
 
 @dataclass
 class SaveSlot:
+    in_game_slot_number: int
+    """游戏内存档槽位号。从 0 开始。"""
     time: str
     progress: str
     """天数/回数（e.g. 第一回 法庭前篇）"""
@@ -87,14 +89,14 @@ class SaveSlot:
             return _(u'空')
         else:
             time = self.time.replace('\n', ' ')
-            return f'{self.title_number}-{self.scenario_number} {self.progress} {time}'
+            return f'{self.in_game_slot_number+1:02d}: {self.title_number}-{self.scenario_number} {self.progress} {time}'
     
     @property
     def long_str(self) -> str:
         if self.time == '':
             return _(u'空')
         else:
-            return f'{self.title} {self.scenario} {self.progress} {self.time}'
+            return f'{self.in_game_slot_number+1:02d}: {self.title} {self.scenario} {self.progress} {self.time}'
 
 class SaveEditorDialog:
     def __init__(self, editor: 'SaveEditor') -> None:
@@ -506,6 +508,7 @@ class SaveEditor(Generic[T]):
                 scenario = ''
             
             slots.append(SaveSlot(
+                in_game_slot_number=(i - start),
                 time=time,
                 progress=progress,
                 title=title,

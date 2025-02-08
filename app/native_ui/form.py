@@ -9,6 +9,8 @@
 
 import wx
 import wx.xrc
+from wx import ComboCtrl
+from app.native_ui.fancy.wx_hp_bar import HPBar
 
 import gettext
 _ = gettext.gettext
@@ -27,32 +29,37 @@ class FrameMain ( wx.Frame ):
 
         bSizer1 = wx.BoxSizer( wx.VERTICAL )
 
-        wSizer13 = wx.WrapSizer( wx.HORIZONTAL, wx.WRAPSIZER_DEFAULT_FLAGS )
+        m_szr_header = wx.WrapSizer( wx.HORIZONTAL, wx.WRAPSIZER_DEFAULT_FLAGS )
 
         self.m_staticText111 = wx.StaticText( self, wx.ID_ANY, _(u"语言(?)"), wx.DefaultPosition, wx.DefaultSize, 0 )
         self.m_staticText111.Wrap( -1 )
 
         self.m_staticText111.SetToolTip( _(u"游戏内设置的语言。\n不同语言之间的存档槽位不互通。") )
 
-        wSizer13.Add( self.m_staticText111, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
+        m_szr_header.Add( self.m_staticText111, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
 
         m_chc_langChoices = [ _(u"日语"), _(u"英语"), _(u"法语"), _(u"德语"), _(u"韩语"), _(u"简体中文"), _(u"繁体中文") ]
         self.m_chc_lang = wx.Choice( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, m_chc_langChoices, 0 )
         self.m_chc_lang.SetSelection( 0 )
-        wSizer13.Add( self.m_chc_lang, 0, wx.ALL, 5 )
+        m_szr_header.Add( self.m_chc_lang, 0, wx.ALL, 5 )
 
         self.m_staticText5 = wx.StaticText( self, wx.ID_ANY, _(u"槽位"), wx.DefaultPosition, wx.DefaultSize, 0 )
         self.m_staticText5.Wrap( -1 )
 
-        wSizer13.Add( self.m_staticText5, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
+        m_szr_header.Add( self.m_staticText5, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
 
         m_chc_savesChoices = []
         self.m_chc_saves = wx.Choice( self, wx.ID_ANY, wx.DefaultPosition, wx.Size( 350,-1 ), m_chc_savesChoices, 0 )
         self.m_chc_saves.SetSelection( 0 )
-        wSizer13.Add( self.m_chc_saves, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
+        self.m_chc_saves.Hide()
+
+        m_szr_header.Add( self.m_chc_saves, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
+
+        self.m_cmb_saves = wx.ComboCtrl(self, style=wx.CB_DROPDOWN|wx.CB_READONLY)
+        m_szr_header.Add( self.m_cmb_saves, 0, wx.ALL, 5 )
 
 
-        bSizer1.Add( wSizer13, 0, wx.EXPAND, 5 )
+        bSizer1.Add( m_szr_header, 0, wx.EXPAND, 5 )
 
         self.m_panel2 = wx.Panel( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
         bSizer4 = wx.BoxSizer( wx.VERTICAL )
@@ -118,7 +125,7 @@ class FrameMain ( wx.Frame ):
 
         fgSizer2.Add( self.m_staticText4, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
 
-        self.m_sld_hp = wx.Slider( sbSizer_court.GetStaticBox(), wx.ID_ANY, 0, 0, 10, wx.DefaultPosition, wx.Size( 150,-1 ), wx.SL_LABELS )
+        self.m_sld_hp = wx.Slider( sbSizer_court.GetStaticBox(), wx.ID_ANY, 0, 0, 10, wx.DefaultPosition, wx.Size( 150,-1 ), wx.SL_MIN_MAX_LABELS )
         fgSizer2.Add( self.m_sld_hp, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5 )
 
         self.m_staticText12 = wx.StaticText( sbSizer_court.GetStaticBox(), wx.ID_ANY, _(u"待定伤害值(?)"), wx.DefaultPosition, wx.DefaultSize, 0 )
@@ -128,8 +135,16 @@ class FrameMain ( wx.Frame ):
 
         fgSizer2.Add( self.m_staticText12, 0, wx.ALL, 5 )
 
-        self.m_sld_court_damage = wx.Slider( sbSizer_court.GetStaticBox(), wx.ID_ANY, 0, 0, 10, wx.DefaultPosition, wx.Size( 150,-1 ), wx.SL_HORIZONTAL|wx.SL_LABELS )
+        self.m_sld_court_damage = wx.Slider( sbSizer_court.GetStaticBox(), wx.ID_ANY, 0, 0, 10, wx.DefaultPosition, wx.Size( 150,-1 ), wx.SL_HORIZONTAL|wx.SL_MIN_MAX_LABELS )
         fgSizer2.Add( self.m_sld_court_damage, 0, wx.ALL, 5 )
+
+        self.m_staticText15 = wx.StaticText( sbSizer_court.GetStaticBox(), wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0 )
+        self.m_staticText15.Wrap( -1 )
+
+        fgSizer2.Add( self.m_staticText15, 0, wx.ALL, 5 )
+
+        self.m_hp_bar = HPBar(sbSizer_court.GetStaticBox())
+        fgSizer2.Add( self.m_hp_bar, 0, wx.ALL, 5 )
 
 
         sbSizer_court.Add( fgSizer2, 1, wx.EXPAND, 5 )

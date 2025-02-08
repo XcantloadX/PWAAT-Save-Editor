@@ -18,9 +18,10 @@ from .form import FrameMain, FrameSlotManager
 from app.structs.steam import PresideData, GameData
 from app.structs.xbox import PresideDataXbox
 from app.editor.slot_editor import SlotEditor, IncompatibleSlotError
-from app.editor.save_editor import NoGameFoundError, SaveEditor, NoOpenSaveFileError, SaveType, logger
+from app.editor.save_editor import NoGameFoundError, SaveEditor, NoOpenSaveFileError, SaveSlot, SaveType, logger
 from app.unpack.decrypt import decrypt_file, encrypt_file, decrypt_folder, encrypt_folder
 from app.exceptions import GameFileMissingError
+from .fancy.wx_save_slot import SaveSlotComboPopup
 
 def _excepthook(type, value, tb):
     print('=' * 40)
@@ -79,6 +80,10 @@ class FrameMainImpl(FrameMain):
         self.m_sld_court_damage.SetLineSize(8)
         self.m_notebook1.SetSelection(0)
 
+        self.m_cmb_saves_popup = SaveSlotComboPopup(self.select_save)
+        self.m_cmb_saves.SetPopupControl(self.m_cmb_saves_popup)
+        self.m_cmb_saves.SetMinSize((360, -1))
+
         self.editor: SaveEditor
         def __exit():
             wx.MessageBox(_(u'未选择任何有效路径，即将退出程序。'), _(u'提示'), wx.OK | wx.ICON_INFORMATION)
@@ -109,11 +114,13 @@ class FrameMainImpl(FrameMain):
     def sld_hp_on_scroll_changed(self, event):
         # 处理事件
         self.editor.new_hp = self.editor.old_hp = self.m_sld_hp.Value
-    
+        self.m_hp_bar.SetValue(self.editor.old_hp)
+
     def m_sld_court_danmage_on_scroll_changed(self, event):
         # 处理事件
         self.editor.court_pending_damage = self.m_sld_court_damage.Value
-    
+        self.m_hp_bar.SetPendingDamage(self.editor.court_pending_damage)
+
     def mi_open_on_select(self, event):
         with wx.FileDialog(self, _(u"打开存档文件"), wildcard=f"{_(u'存档文件')} (*.*)|*.*", style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST) as fileDialog:
             if fileDialog.ShowModal() == wx.ID_CANCEL:
@@ -319,33 +326,33 @@ class FrameMainImpl(FrameMain):
         self.m_chc_lang.SetSelection(self.editor.editor_language_id)
         
         # 存档选择
-        self.m_chc_saves.Clear()
         slots = self.editor.get_slots_info()
-        for i, slot in enumerate(slots, 1):
-            self.m_chc_saves.Append(f'{i:02d}: ' + slot.short_str)
+        self.m_cmb_saves_popup.SetSlots(slots)
         newest = max(slots, key=(
             lambda slot:
                 datetime.datetime.strptime(slot.time, '%Y/%m/%d %H:%M:%S') if slot.time
                 else datetime.datetime(1, 1, 1)
         ))
-        self.m_chc_saves.SetSelection(slots.index(newest))
-        
+        self.m_cmb_saves_popup.SelectSlot(newest)
+        self.m_cmb_saves.SetValue(newest.short_str)
+        self.select_save(newest)
         # 触发选择存档事件
-        self.chc_savs_on_choice(None)
+        # self.chc_savs_on_choice(None)
     
     def reload(self):
         self.editor.reload()
         self.load_basic_ui()
     
-    def chc_savs_on_choice(self, event):
-        slot_number = self.m_chc_saves.GetSelection()
-        if slot_number == wx.NOT_FOUND:
-            return
-        self.editor.select_slot(slot_number)
+    def select_save(self, save_slot: SaveSlot):
+        self.m_cmb_saves_popup.SelectSlot(save_slot)
+        self.editor.select_slot(save_slot.in_game_slot_number)
         # 法庭血量/伤害
         self.m_sld_hp.Value = self.editor.new_hp
         self.m_sld_court_damage.Value = self.editor.court_pending_damage
         self.m_sld_court_damage.Enabled = self.editor.court_pending_danmage_changable
+        self.m_hp_bar.SetValue(self.editor.new_hp)
+        self.m_hp_bar.SetPendingDamage(self.editor.court_pending_damage)
+        self.m_hp_bar.SetAnimationEnabled(True)
         # 消息框 Tab
         self.m_chk_dlg_visible.Value = self.editor.dialog.dialog_visible
         self.m_chk_dlg_name_visible.Value = self.editor.dialog.name_visible

@@ -43,14 +43,13 @@
             "module": "app.editor.save_editor"
         },
         {
-            "name": "Entry (Debug Mode)",
+            "name": "Run: native_ui.fancy.wx_save_slot",
             "type": "debugpy",
             "request": "launch",
-            "module": "app.entry",
-            "args": [ "--debug" ]
+            "module": "app.native_ui.fancy.wx_save_slot"
         },
         {
-            "name": "Entry Native (Debug Mode)",
+            "name": "Entry (Debug Mode)",
             "type": "debugpy",
             "request": "launch",
             "module": "app.entry_native",
