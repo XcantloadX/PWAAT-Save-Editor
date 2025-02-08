@@ -5,8 +5,9 @@ import logging
 import datetime
 import traceback
 import subprocess
-from gettext import gettext as _
 from typing import cast
+from gettext import gettext as _
+from typing_extensions import deprecated
 
 import wx
 
@@ -22,6 +23,7 @@ from app.editor.save_editor import NoGameFoundError, SaveEditor, NoOpenSaveFileE
 from app.unpack.decrypt import decrypt_file, encrypt_file, decrypt_folder, encrypt_folder
 from app.exceptions import GameFileMissingError
 from .fancy.wx_save_slot import SaveSlotComboPopup
+from .fancy.wx_hold_it import HoldItFrame
 
 def _excepthook(type, value, tb):
     print('=' * 40)
@@ -40,21 +42,65 @@ def _excepthook(type, value, tb):
     traceback.print_exception(type, value, tb)
 sys.excepthook = _excepthook
 
+@deprecated('已弃用。即将移除。')
 def save_hook(editor: SaveEditor, save: PresideData | PresideDataXbox):
-    # ret = wx.MessageBox(_(u'是否备份当前存档？'), '提示', wx.OK | wx.CANCEL | wx.ICON_QUESTION)
-    # if ret == wx.OK:
-    #     save_path = wx.SaveFileSelector('请选择备份路径', '.bak', default_name=_(u'逆转裁判存档备份.bak'))
-    #     if not save_path:
-    #         wx.MessageBox(_(u'备份已取消。'), _(u'提示'), wx.OK | wx.ICON_INFORMATION)
-    #     else:
-    #         original_save_path = editor.save_path
-    #         if not original_save_path:
-    #             raise NoOpenSaveFileError()
-    #         shutil.copy2(original_save_path, save_path)
     return True
+
+def prompt_backup(editor: SaveEditor, platform: str = '') -> bool:
+    """
+    提示用户备份存档以及是否继续覆盖保存。
+    如果用户选择不再提示，则将结果写入 .no_backup 文件。
+
+    :param platform: 即将覆盖的平台名称
+    :param path: 即将覆盖的存档文件路径
+    :return: True 表示继续操作，False 表示取消操作。
+    """
+    if os.path.exists('.no_backup'):
+        return True
+    hold_it = HoldItFrame(scale=0.7)
+    wx.CallLater(100, hold_it.Shake)
+    hold_it.ShowModal()
+    hold_it.Destroy()
+
+    message = _(
+        u"注意！你正在「覆盖」%s存档文件。\n"
+        u"尽管已经过大量测试，但本工具并不能保证"
+        u"修改后的存档一定正常使用，"
+        u"因此你最好手动备份存档文件。\n"
+        u"\n"
+        u"是否打开存档文件位置？"
+    ) % (platform or _(u'当前'))
+
+    dlg = wx.RichMessageDialog(None, message, _(u"提示"), wx.YES_NO | wx.ICON_QUESTION)
+    dlg.ShowCheckBox(_(u"不再提示"))
+    dlg.SetYesNoLabels(_(u"继续保存"), _(u"我要备份"))
+    ret = dlg.ShowModal()
+    if dlg.IsCheckBoxChecked():
+        with open('.no_backup', 'w') as f:
+            f.write('1')
+    if ret == wx.ID_YES:
+        return True
+    else:
+        path = editor.save_path
+        if not path:
+            if platform == 'Steam':
+                path = locator.system_steam_save_path[0][1]
+            elif platform == 'Xbox':
+                path = locator.system_xbox_save_path[0]
+            else:
+                path = editor.save_path
+
+        if path:
+            path = os.path.dirname(path)
+            wx.MessageBox(_(u'点击 OK 后将会打开存档文件夹。复制其中的所有文件到其他位置。'), _(u'提示'), wx.OK | wx.ICON_INFORMATION)
+            os.system(f'explorer "{path}"')
+        else:
+            wx.MessageBox(_(u'未找到存档文件位置。请手动定位存档文件。'), _(u'错误'), wx.OK | wx.ICON_ERROR)
+        return False
 
 class Dialog(wx.Dialog):
     def __init__(self, parent, title, text):
+
         super().__init__(parent, title=title, style=wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER)
 
         sizer = wx.BoxSizer(wx.VERTICAL)
@@ -169,17 +215,19 @@ class FrameMainImpl(FrameMain):
             self.load_basic_ui()
     
     def mi_save_on_select(self, event):
+        if not prompt_backup(self.editor):
+            return
         self.editor.save()
         wx.MessageBox(_(u'保存成功'), _(u'提示'), wx.OK | wx.ICON_INFORMATION)
     
     def mi_xbox2steam_on_choice(self, event):
-        if not wx.MessageBox(_(u'此操作将会覆盖当前 Steam 存档文件，是否继续？'), _(u'警告'), wx.YES_NO | wx.ICON_WARNING) == wx.YES:
-            return
         if len(locator.system_xbox_save_path) == 0:
             wx.MessageBox(_(u'未找到 Xbox 存档文件'), _(u'错误'), wx.OK | wx.ICON_ERROR)
             return
         if len(locator.system_steam_save_path) == 0:
             wx.MessageBox(_(u'未找到 Steam 存档文件'), _(u'错误'), wx.OK | wx.ICON_ERROR)
+            return
+        if not prompt_backup(self.editor, 'Steam'):
             return
         xbox_path = locator.system_xbox_save_path[0]
         steam_id, steam_path = locator.system_steam_save_path[0]
@@ -197,7 +245,7 @@ class FrameMainImpl(FrameMain):
         if not locator.system_steam_save_path:
             wx.MessageBox(_(u'未找到 Steam 存档文件'), _(u'错误'), wx.OK | wx.ICON_ERROR)
             return
-        if not wx.MessageBox(_(u'此操作将会覆盖当前 Xbox 存档文件，是否继续？'), _(u'警告'), wx.YES_NO | wx.ICON_WARNING) == wx.YES:
+        if not prompt_backup(self.editor, 'Xbox'):
             return
         xbox_path = locator.system_xbox_save_path[0]
         __, steam_path = locator.system_steam_save_path[0]
@@ -215,7 +263,7 @@ class FrameMainImpl(FrameMain):
         with wx.FileDialog(self, _(u"打开文件"), wildcard=f"{_(u'存档文件')} (*.*)|*.*", style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST) as fileDialog:
             if fileDialog.ShowModal() == wx.ID_CANCEL:
                 return
-            if not wx.MessageBox(_(u'此操作将会覆盖当前 Steam 存档文件，是否继续？'), _(u'警告'), wx.YES_NO | wx.ICON_WARNING) == wx.YES:
+            if not prompt_backup(self.editor, 'Steam'):
                 return
             path = fileDialog.GetPath()
             self.editor.load(path)
@@ -276,7 +324,7 @@ class FrameMainImpl(FrameMain):
                 else:
                     wx.MessageBox(_(u'已取消导入'), _(u'提示'), wx.OK | wx.ICON_INFORMATION)
                     return
-            if not wx.MessageBox(_(u'此操作将会覆盖当前 Xbox 存档文件，是否继续？'), _(u'警告'), wx.YES_NO | wx.ICON_WARNING) == wx.YES:
+            if not prompt_backup(self.editor, 'Xbox'):
                 return
             xbox_path = locator.system_xbox_save_path[0]
             editor.save(xbox_path)
@@ -535,6 +583,8 @@ class FrameSlotManagerImpl(FrameSlotManager):
         self.load_ui()
         
     def m_tol_save_on_clicked(self, event):
+        if not prompt_backup(self.__editor(event).editor):
+            return
         self.__editor(event).save()
         wx.MessageBox(_(u'保存成功'), _(u'提示'), wx.OK | wx.ICON_INFORMATION)
         
