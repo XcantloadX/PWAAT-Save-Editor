@@ -25,6 +25,8 @@ from app.exceptions import GameFileMissingError
 from .fancy.wx_save_slot import SaveSlotComboPopup
 from .fancy.wx_hold_it import HoldItFrame
 
+app = wx.App()
+
 def _excepthook(type, value, tb):
     print('=' * 40)
     if type == NoOpenSaveFileError:
@@ -41,6 +43,7 @@ def _excepthook(type, value, tb):
         wx.MessageBox(''.join(traceback.format_exception(type, value, tb)), _(u'错误'), wx.OK | wx.ICON_ERROR)
     traceback.print_exception(type, value, tb)
 sys.excepthook = _excepthook
+
 
 @deprecated('已弃用。即将移除。')
 def save_hook(editor: SaveEditor, save: PresideData | PresideDataXbox):
@@ -657,7 +660,7 @@ class FrameSlotManagerImpl(FrameSlotManager):
         )
         self.load_ui()
     
-app = wx.App()
+
 frame = FrameMainImpl(None)
 frame.Show()
 app.MainLoop()
