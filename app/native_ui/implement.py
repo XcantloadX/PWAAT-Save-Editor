@@ -23,7 +23,6 @@ from app.editor.save_editor import NoGameFoundError, SaveEditor, NoOpenSaveFileE
 from app.unpack.decrypt import decrypt_file, encrypt_file, decrypt_folder, encrypt_folder
 from app.exceptions import GameFileMissingError
 from .fancy.wx_save_slot import SaveSlotComboPopup
-from .fancy.wx_hold_it import HoldItFrame
 
 app = wx.App()
 
@@ -60,10 +59,6 @@ def prompt_backup(editor: SaveEditor, platform: str = '') -> bool:
     """
     if os.path.exists('.no_backup'):
         return True
-    hold_it = HoldItFrame(scale=0.7)
-    wx.CallLater(100, hold_it.Shake)
-    hold_it.ShowModal()
-    hold_it.Destroy()
 
     message = _(
         u"注意！你正在「覆盖」%s存档文件。\n"
