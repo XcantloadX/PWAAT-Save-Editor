@@ -28,16 +28,19 @@ class TextUnpacker:
         save_text_path = os.path.join(self.game_path, 'PWAAT_Data', 'StreamingAssets', 'menu', 'text', f'save_text{suffix}.bin')
         platform_text_path = os.path.join(self.game_path, 'PWAAT_Data', 'StreamingAssets', 'menu', 'text', f'platform_text{suffix}.bin')
         system_text_path = os.path.join(self.game_path, 'PWAAT_Data', 'StreamingAssets', 'menu', 'text', f'system_text{suffix}.bin')
-        
+
         if not os.path.exists(title_text_path):
             raise GameFileMissingError(title_text_path)
         if not os.path.exists(save_text_path):
             raise GameFileMissingError(save_text_path)
-        
+
         self.title_text_data = self.__load_text(title_text_path, language)
         self.save_text_data = self.__load_text(save_text_path, language)
     
     def __load_text(self, path: str, language: Language) -> ConvertLineData:
+        if not os.path.exists(path):
+            raise GameFileMissingError(path)
+
         with open(path, 'rb') as f:
             buff = f.read()
             buff = decrypt_bytes(buff)

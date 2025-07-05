@@ -37,6 +37,10 @@ def _excepthook(type, value, tb):
         print('Ignorable error:')
         value = cast(IncompatibleSlotError, value)
         wx.CallAfter(wx.MessageBox, _(u'存档类型不兼容。\n左侧：%s，右侧：%s') % (value.left_type, value.right_type), _(u'错误'), wx.OK | wx.ICON_ERROR)
+    elif type == GameFileMissingError:
+        print('Game file missing error:')
+        value = cast(GameFileMissingError, value)
+        wx.CallAfter(wx.MessageBox, _(u'游戏文件缺失：%s\n请检查游戏完整性或重新安装游戏。') % value.file, _(u'错误'), wx.OK | wx.ICON_ERROR)
     else:
         # 提示错误
         wx.MessageBox(''.join(traceback.format_exception(type, value, tb)), _(u'错误'), wx.OK | wx.ICON_ERROR)
