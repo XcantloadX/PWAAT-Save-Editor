@@ -153,6 +153,8 @@ class FrameMainImpl(FrameMain):
                                 break
                             except NoGameFoundError:
                                 wx.MessageBox(_(u'选择的路径无效。'), _(u'错误'), wx.OK | wx.ICON_ERROR)
+                            except GameFileMissingError as e:
+                                wx.MessageBox(_(u'游戏文件 {} 缺失。请检查游戏完整性。'.format(e.file)), _(u'错误'), wx.OK | wx.ICON_ERROR)
                 else:
                     __exit()
         except GameFileMissingError as e:
@@ -331,7 +333,73 @@ class FrameMainImpl(FrameMain):
             xbox_path = locator.system_xbox_save_path[0]
             editor.save(xbox_path)
             wx.MessageBox(_(u'导入成功'), _(u'提示'), wx.OK | wx.ICON_INFORMATION)
-    
+
+    def mi_xbox_file2steam_file_on_choice(self, event):
+        """读入 Xbox 存档文件，转换为 Steam 存档文件，然后保存到指定位置"""
+        with wx.FileDialog(self, _(u"打开 Xbox 存档文件"), wildcard=f"{_(u'存档文件')} (*.*)|*.*", style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST) as openDialog:
+            if openDialog.ShowModal() == wx.ID_CANCEL:
+                return
+            input_path = openDialog.GetPath()
+
+            # 加载 Xbox 存档文件
+            try:
+                editor = SaveEditor() # 无需 save_hook
+                editor.load(input_path)
+
+                # 检查是否为 Xbox 存档
+                if editor.save_type != SaveType.XBOX:
+                    wx.MessageBox(_(u'选择的文件不是 Xbox 存档文件'), _(u'错误'), wx.OK | wx.ICON_ERROR)
+                    return
+
+                # 转换为 Steam 存档
+                steam_editor = editor.convert(SaveType.STEAM)
+
+                # 选择保存位置
+                with wx.FileDialog(self, _(u"保存 Steam 存档文件"), wildcard=f"{_(u'存档文件')} (*.*)|*.*", style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT) as saveDialog:
+                    if saveDialog.ShowModal() == wx.ID_CANCEL:
+                        return
+                    output_path = saveDialog.GetPath()
+
+                    # 保存转换后的存档
+                    steam_editor.save(output_path)
+                    wx.MessageBox(_(u'转换成功'), _(u'提示'), wx.OK | wx.ICON_INFORMATION)
+
+            except Exception as e:
+                wx.MessageBox(_(u'转换失败：') + str(e), _(u'错误'), wx.OK | wx.ICON_ERROR)
+
+    def mi_steam_file2_xbox_file_on_choice(self, event):
+        """读入 Steam 存档文件，转换为 Xbox 存档文件，然后保存到指定位置"""
+        with wx.FileDialog(self, _(u"打开 Steam 存档文件"), wildcard=f"{_(u'存档文件')} (*.*)|*.*", style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST) as openDialog:
+            if openDialog.ShowModal() == wx.ID_CANCEL:
+                return
+            input_path = openDialog.GetPath()
+
+            # 加载 Steam 存档文件
+            try:
+                editor = SaveEditor() # 无需 save_hook
+                editor.load(input_path)
+
+                # 检查是否为 Steam 存档
+                if editor.save_type != SaveType.STEAM:
+                    wx.MessageBox(_(u'选择的文件不是 Steam 存档文件'), _(u'错误'), wx.OK | wx.ICON_ERROR)
+                    return
+
+                # 转换为 Xbox 存档
+                xbox_editor = editor.convert(SaveType.XBOX)
+
+                # 选择保存位置
+                with wx.FileDialog(self, _(u"保存 Xbox 存档文件"), wildcard=f"{_(u'存档文件')} (*.*)|*.*", style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT) as saveDialog:
+                    if saveDialog.ShowModal() == wx.ID_CANCEL:
+                        return
+                    output_path = saveDialog.GetPath()
+
+                    # 保存转换后的存档
+                    xbox_editor.save(output_path)
+                    wx.MessageBox(_(u'转换成功'), _(u'提示'), wx.OK | wx.ICON_INFORMATION)
+
+            except Exception as e:
+                wx.MessageBox(_(u'转换失败：') + str(e), _(u'错误'), wx.OK | wx.ICON_ERROR)
+
     def mi_save_as_on_select(self, event):
         with wx.FileDialog(self, _(u"保存存档文件"), wildcard=f"{_(u'存档文件')} (*.*)|*.*", style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT) as fileDialog:
             if fileDialog.ShowModal() == wx.ID_CANCEL:

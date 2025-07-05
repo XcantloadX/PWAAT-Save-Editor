@@ -316,6 +316,14 @@ class FrameMain ( wx.Frame ):
         self.m_mi_file2xbox = wx.MenuItem( self.m_menu_convert, wx.ID_ANY, _(u"文件 → Xbox..."), wx.EmptyString, wx.ITEM_NORMAL )
         self.m_menu_convert.Append( self.m_mi_file2xbox )
 
+        self.m_menu_convert.AppendSeparator()
+
+        self.m_mi_xbox_file2steam_file = wx.MenuItem( self.m_menu_convert, wx.ID_ANY, _(u"文件（Xbox）→ 文件（Steam）..."), wx.EmptyString, wx.ITEM_NORMAL )
+        self.m_menu_convert.Append( self.m_mi_xbox_file2steam_file )
+
+        self.m_mi_steam_file2_xbox_file = wx.MenuItem( self.m_menu_convert, wx.ID_ANY, _(u"文件（Steam）→ 文件（Xbox）..."), wx.EmptyString, wx.ITEM_NORMAL )
+        self.m_menu_convert.Append( self.m_mi_steam_file2_xbox_file )
+
         self.m_menubar.Append( self.m_menu_convert, _(u"转换") )
 
         self.m_menu_tools = wx.Menu()
@@ -373,6 +381,8 @@ class FrameMain ( wx.Frame ):
         self.Bind( wx.EVT_MENU, self.mi_file2steam_on_choice, id = self.m_mi_file2steam.GetId() )
         self.Bind( wx.EVT_MENU, self.mi_xbox2file_on_choice, id = self.m_mi_xbox2file.GetId() )
         self.Bind( wx.EVT_MENU, self.mi_file2xbox_on_choice, id = self.m_mi_file2xbox.GetId() )
+        self.Bind( wx.EVT_MENU, self.mi_xbox_file2steam_file_on_choice, id = self.m_mi_xbox_file2steam_file.GetId() )
+        self.Bind( wx.EVT_MENU, self.mi_steam_file2_xbox_file_on_choice, id = self.m_mi_steam_file2_xbox_file.GetId() )
         self.Bind( wx.EVT_MENU, self.m_mi_slot_manager_on_select, id = self.m_mi_slot_manager.GetId() )
         self.Bind( wx.EVT_MENU, self.mi_run_repl_on_select, id = self.m_mi_run_repl.GetId() )
         self.Bind( wx.EVT_MENU, self.m_mi_decrypt_file_on_select, id = self.m_mi_decrypt_file.GetId() )
@@ -458,6 +468,12 @@ class FrameMain ( wx.Frame ):
         event.Skip()
 
     def mi_file2xbox_on_choice( self, event ):
+        event.Skip()
+
+    def mi_xbox_file2steam_file_on_choice( self, event ):
+        event.Skip()
+
+    def mi_steam_file2_xbox_file_on_choice( self, event ):
         event.Skip()
 
     def m_mi_slot_manager_on_select( self, event ):
