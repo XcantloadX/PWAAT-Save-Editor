@@ -1,19 +1,28 @@
 # PWAAT-Save-Editor
 
 ## Features
+Basic features:
 * Import and export save files
 * Convert save files between Steam and Xbox
+(According to community feedback, Xbox save files have the same format as Switch save files, so Steam and Switch save files can also be converted. However, you need to handle the Switch save file import/export issues yourself.)
 * Unlock chapters
 * Modify health in court
+* Save slot management, including delete, copy, and move save slot data
+(Experimental feature, use only when necessary)
+
+Additional features:
 * Edit dialogue-box-related data
+* Encrypt and decrypt game resource files
+* Forcefully convert save file language
 
 ## Todo
 - [x] Save slot management, including delete, copy, import/export, and sort save slots
-- [ ] Forcefully convert save file language
-- [ ] Support version on other platforms (Android, iOS, cracked Switch, etc.)
+- [x] Forcefully convert save file language
+- [x] Support version on other platforms (Android, iOS, cracked Switch, etc.)
 - [x] Support for pirated PC copy
+- [ ] When there are multiple Steam accounts locally, allow selecting an account instead of defaulting to the first one
 - [ ] Automatically detect and convert save file types upon import
-- [ ] Tool for quick saves management
+- [ ] Tool for quick backup and save management
 
 ## Basic Usage
 ### Download
