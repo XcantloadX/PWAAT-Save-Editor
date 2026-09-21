@@ -1,15 +1,25 @@
 import os
-import winreg
 from logging import getLogger
 from typing import Any
 
+from typing_extensions import TYPE_CHECKING
+
 from .installed_apps import find_desktop_app, find_universal_app, App
 from app.exceptions import InvalidSaveLengthError
+from app.utils import is_windows
 
 logger = getLogger(__name__)
 
+if TYPE_CHECKING:
+    import winreg
+
+if is_windows():
+    import winreg
+
 
 def _read_reg(ep, p = r"", k = ''):
+    if not is_windows():
+        return None
     try:
         key = winreg.OpenKeyEx(ep, p)
         value = winreg.QueryValueEx(key,k)
@@ -68,7 +78,11 @@ class _Locator:
         """
         appdata_local = os.environ.get('LOCALAPPDATA')
         if not appdata_local:
-            logger.error('%LOCALAPPDATA% not found')
+            # Xbox saves only exist on Windows; downgrade log on other platforms.
+            if is_windows():
+                logger.error('%LOCALAPPDATA% not found')
+            else:
+                logger.debug('%LOCALAPPDATA% not found (expected on non-Windows)')
             return []
         save_folder = os.path.join(appdata_local, 'Packages', XBOX_APP_NAME, 'SystemAppData', 'wgs')
         # 列出所有文件，寻找大小为 XBOX_SAVE_LENGTH 的文件
@@ -85,9 +99,21 @@ class _Locator:
         """
         Steam 安装路径（steam.exe）。
         """
-        path32 = _read_reg(ep = winreg.HKEY_LOCAL_MACHINE, p = r"SOFTWARE\Wow6432Node\Valve\Steam", k = 'InstallPath')
-        path64 = _read_reg(ep = winreg.HKEY_LOCAL_MACHINE, p = r"SOFTWARE\Valve\Steam", k = 'InstallPath')
-        return path32 or path64
+        if is_windows():
+            path32 = _read_reg(ep = winreg.HKEY_LOCAL_MACHINE, p = r"SOFTWARE\Wow6432Node\Valve\Steam", k = 'InstallPath')
+            path64 = _read_reg(ep = winreg.HKEY_LOCAL_MACHINE, p = r"SOFTWARE\Valve\Steam", k = 'InstallPath')
+            if path32 or path64:
+                return path32 or path64
+        # macOS / Linux fallback: 常见 Steam 安装位置
+        candidates = [
+            os.path.expanduser('~/Library/Application Support/Steam'),
+            os.path.expanduser('~/.steam/steam'),
+            os.path.expanduser('~/.local/share/Steam'),
+        ]
+        for c in candidates:
+            if os.path.isdir(c):
+                return c
+        return None
     
     @property
     def steam_accounts(self) -> list[str]:
@@ -109,12 +135,20 @@ class _Locator:
         Steam 游戏安装路径。
         """
         app = find_desktop_app(STEAM_APP_NAME)
-        if not app:
-            return None
-        path = app.installed_path or ''
-        if not os.path.exists(path):
-            return None
-        return path
+        if app:
+            path = app.installed_path or ''
+            if os.path.exists(path):
+                return path
+        # macOS / Linux fallback: 在 SteamLibrary 下搜索游戏目录
+        steam_path = self.steam_path
+        if steam_path:
+            for candidate in [
+                os.path.join(steam_path, 'steamapps', 'common', 'Phoenix Wright Ace Attorney Trilogy'),
+                os.path.join(steam_path, 'steamapps', 'common', 'Phoenix Wright: Ace Attorney Trilogy'),
+            ]:
+                if os.path.isdir(candidate):
+                    return candidate
+        return None
     
     @property
     def xbox_game_path(self) -> str | None:

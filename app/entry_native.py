@@ -23,12 +23,14 @@ def excepthook(exc_type, exc_value, exc_traceback):
 sys.excepthook = excepthook
 
 # 程序入口
+from app.utils import is_windows
 import app.native_ui.implement
 
-# 让 PyInstaller 收集下面这些模块
-import winrt.windows.foundation
-import winrt.windows.foundation.collections
-import winrt.windows.management
-import winrt.windows.management.deployment
-import winrt.windows.storage
-import winrt.windows.applicationmodel
+# 让 PyInstaller 收集下面这些模块（仅 Windows）
+if is_windows():
+    import winrt.windows.foundation
+    import winrt.windows.foundation.collections
+    import winrt.windows.management
+    import winrt.windows.management.deployment
+    import winrt.windows.storage
+    import winrt.windows.applicationmodel

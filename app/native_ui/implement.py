@@ -4,6 +4,7 @@ import shutil
 import logging
 import datetime
 import traceback
+import subprocess
 from typing import cast
 from gettext import gettext as _
 from typing_extensions import deprecated
@@ -94,7 +95,12 @@ def prompt_backup(editor: SaveEditor, platform: str = '') -> bool:
         if path:
             path = os.path.dirname(path)
             wx.MessageBox(_(u'点击 OK 后将会打开存档文件夹。复制其中的所有文件到其他位置。'), _(u'提示'), wx.OK | wx.ICON_INFORMATION)
-            os.system(f'explorer "{path}"')
+            if utils.is_windows():
+                os.system(f'explorer "{path}"')
+            elif utils.is_macos():
+                subprocess.Popen(['open', path])
+            else:
+                subprocess.Popen(['xdg-open', path])
         else:
             wx.MessageBox(_(u'未找到存档文件位置。请手动定位存档文件。'), _(u'错误'), wx.OK | wx.ICON_ERROR)
         return False

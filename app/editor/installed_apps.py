@@ -10,10 +10,18 @@ winrt-Windows.Management.Deployment==2.1.0
 winrt-Windows.Storage==2.1.0
 """
 
-import winreg
-from typing import List, NamedTuple, Literal, Union
+from typing import List, NamedTuple, Literal, Union, TYPE_CHECKING
 
-import winrt.windows.management.deployment as deployment
+from app.utils import is_windows
+
+if TYPE_CHECKING:
+    import winreg
+    import winrt.windows.management.deployment as deployment
+
+if is_windows():
+    import winreg
+    import winrt.windows.management.deployment as deployment
+
 
 AppType = Literal['desktop', 'universal']
 User = Literal['current', 'all']
@@ -46,6 +54,10 @@ def list_universal_apps(user: User = 'current') -> List[App]:
     Note that listing apps for all users requires admin privileges. \n
     See [PackageManager.FindPackagesForUser](https://learn.microsoft.com/en-us/uwp/api/windows.management.deployment.packagemanager.findpackagesforuser?view=winrt-26100#windows-management-deployment-packagemanager-findpackagesforuser(system-string)).
     """
+    if not is_windows():
+        # UWP / Microsoft Store apps only exist on Windows.
+        return []
+    
     pm = deployment.PackageManager()
     if user == 'current':
         packages = pm.find_packages_for_user('')
@@ -102,6 +114,9 @@ def list_desktop_apps(user: User = 'all') -> List[App]:
     
     Reference: [How do I list all the installed applications using python?](https://stackoverflow.com/questions/75040757/how-do-i-list-all-the-installed-applications-using-python). \n
     """
+    if not is_windows():
+        # Registry-based desktop app lookup only exists on Windows.
+        return []
     if user == 'all':
         reg = winreg.ConnectRegistry(None, winreg.HKEY_LOCAL_MACHINE)
     elif user == 'current':
@@ -109,7 +124,7 @@ def list_desktop_apps(user: User = 'all') -> List[App]:
     else:
         raise ValueError('Invalid user')
 
-    def _read(reg_key: winreg.HKEYType):
+    def _read(reg_key: "winreg.HKEYType"):
         apps = []
         for i in range(winreg.QueryInfoKey(reg_key)[0]):
             app_uuid = winreg.EnumKey(reg_key, i)

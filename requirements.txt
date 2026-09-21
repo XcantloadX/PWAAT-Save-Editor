@@ -7,14 +7,14 @@ pyinstaller==6.12.0
 # GUI
 wxPython==4.2.2
 
-# Windows API to list installed applications
-winrt-runtime==2.3.0
-winrt-Windows.ApplicationModel==2.3.0
-winrt-Windows.Foundation==2.3.0
-winrt-Windows.Foundation.Collections==2.3.0
-winrt-Windows.Management==2.3.0
-winrt-Windows.Management.Deployment==2.3.0
-winrt-Windows.Storage==2.3.0
+# Windows API to list installed applications (Windows only)
+winrt-runtime==2.3.0; sys_platform == 'win32'
+winrt-Windows.ApplicationModel==2.3.0; sys_platform == 'win32'
+winrt-Windows.Foundation==2.3.0; sys_platform == 'win32'
+winrt-Windows.Foundation.Collections==2.3.0; sys_platform == 'win32'
+winrt-Windows.Management==2.3.0; sys_platform == 'win32'
+winrt-Windows.Management.Deployment==2.3.0; sys_platform == 'win32'
+winrt-Windows.Storage==2.3.0; sys_platform == 'win32'
 
 # other
 typing-extensions==4.12.2
