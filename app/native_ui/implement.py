@@ -4,7 +4,6 @@ import shutil
 import logging
 import datetime
 import traceback
-import subprocess
 from typing import cast
 from gettext import gettext as _
 from typing_extensions import deprecated
@@ -432,15 +431,6 @@ class FrameMainImpl(FrameMain):
         dialog = Dialog(self, _(u'调试信息'), msg)
         dialog.ShowModal()
         dialog.Destroy()
-    
-    def mi_run_repl_on_select(self, event):
-        if not os.path.exists('repl.exe'):
-            wx.MessageBox(_(u'当前版本为非 REPL 版本。'), _(u'错误'), wx.OK | wx.ICON_ERROR)
-            return
-        path = self.editor.save_path
-        if not path:
-            raise NoOpenSaveFileError()
-        subprocess.run(['repl.exe', '-s', path])
     
     def load_basic_ui(self):
         # 解锁章节

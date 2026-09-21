@@ -344,9 +344,6 @@ class FrameMain ( wx.Frame ):
         self.m_mi_slot_manager = wx.MenuItem( self.m_menu_tools, wx.ID_ANY, _(u"存档槽位管理..."), wx.EmptyString, wx.ITEM_NORMAL )
         self.m_menu_tools.Append( self.m_mi_slot_manager )
 
-        self.m_mi_run_repl = wx.MenuItem( self.m_menu_tools, wx.ID_ANY, _(u"运行 REPL"), wx.EmptyString, wx.ITEM_NORMAL )
-        self.m_menu_tools.Append( self.m_mi_run_repl )
-
         self.m_menu_game_res = wx.Menu()
         self.m_mi_decrypt_file = wx.MenuItem( self.m_menu_game_res, wx.ID_ANY, _(u"解密文件..."), wx.EmptyString, wx.ITEM_NORMAL )
         self.m_menu_game_res.Append( self.m_mi_decrypt_file )
@@ -402,7 +399,6 @@ class FrameMain ( wx.Frame ):
         self.Bind( wx.EVT_MENU, self.mi_android_file2xbox_file_on_choice, id = self.m_mi_android_file2xbox_file.GetId() )
         self.Bind( wx.EVT_MENU, self.mi_xbox_file2android_file_on_choice, id = self.m_mi_xbox_file2android_file.GetId() )
         self.Bind( wx.EVT_MENU, self.m_mi_slot_manager_on_select, id = self.m_mi_slot_manager.GetId() )
-        self.Bind( wx.EVT_MENU, self.mi_run_repl_on_select, id = self.m_mi_run_repl.GetId() )
         self.Bind( wx.EVT_MENU, self.m_mi_decrypt_file_on_select, id = self.m_mi_decrypt_file.GetId() )
         self.Bind( wx.EVT_MENU, self.m_mi_decrypt_folder_on_select, id = self.m_mi_decrypt_folder.GetId() )
         self.Bind( wx.EVT_MENU, self.m_mi_encrypt_file_on_select, id = self.m_mi_encrypt_file.GetId() )
@@ -495,9 +491,6 @@ class FrameMain ( wx.Frame ):
         event.Skip()
 
     def m_mi_slot_manager_on_select( self, event ):
-        event.Skip()
-
-    def mi_run_repl_on_select( self, event ):
         event.Skip()
 
     def m_mi_decrypt_file_on_select( self, event ):

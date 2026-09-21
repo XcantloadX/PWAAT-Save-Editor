@@ -26,8 +26,7 @@ Additional features:
 
 ## Basic Usage
 ### Download
-1. Download the latest version of the editor from the [Release page](https://github.com/XcantloadX/PWAAT-Save-Editor/releases)  
-   (Both versions with and without `REPL` will work)
+1. Download the latest version of the editor from the [Release page](https://github.com/XcantloadX/PWAAT-Save-Editor/releases)
 2. Extract the files and run `PWAAT Save Editor.exe`
 
 
@@ -67,26 +66,6 @@ As of September 20, 2026, the Android release has not received the game's latest
 3. Adjust the health
 4. "File" → "Save"
 5. Reload the save file in the game
-
-## Advanced Usage
-The GUI editor cannot cover all aspects of the save data. If you want to modify parts not available in the GUI editor, you can use the interactive shell based on PtPython to manually make changes.
-
-You can refer to the structure of the entire save data in the source files `app\structs\steam.py` and `app\structs\xbox.py`. Some fields have documentation comments, but most do not.
-
-1. Download the version with `REPL`
-2. Open any save file, then "File" → "Run REPL"
-3. Switch to the CMD window and read the prompts
-
-> [!IMPORTANT]  
-> The GUI and REPL operate separately, and unsaved changes are not synced between them.  
-> It's recommended to save before running and exiting the REPL.
-
-> [!TIP]  
-> It's recommended to run REPL in Windows Terminal.
-
-> [!CAUTION]  
-> Before using REPL to edit saves, you'd better be aware of what you are doing, or this is the consequence: 
-> <img width="75%" src="./images/corrupted_game.png" alt="corrupted game" />
 
 ## Translation
 1. Install [gettext](https://mlocati.github.io/articles/gettext-iconv-windows.html)

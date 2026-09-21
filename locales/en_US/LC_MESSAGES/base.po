@@ -232,10 +232,6 @@ msgstr ""
 "The save file is not an Xbox file. Do you want to convert it to an Xbox save "
 "file?"
 
-#: app\native_ui\implement.py:359
-msgid "当前版本为非 REPL 版本。"
-msgstr "Current version is not a REPL version."
-
 #: app\native_ui\form.py:131
 msgid "待定伤害值(?)"
 msgstr "Pending Damage Value (?)"
@@ -621,10 +617,6 @@ msgstr "Load Xbox"
 #: app\native_ui\form.py:519 app\native_ui\form.py:577
 msgid "载入..."
 msgstr "Load..."
-
-#: app\native_ui\form.py:333
-msgid "运行 REPL"
-msgstr "Run REPL"
 
 #: app\native_ui\implement.py:548
 msgid ""

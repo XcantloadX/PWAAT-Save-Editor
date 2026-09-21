@@ -2590,20 +2590,6 @@
             <property name="unchecked_bitmap"></property>
             <event name="OnMenuSelection">m_mi_slot_manager_on_select</event>
           </object>
-          <object class="wxMenuItem" expanded="false">
-            <property name="bitmap"></property>
-            <property name="checked">0</property>
-            <property name="enabled">1</property>
-            <property name="help"></property>
-            <property name="id">wxID_ANY</property>
-            <property name="kind">wxITEM_NORMAL</property>
-            <property name="label">运行 REPL</property>
-            <property name="name">m_mi_run_repl</property>
-            <property name="permission">none</property>
-            <property name="shortcut"></property>
-            <property name="unchecked_bitmap"></property>
-            <event name="OnMenuSelection">mi_run_repl_on_select</event>
-          </object>
           <object class="submenu" expanded="false">
             <property name="bitmap"></property>
             <property name="label">游戏资源</property>
