@@ -86,9 +86,11 @@ def prompt_backup(editor: SaveEditor, platform: str = '') -> bool:
         path = editor.save_path
         if not path:
             if platform == 'Steam':
-                path = locator.system_steam_save_path[0][1]
+                steam_saves = locator.system_steam_save_path
+                path = steam_saves[0][1] if steam_saves else None
             elif platform == 'Xbox':
-                path = locator.system_xbox_save_path[0]
+                xbox_saves = locator.system_xbox_save_path
+                path = xbox_saves[0] if xbox_saves else None
             else:
                 path = editor.save_path
 
@@ -138,33 +140,39 @@ class FrameMainImpl(FrameMain):
         self.m_cmb_saves.SetMinSize((360, -1))
 
         self.editor: SaveEditor
-        def __exit():
-            wx.MessageBox(_(u'未选择任何有效路径，即将退出程序。'), _(u'提示'), wx.OK | wx.ICON_INFORMATION)
-            sys.exit(1)
         try:
             self.editor = SaveEditor(language='hans', presave_event=save_hook)
-        except NoGameFoundError:
-            while True:
-                dlg = wx.MessageDialog(self, _(u'未找到游戏安装路径。是否手动选择游戏路径？'), _(u'警告'), wx.YES_NO | wx.ICON_WARNING)
-                if dlg.ShowModal() == wx.ID_YES:
-                    with wx.DirDialog(self, _(u"选择游戏安装路径"), style=wx.DD_DEFAULT_STYLE | wx.DD_DIR_MUST_EXIST) as dirDialog:
-                        if dirDialog.ShowModal() == wx.ID_CANCEL:
-                            __exit()
-                        else:
-                            game_path = dirDialog.GetPath()
-                            locator.game_path = game_path
-                            try:
-                                self.editor = SaveEditor(language='hans', presave_event=save_hook)
-                                break
-                            except NoGameFoundError:
-                                wx.MessageBox(_(u'选择的路径无效。'), _(u'错误'), wx.OK | wx.ICON_ERROR)
-                            except GameFileMissingError as e:
-                                wx.MessageBox(_(u'游戏文件 {} 缺失。请检查游戏完整性。'.format(e.file)), _(u'错误'), wx.OK | wx.ICON_ERROR)
-                else:
-                    __exit()
-        except GameFileMissingError as e:
-            wx.MessageBox(_(u'游戏文件 {} 缺失。请检查游戏完整性。'.format(e.file)), _(u'错误'), wx.OK | wx.ICON_ERROR)
-            sys.exit(2)
+        except (NoGameFoundError, GameFileMissingError):
+            # 兼容旧逻辑：构造失败也降级为离线模式，不直接退出
+            logger.warning('SaveEditor init with game failed, fallback to offline mode.')
+            self.editor = SaveEditor(game_path=None, language='hans', presave_event=save_hook)
+        if not self.editor.has_texts:
+            # 保留一次询问：给用户手动选择游戏目录的机会，但允许跳过进入离线模式
+            dlg = wx.MessageDialog(
+                self,
+                _(u'是否手动选择游戏路径？\n选“否”仍然可以正常编辑存档，但是只能看到存档编号，看不到存档标题。'),
+                _(u'未找到游戏安装路径'),
+                wx.YES_NO | wx.ICON_WARNING,
+            )
+            if dlg.ShowModal() == wx.ID_YES:
+                with wx.DirDialog(self, _(u"选择游戏安装路径"), style=wx.DD_DEFAULT_STYLE | wx.DD_DIR_MUST_EXIST) as dirDialog:
+                    if dirDialog.ShowModal() != wx.ID_CANCEL:
+                        game_path = dirDialog.GetPath()
+                        locator.game_path = game_path
+                        self.editor.set_game_path(game_path)
+                        if not self.editor.has_texts:
+                            wx.MessageBox(
+                                _(u'选择的路径无效或游戏文件缺失，已进入离线模式（标题/章节名显示为 ID）。'),
+                                _(u'提示'),
+                                wx.OK | wx.ICON_INFORMATION,
+                            )
+            else:
+                wx.MessageBox(
+                    _(u'是否手动选择游戏路径？\n选“否”仍然可以正常编辑存档，但是只能看到存档编号，看不到存档标题。'),
+                    _(u'未找到游戏安装路径'),
+                    wx.OK | wx.ICON_INFORMATION,
+                )
+            dlg.Destroy()
 
     def sld_hp_on_scroll_changed(self, event):
         # 处理事件
@@ -650,12 +658,20 @@ class FrameSlotManagerImpl(FrameSlotManager):
             self.load_ui()
     
     def m_tol_load_steam_on_clicked(self, event):
-        _, steam_path = locator.system_steam_save_path[0] # TODO: 支持多个存档/无存档
+        steam_saves = locator.system_steam_save_path
+        if not steam_saves:
+            wx.MessageBox(_(u'未找到任何 Steam 存档，请用“打开存档文件”手动打开。'), _(u'错误'), wx.OK | wx.ICON_ERROR)
+            return
+        _, steam_path = steam_saves[0] # TODO: 支持多个存档
         self.__editor(event).editor.load(steam_path)
         self.load_ui()
-        
+
     def m_tol_load_xbox_on_clicked(self, event):
-        xbox_path = locator.system_xbox_save_path[0] # TODO: 支持多个存档/无存档
+        xbox_saves = locator.system_xbox_save_path
+        if not xbox_saves:
+            wx.MessageBox(_(u'未找到任何 Xbox 存档，请用“打开存档文件”手动打开。'), _(u'错误'), wx.OK | wx.ICON_ERROR)
+            return
+        xbox_path = xbox_saves[0] # TODO: 支持多个存档
         self.__editor(event).editor.load(xbox_path)
         self.load_ui()
         

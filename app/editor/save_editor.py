@@ -180,14 +180,19 @@ class SaveEditor(Generic[T]):
     ) -> None:
         game_path = game_path or locator.game_path
         logger.debug(f'game_path: {game_path}')
-        if not game_path:
-            raise NoGameFoundError('Could not find game path')
-        self.game_path = game_path
-        
+        # 无游戏本体也可使用：game_path 允许为 None，此时文本显示降级为 ID。
+        self.game_path: str|None = game_path
+
         self.__save_path: str|None = None
-        
+
         self.__preside_data: T|None = None
-        self.__text_unpacker = TextUnpacker(self.game_path, language)
+        self.__text_unpacker: TextUnpacker|None = None
+        if self.game_path:
+            try:
+                self.__text_unpacker = TextUnpacker(self.game_path, language)
+            except Exception as e:
+                logger.warning(f'TextUnpacker init failed ({e}), fallback to ID display.')
+                self.__text_unpacker = None
         self.__current_language: Language = 'en'
         
         self.selected_slot: int = 0
@@ -269,6 +274,42 @@ class SaveEditor(Generic[T]):
         return self.__save_path
     
     @property
+    def has_texts(self) -> bool:
+        """是否有游戏文本可用于显示标题/章节名。无游戏本体时为 False，此时降级显示 ID。"""
+        return self.__text_unpacker is not None
+
+    def set_game_path(self, game_path: str|None) -> None:
+        """设置/清除游戏路径并尝试（重）加载文本。失败则降级为 ID 显示，不抛错。"""
+        self.game_path = game_path
+        if game_path:
+            try:
+                self.__text_unpacker = TextUnpacker(game_path, self.__current_language)
+                return
+            except Exception as e:
+                logger.warning(f'TextUnpacker reload failed ({e}), fallback to ID display.')
+        self.__text_unpacker = None
+
+    def _title_text(self, id: TitleTextID, line: int = 0, fallback: str = '') -> str:
+        if self.__text_unpacker is not None:
+            try:
+                text = self.__text_unpacker.get_text(id, line)
+                if text:
+                    return text
+            except Exception as e:
+                logger.warning(f'get title text failed ({e})')
+        return fallback
+
+    def _save_text(self, id: SaveTextID, line: int = 0, fallback: str = '') -> str:
+        if self.__text_unpacker is not None:
+            try:
+                text = self.__text_unpacker.get_text(id, line)
+                if text:
+                    return text
+            except Exception as e:
+                logger.warning(f'get save text failed ({e})')
+        return fallback
+
+    @property
     def editor_language(self) -> Language:
         """
         编辑器语言。修改后当前选中的存档槽位会被重置为 0。
@@ -281,8 +322,14 @@ class SaveEditor(Generic[T]):
             lang_id = language
             language = lang_id2lang(lang_id)
         self.__current_language = language
-        self.__text_unpacker = TextUnpacker(self.game_path, language)
-        self.select_slot(0)    
+        if self.game_path:
+            try:
+                self.__text_unpacker = TextUnpacker(self.game_path, language)
+            except Exception as e:
+                logger.warning(f'TextUnpacker reload failed ({e}), fallback to ID display.')
+                self.__text_unpacker = None
+        if self.__preside_data is not None:
+            self.select_slot(0)    
     
     @property
     def editor_language_id(self) -> int:
@@ -488,26 +535,41 @@ class SaveEditor(Generic[T]):
             scenario_number = 0
             
             if time != '':
-                # title
-                title = self.__text_unpacker.get_text(TitleTextID.TITLE_NAME, slot.title)
-                
-                # title number
+                # title number（无需游戏文本）
                 title_number = slot.title + 1
-                
-                # scenario
+
+                # title（有文本用文本，无则降级显示 ID）
+                title = self._title_text(
+                    TitleTextID.TITLE_NAME, slot.title,
+                    fallback=f'Game {title_number}',
+                )
+
+                # scenario（有文本用文本，无则降级显示 ID）
                 if slot.title == TitleId.GS2 and slot.scenario >= 4:
                     scenario = ''
                 else:
                     if slot.title == TitleId.GS1:
-                        scenario = self.__text_unpacker.get_text(TitleTextID.GS1_SCENARIO_NAME, slot.scenario)
+                        scenario_name = self._title_text(
+                            TitleTextID.GS1_SCENARIO_NAME, slot.scenario,
+                            fallback=f'Scenario {slot.scenario + 1}',
+                        )
                     elif slot.title == TitleId.GS2:
-                        scenario = self.__text_unpacker.get_text(TitleTextID.GS2_SCENARIO_NAME, slot.scenario)
+                        scenario_name = self._title_text(
+                            TitleTextID.GS2_SCENARIO_NAME, slot.scenario,
+                            fallback=f'Scenario {slot.scenario + 1}',
+                        )
                     elif slot.title == TitleId.GS3:
-                        scenario = self.__text_unpacker.get_text(TitleTextID.GS3_SCENARIO_NAME, slot.scenario)
+                        scenario_name = self._title_text(
+                            TitleTextID.GS3_SCENARIO_NAME, slot.scenario,
+                            fallback=f'Scenario {slot.scenario + 1}',
+                        )
                     else:
-                        scenario = ''
-                    episode = self.__text_unpacker.get_text(TitleTextID.EPISODE_NUMBER, slot.scenario)
-                    scenario = f'{episode} {scenario}'
+                        scenario_name = f'Scenario {slot.scenario + 1}'
+                    episode = self._title_text(
+                        TitleTextID.EPISODE_NUMBER, slot.scenario,
+                        fallback=f'EP{slot.scenario + 1}',
+                    )
+                    scenario = f'{episode} {scenario_name}'
                 
                 # scenario number
                 scenario_number = slot.scenario + 1
@@ -543,8 +605,11 @@ class SaveEditor(Generic[T]):
                             in_text_id = 43
                         else:
                             in_text_id = 17 + in_progress
-                    
-                    return self.__text_unpacker.get_text(SaveTextID(in_text_id), 0)
+
+                    return self._save_text(
+                        SaveTextID(in_text_id), 0,
+                        fallback=f'Progress {in_progress}',
+                    )
                 progress = get_progress_text(slot.title, slot.progress)
             else:
                 title = ''
