@@ -334,71 +334,82 @@ class FrameMainImpl(FrameMain):
             editor.save(xbox_path)
             wx.MessageBox(_(u'导入成功'), _(u'提示'), wx.OK | wx.ICON_INFORMATION)
 
-    def mi_xbox_file2steam_file_on_choice(self, event):
-        """读入 Xbox 存档文件，转换为 Steam 存档文件，然后保存到指定位置"""
-        with wx.FileDialog(self, _(u"打开 Xbox 存档文件"), wildcard=f"{_(u'存档文件')} (*.*)|*.*", style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST) as openDialog:
+    def __convert_file_to_file(self, source_type: SaveType, target_type: SaveType):
+        """
+        读入指定类型的存档文件，转换为目标类型的存档文件，然后保存到指定位置。
+
+        :param source_type: 源存档类型
+        :param target_type: 目标存档类型
+        """
+        type_names = {
+            SaveType.STEAM: _(u'Steam'),
+            SaveType.XBOX: _(u'Xbox'),
+            SaveType.MOBILE: _(u'Android'),
+        }
+        source_name = type_names[source_type]
+        target_name = type_names[target_type]
+        with wx.FileDialog(self, _(u"打开 %s 存档文件") % source_name, wildcard=f"{_(u'存档文件')} (*.*)|*.*", style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST) as openDialog:
             if openDialog.ShowModal() == wx.ID_CANCEL:
                 return
             input_path = openDialog.GetPath()
 
-            # 加载 Xbox 存档文件
+            # 加载存档文件
             try:
                 editor = SaveEditor() # 无需 save_hook
                 editor.load(input_path)
 
-                # 检查是否为 Xbox 存档
-                if editor.save_type != SaveType.XBOX:
-                    wx.MessageBox(_(u'选择的文件不是 Xbox 存档文件'), _(u'错误'), wx.OK | wx.ICON_ERROR)
+                # 检查存档类型
+                if editor.save_type != source_type:
+                    wx.MessageBox(_(u'选择的文件不是 %s 存档文件') % source_name, _(u'错误'), wx.OK | wx.ICON_ERROR)
                     return
 
-                # 转换为 Steam 存档
-                steam_editor = editor.convert(SaveType.STEAM)
+                # Android 转为 Steam 时，与 Xbox 转换一样写入本机 Steam 账号 ID
+                if source_type == SaveType.MOBILE and target_type == SaveType.STEAM:
+                    if len(locator.system_steam_save_path) == 0:
+                        wx.MessageBox(_(u'未找到 Steam 存档文件'), _(u'错误'), wx.OK | wx.ICON_ERROR)
+                        return
+                    steam_id, __ = locator.system_steam_save_path[0]
+                    editor.set_account_id(int(steam_id))
+
+                # 转换存档类型
+                new_editor = editor.convert(target_type)
 
                 # 选择保存位置
-                with wx.FileDialog(self, _(u"保存 Steam 存档文件"), wildcard=f"{_(u'存档文件')} (*.*)|*.*", style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT) as saveDialog:
+                with wx.FileDialog(self, _(u"保存 %s 存档文件") % target_name, wildcard=f"{_(u'存档文件')} (*.*)|*.*", style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT) as saveDialog:
                     if saveDialog.ShowModal() == wx.ID_CANCEL:
                         return
                     output_path = saveDialog.GetPath()
 
                     # 保存转换后的存档
-                    steam_editor.save(output_path)
+                    new_editor.save(output_path)
                     wx.MessageBox(_(u'转换成功'), _(u'提示'), wx.OK | wx.ICON_INFORMATION)
 
             except Exception as e:
                 wx.MessageBox(_(u'转换失败：') + str(e), _(u'错误'), wx.OK | wx.ICON_ERROR)
+
+    def mi_xbox_file2steam_file_on_choice(self, event):
+        """读入 Xbox 存档文件，转换为 Steam 存档文件，然后保存到指定位置"""
+        self.__convert_file_to_file(SaveType.XBOX, SaveType.STEAM)
 
     def mi_steam_file2_xbox_file_on_choice(self, event):
         """读入 Steam 存档文件，转换为 Xbox 存档文件，然后保存到指定位置"""
-        with wx.FileDialog(self, _(u"打开 Steam 存档文件"), wildcard=f"{_(u'存档文件')} (*.*)|*.*", style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST) as openDialog:
-            if openDialog.ShowModal() == wx.ID_CANCEL:
-                return
-            input_path = openDialog.GetPath()
+        self.__convert_file_to_file(SaveType.STEAM, SaveType.XBOX)
 
-            # 加载 Steam 存档文件
-            try:
-                editor = SaveEditor() # 无需 save_hook
-                editor.load(input_path)
+    def mi_android_file2steam_file_on_choice(self, event):
+        """读入 Android 存档文件，转换为 Steam 存档文件，然后保存到指定位置"""
+        self.__convert_file_to_file(SaveType.MOBILE, SaveType.STEAM)
 
-                # 检查是否为 Steam 存档
-                if editor.save_type != SaveType.STEAM:
-                    wx.MessageBox(_(u'选择的文件不是 Steam 存档文件'), _(u'错误'), wx.OK | wx.ICON_ERROR)
-                    return
+    def mi_steam_file2_android_file_on_choice(self, event):
+        """读入 Steam 存档文件，转换为 Android 存档文件，然后保存到指定位置"""
+        self.__convert_file_to_file(SaveType.STEAM, SaveType.MOBILE)
 
-                # 转换为 Xbox 存档
-                xbox_editor = editor.convert(SaveType.XBOX)
+    def mi_android_file2xbox_file_on_choice(self, event):
+        """读入 Android 存档文件，转换为 Xbox 存档文件，然后保存到指定位置"""
+        self.__convert_file_to_file(SaveType.MOBILE, SaveType.XBOX)
 
-                # 选择保存位置
-                with wx.FileDialog(self, _(u"保存 Xbox 存档文件"), wildcard=f"{_(u'存档文件')} (*.*)|*.*", style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT) as saveDialog:
-                    if saveDialog.ShowModal() == wx.ID_CANCEL:
-                        return
-                    output_path = saveDialog.GetPath()
-
-                    # 保存转换后的存档
-                    xbox_editor.save(output_path)
-                    wx.MessageBox(_(u'转换成功'), _(u'提示'), wx.OK | wx.ICON_INFORMATION)
-
-            except Exception as e:
-                wx.MessageBox(_(u'转换失败：') + str(e), _(u'错误'), wx.OK | wx.ICON_ERROR)
+    def mi_xbox_file2android_file_on_choice(self, event):
+        """读入 Xbox 存档文件，转换为 Android 存档文件，然后保存到指定位置"""
+        self.__convert_file_to_file(SaveType.XBOX, SaveType.MOBILE)
 
     def mi_save_as_on_select(self, event):
         with wx.FileDialog(self, _(u"保存存档文件"), wildcard=f"{_(u'存档文件')} (*.*)|*.*", style=wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT) as fileDialog:

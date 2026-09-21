@@ -7,11 +7,12 @@ from gettext import gettext as _
 from app.exceptions import NoGameFoundError, NoOpenSaveFileError
 from app.structs.steam import PresideData, GameData
 from app.structs.xbox import PresideDataXbox
+from app.structs.mobile import PresideDataMobile
 from app.deserializer.types import Int32, Int16, UInt16, UInt8, Int8, is_struct, FixedString
 from app.unpack import TextUnpacker, TitleTextID, SaveTextID, Language, Language_
-from app.editor.locator import STEAM_SAVE_LENGTH, XBOX_SAVE_LENGTH
+from app.editor.locator import STEAM_SAVE_LENGTH, XBOX_SAVE_LENGTH, MOBILE_SAVE_LENGTH
 import app.editor.locator as locator
-from app.structs.conventor import xbox2steam, steam2xbox
+from app.structs.conventor import xbox2steam, steam2xbox, xbox2mobile, mobile2xbox, steam2mobile, mobile2steam
 
 from logging import getLogger
 logger = getLogger(__name__)
@@ -25,6 +26,8 @@ class SaveType(IntEnum):
     UNKNOWN = -1
     STEAM = 0
     XBOX = 1
+    MOBILE = 2
+    """Android 移动版"""
 
 
 def lang2lang_id(language: Language) -> int:
@@ -165,7 +168,7 @@ class SaveEditorDialog:
             raise ValueError('Text too long')
         self.editor.preside_data.slot_list_[self.editor.selected_slot].msg_data_.msg_line03 = FixedString[Literal[512]](buff)
 
-T = TypeVar('T', PresideData, PresideDataXbox)
+T = TypeVar('T', PresideData, PresideDataXbox, PresideDataMobile)
 PreSaveCallback = Callable[['SaveEditor', T], bool]
 class SaveEditor(Generic[T]):
     def __init__(
@@ -225,6 +228,8 @@ class SaveEditor(Generic[T]):
             return SaveType.STEAM
         elif is_struct(self.__preside_data, PresideDataXbox):
             return SaveType.XBOX
+        elif is_struct(self.__preside_data, PresideDataMobile):
+            return SaveType.MOBILE
         else:
             return SaveType.UNKNOWN
     
@@ -304,6 +309,8 @@ class SaveEditor(Generic[T]):
             self.__preside_data = cast(T, PresideData.from_file(self.__save_path))
         elif size == XBOX_SAVE_LENGTH:
             self.__preside_data = cast(T, PresideDataXbox.from_file(self.__save_path))
+        elif size == MOBILE_SAVE_LENGTH:
+            self.__preside_data = cast(T, PresideDataMobile.from_file(self.__save_path))
         else:
             raise ValueError('Invalid save file')
         
@@ -353,6 +360,8 @@ class SaveEditor(Generic[T]):
             PresideData.to_file(self.__preside_data, save_file_path)
         elif is_struct(self.__preside_data, PresideDataXbox):
             PresideDataXbox.to_file(self.__preside_data, save_file_path)
+        elif is_struct(self.__preside_data, PresideDataMobile):
+            PresideDataMobile.to_file(self.__preside_data, save_file_path)
         else:
             raise ValueError('Invalid save data')
     
@@ -372,8 +381,16 @@ class SaveEditor(Generic[T]):
                 )
                 editor.load(xbox2steam(self.__preside_data))
                 return editor
+            elif is_struct(self.__preside_data, PresideDataMobile):
+                editor = SaveEditor[PresideData](
+                    self.game_path,
+                    None,
+                    self.editor_language
+                )
+                editor.load(mobile2steam(self.__preside_data))
+                return editor
             else:
-                raise ValueError('Expected Xbox save data, got Steam save data')
+                raise ValueError('Expected Xbox or Mobile save data, got Steam save data')
         elif target == SaveType.XBOX:
             if is_struct(self.__preside_data, PresideData):
                 editor = SaveEditor[PresideDataXbox](
@@ -384,8 +401,35 @@ class SaveEditor(Generic[T]):
                 editor.load(steam2xbox(self.__preside_data))
                 return editor
                 # self.__preside_data = steam2xbox(self.__preside_data)
+            elif is_struct(self.__preside_data, PresideDataMobile):
+                editor = SaveEditor[PresideDataXbox](
+                    self.game_path,
+                    None,
+                    self.editor_language
+                )
+                editor.load(mobile2xbox(self.__preside_data))
+                return editor
             else:
-                raise ValueError('Expected Steam save data, got Xbox save data')
+                raise ValueError('Expected Steam or Mobile save data, got Xbox save data')
+        elif target == SaveType.MOBILE:
+            if is_struct(self.__preside_data, PresideData):
+                editor = SaveEditor[PresideDataMobile](
+                    self.game_path,
+                    None,
+                    self.editor_language
+                )
+                editor.load(steam2mobile(self.__preside_data))
+                return editor
+            elif is_struct(self.__preside_data, PresideDataXbox):
+                editor = SaveEditor[PresideDataMobile](
+                    self.game_path,
+                    None,
+                    self.editor_language
+                )
+                editor.load(xbox2mobile(self.__preside_data))
+                return editor
+            else:
+                raise ValueError('Expected Steam or Xbox save data, got Mobile save data')
         else:
             raise ValueError('Invalid target save type')
     

@@ -3,7 +3,7 @@
 ## Features
 Basic features:
 * Import and export save files
-* Convert save files between Steam and Xbox
+* Convert save files between Steam, Xbox, and Android
 (According to community feedback, Xbox save files have the same format as Switch save files, so Steam and Switch save files can also be converted. However, you need to handle the Switch save file import/export issues yourself.)
 * Unlock chapters
 * Modify health in court
@@ -36,6 +36,24 @@ See the "Convert" menu.
 
 ### Convert Xbox/Steam Save Files
 See the "Convert" menu.
+
+### Convert Android Save Files
+The Android save file is located at `/sdcard/Android/data/jp.co.capcom.gyakusai123/files/savedata/systemdata`.
+
+> [!IMPORTANT]
+> The Android build is behind the PC build, so their save formats differ.
+> Conversion handles compatibility automatically and no obvious issues were found in testing. But it is still recommended to **back up the original file before converting or overwriting a save**.
+
+<details>
+
+<summary>Technical details</summary>
+
+As of September 20, 2026, the Android release has not received the game's latest major update, so its save format is behind the other platforms. The Android save version is `0x1001`, while the Steam save version is `0x1002`. An older game rejects a save whose version is newer than its own.
+
+* Steam/Xbox → Android: the editor downgrades the target save to `0x1001` and removes account IDs, newer feature flags, and other data unsupported by the target platform.
+* The older Android release supports only the original seven languages. Saves using the newly added Brazilian Portuguese or Latin American Spanish automatically fall back to English during conversion.
+* Android → Steam/Xbox: the editor preserves the older Android version number so that the newer game can run its own migration. After importing, launch the game and save normally once.
+</details>
 
 ### Unlock Chapters
 1. Open any save file from the "File" menu

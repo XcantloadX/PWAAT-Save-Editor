@@ -4,6 +4,7 @@ from copy import deepcopy
 from .save_editor import SaveEditor, SaveType
 from app.structs.steam import PresideData, GameData, SaveData
 from app.structs.xbox import PresideDataXbox, GameDataXbox
+from app.structs.mobile import PresideDataMobile
 from app.exceptions import IncompatibleSlotError
 
 def is_steam_editor(editor: SaveEditor) -> TypeGuard[SaveEditor[PresideData]]:
@@ -28,16 +29,29 @@ def is_xbox_editor(editor: SaveEditor) -> TypeGuard[SaveEditor[PresideDataXbox]]
     else:
         return get_args(editor)[0] == PresideDataXbox
 
+def is_mobile_editor(editor: SaveEditor) -> TypeGuard[SaveEditor[PresideDataMobile]]:
+    if not isinstance(editor, SaveEditor):
+        return False
+    if not get_args(editor):
+        try:
+            return editor.save_type == SaveType.MOBILE
+        except:
+            return False
+    else:
+        return get_args(editor)[0] == PresideDataMobile
+
 def is_same_slot_type(editor1: SaveEditor, editor2: SaveEditor) -> bool:
     if is_steam_editor(editor1) and is_steam_editor(editor2):
         return True
     if is_xbox_editor(editor1) and is_xbox_editor(editor2):
         return True
+    if is_mobile_editor(editor1) and is_mobile_editor(editor2):
+        return True
     return False
 
 
 
-T = TypeVar('T', PresideData, PresideDataXbox)
+T = TypeVar('T', PresideData, PresideDataXbox, PresideDataMobile)
 class SlotEditor(Generic[T]):
     def __init__(self, editor: SaveEditor[T]) -> None:
         self.__editor = editor
@@ -101,6 +115,10 @@ class SlotEditor(Generic[T]):
         elif is_xbox_editor(self.__editor):
             slot_list = self.__editor.preside_data.slot_list_
             slot_list[index] = GameDataXbox.new()
+        elif is_mobile_editor(self.__editor):
+            # 移动版的 GameData 与 Xbox 版结构相同
+            slot_list = self.__editor.preside_data.slot_list_
+            slot_list[index] = GameDataXbox.new()
     
     def copy_to(self, index: int, target_save: 'SlotEditor', target_index: int):
         """
@@ -146,6 +164,10 @@ class SlotEditor(Generic[T]):
             slot_list = self.__editor.preside_data.slot_list_ # make pylance happy
             slot_list[index] = GameData.new()
         elif is_xbox_editor(self.__editor):
+            slot_list = self.__editor.preside_data.slot_list_
+            slot_list[index] = GameDataXbox.new()
+        elif is_mobile_editor(self.__editor):
+            # 移动版的 GameData 与 Xbox 版结构相同
             slot_list = self.__editor.preside_data.slot_list_
             slot_list[index] = GameDataXbox.new()
     

@@ -21,6 +21,8 @@ def _read_reg(ep, p = r"", k = ''):
 
 STEAM_SAVE_LENGTH = 1496880
 XBOX_SAVE_LENGTH = 1492008
+MOBILE_SAVE_LENGTH = 1492016
+"""Android 移动版存档长度（`files/savedata/systemdata`）。"""
 XBOX_APP_NAME = 'F024294D.PhoenixWrightAceAttorneyTrilogy_8fty0by30jkny'
 STEAM_APP_NAME = 'Steam App 787480'
 

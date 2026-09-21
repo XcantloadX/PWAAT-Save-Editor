@@ -685,6 +685,66 @@ msgstr "Error"
 msgid "韩语"
 msgstr "Korean"
 
+#: app\native_ui\implement.py:347
+msgid "Android"
+msgstr "Android"
+
+#: app\native_ui\implement.py:345
+msgid "Steam"
+msgstr "Steam"
+
+#: app\native_ui\implement.py:346
+msgid "Xbox"
+msgstr "Xbox"
+
+#: app\native_ui\implement.py:378
+#, python-format
+msgid "保存 %s 存档文件"
+msgstr "Save %s save file"
+
+#: app\native_ui\implement.py:175 app\native_ui\implement.py:267
+#: app\native_ui\implement.py:285 app\native_ui\implement.py:300
+#: app\native_ui\implement.py:319 app\native_ui\implement.py:351
+#: app\native_ui\implement.py:378 app\native_ui\implement.py:415
+#: app\native_ui\implement.py:649
+msgid "存档文件"
+msgstr "Save file"
+
+#: app\native_ui\implement.py:496 app\native_ui\implement.py:500
+#: app\native_ui\implement.py:509 app\native_ui\implement.py:513
+msgid "所有文件"
+msgstr "All files"
+
+#: app\native_ui\implement.py:351
+#, python-format
+msgid "打开 %s 存档文件"
+msgstr "Open %s save file"
+
+#: app\native_ui\form.py:329
+msgid "文件（Android）→ 文件（Steam）..."
+msgstr "File(Android) → File(Steam)..."
+
+#: app\native_ui\form.py:335
+msgid "文件（Android）→ 文件（Xbox）..."
+msgstr "File(Android) → File(Xbox)..."
+
+#: app\native_ui\form.py:332
+msgid "文件（Steam）→ 文件（Android）..."
+msgstr "File(Steam) → File(Android)..."
+
+#: app\native_ui\form.py:338
+msgid "文件（Xbox）→ 文件（Android）..."
+msgstr "File(Xbox) → File(Android)..."
+
+#: app\native_ui\implement.py:388
+msgid "转换失败："
+msgstr "Conversion failed: "
+
+#: app\native_ui\implement.py:363
+#, python-format
+msgid "选择的文件不是 %s 存档文件"
+msgstr "The selected file is not a %s save file."
+
 #~ msgid "此操作将会覆盖当前 Steam 存档文件，是否继续？"
 #~ msgstr "Current Steam save will be overwritten. Continue?"
 
